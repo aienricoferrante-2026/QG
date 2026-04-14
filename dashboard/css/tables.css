@@ -1,0 +1,17 @@
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+thead { position: sticky; top: 0; z-index: 1; }
+th {
+  text-align: left; padding: 8px 10px; background: var(--card2); color: var(--text2);
+  font-weight: 600; font-size: 10px; text-transform: uppercase; letter-spacing: .5px;
+  cursor: pointer; user-select: none; white-space: nowrap; border-bottom: 1px solid var(--border);
+}
+th:hover { color: var(--accent); }
+th.sorted-asc::after { content: ' \25B2'; font-size: 8px; }
+th.sorted-desc::after { content: ' \25BC'; font-size: 8px; }
+td { padding: 7px 10px; border-bottom: 1px solid rgba(30,42,66,.5); }
+tr:hover td { background: rgba(59,130,246,.04); }
+tr.clickable { cursor: pointer; }
+tr.clickable:hover td { background: rgba(59,130,246,.08); }
+.text-right { text-align: right; }
+.text-center { text-align: center; }
+.tbl-scroll { max-height: 400px; overflow-y: auto; }

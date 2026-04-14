@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Formazione Commesse - Qualifica Group</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/tables.css">
+  <link rel="stylesheet" href="css/modal.css">
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-brand"><h2>Qualifica Group</h2><p>Dashboard Formazione v1</p></div>
+  <div class="nav-group">
+    <div class="nav-group-label">Overview</div>
+    <a class="nav-item active" data-sec="executive" onclick="showSec('executive')"><span class="nav-icon">&#9632;</span>Executive Summary</a>
+    <a class="nav-item" data-sec="ricavi" onclick="showSec('ricavi')"><span class="nav-icon">&#8364;</span>Ricavi & MOL</a>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-label">Formazione</div>
+    <a class="nav-item" data-sec="corsi" onclick="showSec('corsi')"><span class="nav-icon">&#9654;</span>Corsi</a>
+    <a class="nav-item" data-sec="responsabili" onclick="showSec('responsabili')"><span class="nav-icon">&#9881;</span>Responsabili</a>
+    <a class="nav-item" data-sec="clienti" onclick="showSec('clienti')"><span class="nav-icon">&#9673;</span>Clienti / Enti</a>
+    <a class="nav-item" data-sec="sedi" onclick="showSec('sedi')"><span class="nav-icon">&#9660;</span>Sedi</a>
+    <a class="nav-item" data-sec="analisiCliente" onclick="showSec('analisiCliente')"><span class="nav-icon">&#9776;</span>Analisi Cliente</a>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-label">Stato</div>
+    <a class="nav-item" data-sec="avanzamento" onclick="showSec('avanzamento')"><span class="nav-icon">&#9202;</span>Avanzamento</a>
+    <a class="nav-item" data-sec="alert" onclick="showSec('alert')"><span class="nav-icon">&#9888;</span>Alert</a>
+  </div>
+</nav>
+
+<!-- MAIN CONTENT -->
+<main class="main">
+  <div class="header">
+    <div>
+      <h1>Dashboard Formazione Commesse</h1>
+      <div class="header-sub">Qualifica Group &middot; Agg. 13 Aprile 2026 &middot; 1.352 commesse</div>
+    </div>
+  </div>
+
+  <!-- Global Filters -->
+  <div class="filters">
+    <div class="filter-group"><label>Status</label><div class="ms-wrap" id="fStatus"></div></div>
+    <div class="filter-group"><label>Stato Corso</label><div class="ms-wrap" id="fCorso"></div></div>
+    <div class="filter-group"><label>Cliente</label><div class="ms-wrap" id="fCliente"></div></div>
+    <div class="filter-group"><label>Societa</label><div class="ms-wrap" id="fSocieta"></div></div>
+    <div class="filter-group"><label>Responsabile</label><div class="ms-wrap" id="fResp"></div></div>
+    <div class="filter-group"><label>Corso</label><div class="ms-wrap" id="fTipoCorso"></div></div>
+    <div class="filter-group"><label>Classe</label><div class="ms-wrap" id="fClasse"></div></div>
+    <button class="filter-reset" onclick="resetFilters()">Reset</button>
+  </div>
+
+  <!-- Active Filter Chips -->
+  <div id="activeFilters" class="active-filters"></div>
+
+  <!-- Filtered KPIs -->
+  <div id="filteredKpis" class="kpi-grid"></div>
+
+  <!-- Sections -->
+  <div id="sec-executive"></div>
+  <div id="sec-ricavi" class="hidden"></div>
+  <div id="sec-corsi" class="hidden"></div>
+  <div id="sec-responsabili" class="hidden"></div>
+  <div id="sec-clienti" class="hidden"></div>
+  <div id="sec-sedi" class="hidden"></div>
+  <div id="sec-avanzamento" class="hidden"></div>
+  <div id="sec-alert" class="hidden"></div>
+  <div id="sec-analisiCliente" class="hidden"></div>
+</main>
+
+<!-- Drill-Down Modal -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modalTitle">Dettaglio</h3>
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<!-- Scripts (v2 cache-bust) -->
+<script src="../shared/multiselect.js?v=1"></script>
+<script src="js/utils.js?v=3"></script>
+<script src="js/tables.js?v=3"></script>
+<script src="js/charts.js?v=3"></script>
+<script src="js/drilldown.js?v=3"></script>
+<script src="js/filters.js?v=3"></script>
+<script src="js/kpis.js?v=3"></script>
+<script src="js/sections-overview.js?v=3"></script>
+<script src="js/sections-corsi.js?v=3"></script>
+<script src="js/sections-finance.js?v=3"></script>
+<script src="js/app.js?v=3"></script>
+
+</body>
+</html>

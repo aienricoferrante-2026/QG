@@ -1,0 +1,18 @@
+:root {
+  --bg: #0a0e1a;
+  --sidebar: #0f1629;
+  --card: #141b2d;
+  --card2: #1a2235;
+  --border: #1e2a42;
+  --accent: #3b82f6;
+  --accent2: #8b5cf6;
+  --accent3: #10b981;
+  --accent4: #f59e0b;
+  --text: #e2e8f0;
+  --text2: #64748b;
+  --text3: #475569;
+  --danger: #ef4444;
+  --success: #22c55e;
+  --warning: #eab308;
+  --pink: #ec4899;
+}

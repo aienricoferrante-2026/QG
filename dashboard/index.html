@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Commesse ISO - Qualifica Group</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/tables.css">
+  <link rel="stylesheet" href="css/modal.css">
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-brand"><h2>Qualifica Group</h2><p>Dashboard ISO v2</p></div>
+  <div class="nav-group">
+    <div class="nav-group-label">Overview</div>
+    <a class="nav-item active" onclick="showSec('executive')"><span class="nav-icon">&#9632;</span>Executive Summary</a>
+    <a class="nav-item" onclick="showSec('fatturato')"><span class="nav-icon">&#8364;</span>Fatturato</a>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-label">Team</div>
+    <a class="nav-item" onclick="showSec('agenti')"><span class="nav-icon">&#9654;</span>Commerciali</a>
+    <a class="nav-item" onclick="showSec('responsabili')"><span class="nav-icon">&#9654;</span>Responsabili</a>
+    <a class="nav-item" onclick="showSec('carico')"><span class="nav-icon">&#9881;</span>Carico Lavoro</a>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-label">Business</div>
+    <a class="nav-item" onclick="showSec('contratti')"><span class="nav-icon">&#9670;</span>Contratti ISO</a>
+    <a class="nav-item" onclick="showSec('pagamenti')"><span class="nav-icon">&#9679;</span>Pagamenti & Pipeline</a>
+    <a class="nav-item" onclick="showSec('crosstab')"><span class="nav-icon">&#9878;</span>Status vs Pagamento</a>
+    <a class="nav-item" onclick="showSec('funnel')"><span class="nav-icon">&#9660;</span>Funnel</a>
+    <a class="nav-item" onclick="showSec('geografia')"><span class="nav-icon">&#9673;</span>Geografia</a>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-label">Intelligence</div>
+    <a class="nav-item" onclick="showSec('crosssell')"><span class="nav-icon">&#10010;</span>Cross-Sell</a>
+    <a class="nav-item" onclick="showSec('retention')"><span class="nav-icon">&#8634;</span>Retention</a>
+    <a class="nav-item" onclick="showSec('aging')"><span class="nav-icon">&#9202;</span>Aging</a>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-label">Forecast</div>
+    <a class="nav-item" onclick="showSec('focus2026')"><span class="nav-icon">&#9733;</span>Focus 2026</a>
+    <a class="nav-item" onclick="showSec('alert')"><span class="nav-icon">&#9888;</span>Alert</a>
+  </div>
+</nav>
+
+<!-- MAIN CONTENT -->
+<main class="main">
+  <div class="header">
+    <div>
+      <h1>Dashboard Commesse ISO</h1>
+      <div class="header-sub">Qualifica Group srl &middot; Agg. 10 Aprile 2026 &middot; 2022-2026</div>
+    </div>
+  </div>
+
+  <!-- Global Filters -->
+  <div class="filters">
+    <div class="filter-group"><label>Anno</label><div class="ms-wrap" id="fAnno"></div></div>
+    <div class="filter-group"><label>Status</label><div class="ms-wrap" id="fStatus"></div></div>
+    <div class="filter-group"><label>Status Pag.</label><div class="ms-wrap" id="fSpag"></div></div>
+    <div class="filter-group"><label>Stato Lavorazione</label><div class="ms-wrap" id="fSlav"></div></div>
+    <div class="filter-group"><label>Commerciale</label><div class="ms-wrap" id="fAgente"></div></div>
+    <div class="filter-group"><label>Responsabile</label><div class="ms-wrap" id="fResp"></div></div>
+    <div class="filter-group"><label>Regione</label><div class="ms-wrap" id="fRegione"></div></div>
+    <div class="filter-group"><label>Provincia</label><div class="ms-wrap" id="fProv"></div></div>
+    <div class="filter-group"><label>Citta</label><div class="ms-wrap" id="fCitta"></div></div>
+    <div class="filter-group"><label>Contratto</label><div class="ms-wrap" id="fContratto"></div></div>
+    <button class="filter-reset" onclick="resetFilters()">Reset</button>
+  </div>
+
+  <!-- Active Filter Chips -->
+  <div id="activeFilters" class="active-filters"></div>
+
+  <!-- Filtered KPIs -->
+  <div id="filteredKpis" class="kpi-grid"></div>
+
+  <!-- Sections -->
+  <div id="sec-executive"></div>
+  <div id="sec-fatturato" class="hidden"></div>
+  <div id="sec-agenti" class="hidden"></div>
+  <div id="sec-responsabili" class="hidden"></div>
+  <div id="sec-carico" class="hidden"></div>
+  <div id="sec-contratti" class="hidden"></div>
+  <div id="sec-pagamenti" class="hidden"></div>
+  <div id="sec-crosstab" class="hidden"></div>
+  <div id="sec-funnel" class="hidden"></div>
+  <div id="sec-geografia" class="hidden"></div>
+  <div id="sec-crosssell" class="hidden"></div>
+  <div id="sec-retention" class="hidden"></div>
+  <div id="sec-aging" class="hidden"></div>
+  <div id="sec-focus2026" class="hidden"></div>
+  <div id="sec-alert" class="hidden"></div>
+</main>
+
+<!-- Drill-Down Modal -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modalTitle">Dettaglio</h3>
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<!-- Data (loaded from JSON) -->
+<script>let D = {};</script>
+<script src="../shared/multiselect.js?v=1"></script>
+<script src="js/utils.js"></script>
+<script src="js/tables.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/drilldown.js"></script>
+<script src="js/filters.js"></script>
+<script src="js/sections-overview.js"></script>
+<script src="js/sections-business.js"></script>
+<script src="js/sections-intelligence.js"></script>
+<script src="js/app.js"></script>
+<script>
+  // Load data from JSON file
+  fetch('data/commesse.json')
+    .then(r => r.json())
+    .then(data => { D = data; initFilters(); renderFilteredKpis(); renderExecutive(); })
+    .catch(e => {
+      document.querySelector('.main').innerHTML =
+        '<div class="sec" style="text-align:center;padding:60px">' +
+        '<h2 style="color:var(--danger)">Errore caricamento dati</h2>' +
+        '<p style="color:var(--text2);margin-top:8px">Avvia con un server locale:<br>' +
+        '<code style="color:var(--accent)">cd dashboard && python3 -m http.server 8000</code></p></div>';
+    });
+</script>
+
+</body>
+</html>

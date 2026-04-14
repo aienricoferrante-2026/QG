@@ -1,0 +1,7 @@
+*.xlsx
+~$*
+.DS_Store
+.claude/
+dashboard_data.json
+dashboard_commesse_iso.html
+dashboard_offerte.html

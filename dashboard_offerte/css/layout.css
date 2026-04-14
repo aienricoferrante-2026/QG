@@ -1,0 +1,32 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+.header {
+  background: linear-gradient(135deg, #1e3a5f, #2d1b69);
+  padding: 24px 32px;
+  border-bottom: 1px solid var(--border);
+}
+.header h1 { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.5px; }
+.header p { color: var(--text2); font-size: .85rem; margin-top: 4px; }
+
+.container { max-width: 1600px; margin: 0 auto; padding: 20px; }
+
+.charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 900px) {
+  .charts-grid { grid-template-columns: 1fr; }
+  .filters { flex-direction: column; }
+  .filter-group select,
+  .filter-group input { min-width: 100%; }
+}

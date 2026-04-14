@@ -1,0 +1,134 @@
+/* Modal Overlay */
+.modal-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,.6); z-index: 200;
+  display: none; align-items: center; justify-content: center;
+  backdrop-filter: blur(4px);
+}
+.modal-overlay.open { display: flex; }
+
+/* Modal Box */
+.modal {
+  background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+  width: 92%; max-width: 1100px; max-height: 85vh;
+  overflow: hidden; display: flex; flex-direction: column;
+}
+.modal-header {
+  padding: 14px 20px; border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.modal-header h3 { font-size: 15px; font-weight: 600; }
+.modal-close {
+  background: none; border: none; color: var(--text2); font-size: 20px;
+  cursor: pointer; padding: 4px 8px; border-radius: 6px;
+}
+.modal-close:hover { background: var(--card2); color: var(--text); }
+
+/* Modal Body */
+.modal-body { padding: 14px 20px; overflow-y: auto; flex: 1; }
+.modal-body table { font-size: 11px; }
+
+/* Toolbar */
+.modal-toolbar {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 12px;
+}
+.modal-search { flex: 1; }
+.modal-search input {
+  width: 100%; padding: 7px 12px; border-radius: 7px; font-size: 12px;
+  background: var(--card2); color: var(--text); border: 1px solid var(--border);
+}
+.modal-search input:focus { outline: none; border-color: var(--accent); }
+.modal-actions { display: flex; gap: 8px; align-items: center; }
+.btn-export {
+  background: rgba(59,130,246,.12); color: var(--accent); border: 1px solid rgba(59,130,246,.3);
+  padding: 6px 14px; border-radius: 7px; font-size: 11px; font-weight: 600;
+  cursor: pointer; white-space: nowrap;
+}
+.btn-export:hover { background: rgba(59,130,246,.25); }
+
+/* Modal KPIs */
+.modal-kpis { display: flex; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+.modal-kpi {
+  background: var(--card2); padding: 10px 14px; border-radius: 8px;
+  min-width: 100px; flex: 1;
+}
+.modal-kpi .v { font-size: 16px; font-weight: 700; }
+.modal-kpi .l { font-size: 9px; color: var(--text2); text-transform: uppercase; }
+
+/* Modal Filters */
+.modal-filters {
+  display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end;
+  margin-bottom: 12px; padding: 10px 12px;
+  background: var(--card2); border-radius: 8px; border: 1px solid var(--border);
+}
+.modal-filter { display: flex; flex-direction: column; gap: 2px; }
+.modal-filter label {
+  font-size: 8px; color: var(--text3); text-transform: uppercase;
+  letter-spacing: .8px; font-weight: 600;
+}
+.modal-filter select {
+  background: var(--card); color: var(--text); border: 1px solid var(--border);
+  padding: 4px 6px; border-radius: 5px; font-size: 10px; min-width: 120px;
+  max-width: 180px; cursor: pointer;
+}
+.modal-filter-reset {
+  background: none; border: 1px solid var(--border); color: var(--text2);
+  padding: 4px 10px; border-radius: 5px; cursor: pointer; font-size: 10px;
+  margin-left: auto;
+}
+.modal-filter-reset:hover { border-color: var(--accent); color: var(--accent); }
+
+/* Modal Pagination */
+.modal-pagination {
+  display: flex; gap: 6px; justify-content: center;
+  align-items: center; margin-top: 10px; padding-top: 8px;
+}
+.modal-pagination button {
+  background: var(--card2); border: 1px solid var(--border); color: var(--text);
+  padding: 4px 10px; border-radius: 5px; cursor: pointer; font-size: 11px;
+}
+.modal-pagination button:hover { background: var(--accent); }
+.modal-pagination button.active { background: var(--accent); border-color: var(--accent); }
+
+/* Breadcrumb */
+.modal-breadcrumb {
+  display: flex; gap: 4px; align-items: center;
+  padding: 6px 0 10px; font-size: 11px; flex-wrap: wrap;
+}
+.modal-breadcrumb span { color: var(--text2); cursor: pointer; transition: color .15s; }
+.modal-breadcrumb span:hover { color: var(--accent); }
+.modal-breadcrumb .current { color: var(--text); font-weight: 600; cursor: default; }
+.modal-breadcrumb .sep { color: var(--text3); cursor: default; margin: 0 2px; }
+
+/* Back button */
+.btn-back {
+  background: rgba(59,130,246,.1); color: var(--accent); border: 1px solid rgba(59,130,246,.25);
+  padding: 4px 12px; border-radius: 6px; font-size: 11px; font-weight: 600;
+  cursor: pointer; white-space: nowrap; margin-right: 8px;
+}
+.btn-back:hover { background: rgba(59,130,246,.2); }
+
+/* Group bar */
+.group-bar {
+  display: flex; gap: 6px; align-items: center;
+  margin-bottom: 12px; flex-wrap: wrap;
+}
+.group-btn {
+  background: var(--card2); border: 1px solid var(--border); color: var(--text2);
+  padding: 4px 12px; border-radius: 6px; font-size: 10px; font-weight: 600;
+  cursor: pointer; transition: all .15s;
+}
+.group-btn:hover { border-color: var(--accent); color: var(--accent); }
+.group-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+/* Totals row */
+.totals-row { border-top: 2px solid var(--border); }
+.totals-row td { padding-top: 8px !important; }
+
+/* ERP link button */
+.btn-erp {
+  background: rgba(139,92,246,.12); color: var(--accent2); border: 1px solid rgba(139,92,246,.3);
+  padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 600;
+  cursor: pointer; white-space: nowrap;
+}
+.btn-erp:hover { background: rgba(139,92,246,.25); }

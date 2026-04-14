@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Qualifica Group - Dashboard Hub</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#0f172a;color:#f1f5f9;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center}
+  .hub{max-width:720px;width:100%;padding:40px 24px}
+  h1{font-size:28px;margin-bottom:6px}
+  .sub{color:#94a3b8;font-size:13px;margin-bottom:32px}
+  .cards{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  a.card{display:block;background:#1e293b;border:1px solid #334155;border-radius:12px;padding:24px;text-decoration:none;color:#f1f5f9;transition:border-color .2s,transform .2s}
+  a.card:hover{border-color:#3b82f6;transform:translateY(-2px)}
+  .card h2{font-size:17px;margin-bottom:6px}
+  .card p{color:#94a3b8;font-size:12px;line-height:1.5}
+  .card .tag{display:inline-block;font-size:10px;padding:2px 8px;border-radius:4px;margin-top:10px;font-weight:600}
+  .tag-iso{background:#3b82f620;color:#60a5fa}
+  .tag-for{background:#10b98120;color:#34d399}
+  .tag-soa{background:#f59e0b20;color:#fbbf24}
+  .tag-off{background:#8b5cf620;color:#a78bfa}
+</style>
+</head>
+<body>
+<div class="hub">
+  <h1>Qualifica Group</h1>
+  <p class="sub">Seleziona una dashboard</p>
+  <div class="cards">
+    <a class="card" href="dashboard/">
+      <h2>Commesse ISO</h2>
+      <p>Analisi commesse settore certificazioni ISO, ricavi, MOL, sedi, responsabili.</p>
+      <span class="tag tag-iso">ISO</span>
+    </a>
+    <a class="card" href="dashboard_FOR_CM/">
+      <h2>Commesse Formazione</h2>
+      <p>Corsi, stato avanzamento, clienti, enti finanziatori, responsabili.</p>
+      <span class="tag tag-for">FORMAZIONE</span>
+    </a>
+    <a class="card" href="dashboard_SOA_CM/">
+      <h2>Commesse SOA</h2>
+      <p>Analisi commesse settore attestazioni SOA.</p>
+      <span class="tag tag-soa">SOA</span>
+    </a>
+    <a class="card" href="dashboard_offerte/">
+      <h2>Offerte</h2>
+      <p>Pipeline offerte, conversioni, analisi commerciale.</p>
+      <span class="tag tag-off">OFFERTE</span>
+    </a>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard SOA Commesse - Qualifica Group</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/tables.css">
+  <link rel="stylesheet" href="css/modal.css">
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-brand"><h2>Qualifica Group</h2><p>Dashboard SOA v1</p></div>
+  <div class="nav-group">
+    <div class="nav-group-label">Overview</div>
+    <a class="nav-item active" data-sec="executive" onclick="showSec('executive')"><span class="nav-icon">&#9632;</span>Executive Summary</a>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-label">Team</div>
+    <a class="nav-item" data-sec="agenti" onclick="showSec('agenti')"><span class="nav-icon">&#9654;</span>Commerciali</a>
+    <a class="nav-item" data-sec="responsabili" onclick="showSec('responsabili')"><span class="nav-icon">&#9881;</span>Responsabili</a>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-label">SOA & Certificazioni</div>
+    <a class="nav-item" data-sec="soa" onclick="showSec('soa')"><span class="nav-icon">&#9670;</span>SOA Attestanti</a>
+    <a class="nav-item" data-sec="enti" onclick="showSec('enti')"><span class="nav-icon">&#9673;</span>Enti Cert. 9001</a>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-label">Territorio</div>
+    <a class="nav-item" data-sec="citta" onclick="showSec('citta')"><span class="nav-icon">&#9660;</span>Citta</a>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-label">Stato</div>
+    <a class="nav-item" data-sec="avanzamento" onclick="showSec('avanzamento')"><span class="nav-icon">&#9202;</span>Avanzamento</a>
+    <a class="nav-item" data-sec="alert" onclick="showSec('alert')"><span class="nav-icon">&#9888;</span>Alert</a>
+  </div>
+</nav>
+
+<!-- MAIN CONTENT -->
+<main class="main">
+  <div class="header">
+    <div>
+      <h1>Dashboard SOA Commesse</h1>
+      <div class="header-sub">Qualifica Group srl &middot; Agg. 14 Aprile 2026 &middot; 605 commesse SOA</div>
+    </div>
+  </div>
+
+  <!-- Global Filters -->
+  <div class="filters">
+    <div class="filter-group"><label>Status</label><div class="ms-wrap" id="fStatus"></div></div>
+    <div class="filter-group"><label>Stato Lav.</label><div class="ms-wrap" id="fStatoLav"></div></div>
+    <div class="filter-group"><label>Commerciale</label><div class="ms-wrap" id="fAgente"></div></div>
+    <div class="filter-group"><label>Responsabile</label><div class="ms-wrap" id="fResp"></div></div>
+    <div class="filter-group"><label>SOA Attestante</label><div class="ms-wrap" id="fSoa"></div></div>
+    <div class="filter-group"><label>Citta</label><div class="ms-wrap" id="fCitta"></div></div>
+    <button class="filter-reset" onclick="resetFilters()">Reset</button>
+  </div>
+
+  <div id="activeFilters" class="active-filters"></div>
+  <div id="filteredKpis" class="kpi-grid"></div>
+
+  <!-- Sections -->
+  <div id="sec-executive"></div>
+  <div id="sec-agenti" class="hidden"></div>
+  <div id="sec-responsabili" class="hidden"></div>
+  <div id="sec-soa" class="hidden"></div>
+  <div id="sec-enti" class="hidden"></div>
+  <div id="sec-citta" class="hidden"></div>
+  <div id="sec-avanzamento" class="hidden"></div>
+  <div id="sec-alert" class="hidden"></div>
+</main>
+
+<!-- Drill-Down Modal -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modalTitle">Dettaglio</h3>
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<!-- Scripts -->
+<script src="../shared/multiselect.js?v=1"></script>
+<script src="js/utils.js?v=1"></script>
+<script src="js/tables.js?v=1"></script>
+<script src="js/charts.js?v=1"></script>
+<script src="js/drilldown.js?v=1"></script>
+<script src="js/filters.js?v=1"></script>
+<script src="js/kpis.js?v=1"></script>
+<script src="js/sections-overview.js?v=1"></script>
+<script src="js/sections-soa.js?v=1"></script>
+<script src="js/app.js?v=1"></script>
+
+</body>
+</html>
