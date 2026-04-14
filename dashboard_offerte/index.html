@@ -4,129 +4,96 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard Offerte - Qualifica Group</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <link rel="stylesheet" href="css/variables.css">
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/tables.css">
+  <link rel="stylesheet" href="css/modal.css">
 </head>
 <body>
 
-<div class="header">
-  <h1>Dashboard Offerte</h1>
-  <p>Analisi interattiva delle offerte - Qualifica Group</p>
-</div>
-
-<div class="container">
-
-  <!-- Filters -->
-  <div class="filters" id="filters">
-    <div class="filter-group"><label>Stato</label><div class="ms-wrap" id="f-status"></div></div>
-    <div class="filter-group"><label>Categoria</label><div class="ms-wrap" id="f-cat"></div></div>
-    <div class="filter-group"><label>Commerciale</label><div class="ms-wrap" id="f-agente"></div></div>
-    <div class="filter-group"><label>Societa Aziendale</label><div class="ms-wrap" id="f-societa"></div></div>
-    <div class="filter-group"><label>Sede Operativa</label><div class="ms-wrap" id="f-sede"></div></div>
-    <div class="filter-group"><label>Anno</label><div class="ms-wrap" id="f-anno"></div></div>
-    <div class="filter-group">
-      <label>Da</label>
-      <input type="month" id="f-from">
-    </div>
-    <div class="filter-group">
-      <label>A</label>
-      <input type="month" id="f-to">
-    </div>
-    <button class="btn-reset" onclick="resetFilters()">Reset Filtri</button>
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-brand"><h2>Qualifica Group</h2><p>Dashboard Offerte v2</p></div>
+  <div class="nav-group">
+    <div class="nav-group-label">Overview</div>
+    <a class="nav-item active" data-sec="executive" onclick="showSec('executive')"><span class="nav-icon">&#9632;</span>Executive Summary</a>
+    <a class="nav-item" data-sec="pipeline" onclick="showSec('pipeline')"><span class="nav-icon">&#8364;</span>Pipeline & Conversione</a>
   </div>
+  <div class="nav-group">
+    <div class="nav-group-label">Analisi</div>
+    <a class="nav-item" data-sec="agenti" onclick="showSec('agenti')"><span class="nav-icon">&#9881;</span>Commerciali</a>
+    <a class="nav-item" data-sec="categorie" onclick="showSec('categorie')"><span class="nav-icon">&#9654;</span>Categorie</a>
+    <a class="nav-item" data-sec="societa" onclick="showSec('societa')"><span class="nav-icon">&#9673;</span>Societa & Sedi</a>
+    <a class="nav-item" data-sec="trend" onclick="showSec('trend')"><span class="nav-icon">&#9660;</span>Trend Temporale</a>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-label">Dettaglio</div>
+    <a class="nav-item" data-sec="tabella" onclick="showSec('tabella')"><span class="nav-icon">&#9776;</span>Tabella Offerte</a>
+    <a class="nav-item" data-sec="alert" onclick="showSec('alert')"><span class="nav-icon">&#9888;</span>Alert</a>
+  </div>
+</nav>
 
-  <!-- KPIs -->
-  <div class="kpi-row" id="kpis"></div>
-
-  <!-- Charts -->
-  <div class="charts-grid">
-    <div class="chart-card">
-      <h3>Distribuzione per Stato</h3>
-      <div class="chart-container"><canvas id="chartStatus"></canvas></div>
-    </div>
-    <div class="chart-card">
-      <h3>Distribuzione per Categoria</h3>
-      <div class="chart-container"><canvas id="chartCat"></canvas></div>
-    </div>
-    <div class="chart-card full">
-      <h3>Trend Mensile (Valore Offerte)</h3>
-      <div class="chart-container"><canvas id="chartTrend"></canvas></div>
-    </div>
-    <div class="chart-card">
-      <h3>Top 15 Agenti (per Valore)</h3>
-      <div class="chart-container"><canvas id="chartAgenti"></canvas></div>
-    </div>
-    <div class="chart-card">
-      <h3>Top 10 Societa Aziendali (per Valore)</h3>
-      <div class="chart-container"><canvas id="chartSocieta"></canvas></div>
-    </div>
-    <div class="chart-card">
-      <h3>Tasso di Conversione per Categoria</h3>
-      <div class="chart-container"><canvas id="chartConversion"></canvas></div>
-    </div>
-    <div class="chart-card">
-      <h3>Distribuzione Valori Offerte</h3>
-      <div class="chart-container"><canvas id="chartDistrib"></canvas></div>
+<!-- MAIN CONTENT -->
+<main class="main">
+  <div class="header">
+    <div>
+      <h1>Dashboard Offerte</h1>
+      <div class="header-sub">Qualifica Group &middot; Agg. 15 Aprile 2026 &middot; <span id="hdrCount"></span> offerte</div>
     </div>
   </div>
 
-  <!-- Table -->
-  <div class="table-card">
-    <h3>Dettaglio Offerte</h3>
-    <div class="table-controls">
-      <input type="text" class="table-search" id="tableSearch" placeholder="Cerca cliente, tipo, agente...">
-      <div style="display:flex;gap:12px;align-items:center">
-        <label style="color:var(--text2);font-size:.82rem;display:flex;align-items:center;gap:6px">
-          Righe
-          <select id="perPageSelect" class="per-page-select">
-            <option value="25">25</option>
-            <option value="50" selected>50</option>
-            <option value="100">100</option>
-            <option value="200">200</option>
-            <option value="0">Tutte</option>
-          </select>
-        </label>
-        <span id="tableCount" style="color:var(--text2);font-size:.82rem"></span>
-        <button class="export-btn" onclick="exportCSV()">Esporta CSV</button>
-      </div>
-    </div>
-    <div class="table-wrap">
-      <table>
-        <thead><tr>
-          <th onclick="sortTable('id')">ID</th>
-          <th onclick="sortTable('data_full')">Data</th>
-          <th onclick="sortTable('cliente')">Cliente</th>
-          <th onclick="sortTable('tipo')">Tipo / Opportunita</th>
-          <th onclick="sortTable('categoria')">Categoria</th>
-          <th onclick="sortTable('totale')">Totale</th>
-          <th onclick="sortTable('status')">Stato</th>
-          <th onclick="sortTable('agente')">Commerciale</th>
-          <th onclick="sortTable('societa')">Societa</th>
-          <th onclick="sortTable('sede_op')">Sede Operativa</th>
-        </tr></thead>
-        <tbody id="tableBody"></tbody>
-      </table>
-    </div>
-    <div class="pagination" id="pagination"></div>
+  <!-- Global Filters -->
+  <div class="filters">
+    <div class="filter-group"><label>Status</label><div class="ms-wrap" id="fStatus"></div></div>
+    <div class="filter-group"><label>Categoria</label><div class="ms-wrap" id="fCat"></div></div>
+    <div class="filter-group"><label>Commerciale</label><div class="ms-wrap" id="fAgente"></div></div>
+    <div class="filter-group"><label>Societa</label><div class="ms-wrap" id="fSocieta"></div></div>
+    <div class="filter-group"><label>Sede Operativa</label><div class="ms-wrap" id="fSede"></div></div>
+    <div class="filter-group"><label>Anno</label><div class="ms-wrap" id="fAnno"></div></div>
+    <button class="filter-reset" onclick="resetFilters()">Reset</button>
   </div>
 
-  <!-- Campi Dati -->
-  <div class="table-card" id="campiDatiSection"></div>
+  <!-- Active Filter Chips -->
+  <div id="activeFilters" class="active-filters"></div>
 
+  <!-- Filtered KPIs -->
+  <div id="filteredKpis" class="kpi-grid"></div>
+
+  <!-- Sections -->
+  <div id="sec-executive"></div>
+  <div id="sec-pipeline" class="hidden"></div>
+  <div id="sec-agenti" class="hidden"></div>
+  <div id="sec-categorie" class="hidden"></div>
+  <div id="sec-societa" class="hidden"></div>
+  <div id="sec-trend" class="hidden"></div>
+  <div id="sec-tabella" class="hidden"></div>
+  <div id="sec-alert" class="hidden"></div>
+</main>
+
+<!-- Drill-Down Modal -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modalTitle">Dettaglio</h3>
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
 </div>
 
 <!-- Scripts -->
 <script src="../shared/multiselect.js?v=1"></script>
-<script src="js/utils.js"></script>
-<script src="js/charts.js"></script>
-<script src="js/kpis.js"></script>
-<script src="js/filters.js"></script>
-<script src="js/sections.js"></script>
-<script src="js/tables.js"></script>
-<script src="js/app.js"></script>
+<script src="js/utils.js?v=2"></script>
+<script src="js/charts.js?v=2"></script>
+<script src="js/tables.js?v=2"></script>
+<script src="js/drilldown.js?v=1"></script>
+<script src="js/filters.js?v=2"></script>
+<script src="js/kpis.js?v=2"></script>
+<script src="js/sections-overview.js?v=1"></script>
+<script src="js/sections-offerte.js?v=1"></script>
+<script src="js/app.js?v=2"></script>
 
 </body>
 </html>

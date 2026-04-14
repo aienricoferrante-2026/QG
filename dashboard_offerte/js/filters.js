@@ -1,45 +1,58 @@
 /* ── Filter Logic (Multi-Select) ── */
 
 const FILTER_DEFS = [
-  { id: 'f-status', key: 'status', ph: 'Tutti' },
-  { id: 'f-cat', key: 'categoria', ph: 'Tutte' },
-  { id: 'f-agente', key: 'agente', ph: 'Tutti' },
-  { id: 'f-societa', key: 'societa', ph: 'Tutte' },
-  { id: 'f-sede', key: 'sede_op', ph: 'Tutte' },
-  { id: 'f-anno', key: 'anno', ph: 'Tutti', numeric: true }
+  { id: 'fStatus', key: 'status', ph: 'Tutti' },
+  { id: 'fCat', key: 'categoria', ph: 'Tutte' },
+  { id: 'fAgente', key: 'agente', ph: 'Tutti' },
+  { id: 'fSocieta', key: 'societa', ph: 'Tutte' },
+  { id: 'fSede', key: 'sede_op', ph: 'Tutte' },
+  { id: 'fAnno', key: 'anno', ph: 'Tutti' }
 ];
+
+function _norm(v) { return (v && String(v).trim()) ? String(v) : 'N/D'; }
 
 function initFilters() {
   FILTER_DEFS.forEach(f => {
-    let vals;
-    if (f.numeric) vals = [...new Set(DATA.map(d => d[f.key]).filter(y => y > 0))].sort();
-    else vals = [...new Set(DATA.map(d => d[f.key]).filter(v => v && v.trim()))].sort();
-    MultiSelect.create(f.id, vals, f.ph, { onChange: applyFilters });
+    const vals = [...new Set(D.map(c => _norm(c[f.key])))].sort();
+    MultiSelect.create(f.id, vals, f.ph, {
+      onChange: applyFilters,
+      countFn: v => D.filter(c => _norm(c[f.key]) === v).length
+    });
   });
+}
 
-  document.querySelectorAll('.filters input[type=month]')
-    .forEach(el => el.addEventListener('change', applyFilters));
+function rebuildFilterCounts() {
+  FILTER_DEFS.forEach(fd => {
+    const others = FILTER_DEFS.filter(f => f.id !== fd.id);
+    const base = D.filter(c => { for (const o of others) { if (!MultiSelect.matches(o.id, _norm(c[o.key]))) return false; } return true; });
+    const vals = [...new Set(base.map(c => _norm(c[fd.key])))].sort();
+    MultiSelect.updateOptions(fd.id, vals, v => base.filter(c => _norm(c[fd.key]) === v).length);
+  });
 }
 
 function applyFilters() {
-  const ff = document.getElementById('f-from').value;
-  const ft = document.getElementById('f-to').value;
-
-  filtered = DATA.filter(d => {
-    for (const f of FILTER_DEFS) {
-      if (!MultiSelect.matches(f.id, d[f.key])) return false;
-    }
-    if (ff && d.data < ff) return false;
-    if (ft && d.data > ft) return false;
+  filtered = D.filter(c => {
+    for (const f of FILTER_DEFS) { if (!MultiSelect.matches(f.id, _norm(c[f.key]))) return false; }
     return true;
   });
-
-  page = 0;
-  updateAll();
+  rebuildFilterCounts();
+  renderFilteredKpis();
+  renderActiveFilters();
+  renderCurrentSection();
 }
 
-function resetFilters() {
-  MultiSelect.resetAll();
-  document.querySelectorAll('.filters input[type=month]').forEach(i => i.value = '');
-  applyFilters();
+function resetFilters() { MultiSelect.resetAll(); applyFilters(); }
+
+function renderActiveFilters() {
+  const el = document.getElementById('activeFilters');
+  const labels = { fStatus:'Status', fCat:'Categoria', fAgente:'Commerciale', fSocieta:'Societa', fSede:'Sede Op.', fAnno:'Anno' };
+  let h = '';
+  FILTER_DEFS.forEach(f => {
+    const sel = MultiSelect.getSelected(f.id);
+    if (sel.size > 0) {
+      const txt = sel.size === 1 ? [...sel][0] : sel.size + ' sel.';
+      h += '<span class="filter-chip">' + (labels[f.id]||f.id) + ': ' + (txt.length>25?txt.substring(0,23)+'..':txt) + '<span class="chip-x" onclick="MultiSelect.reset(\''+f.id+'\');applyFilters()">×</span></span>';
+    }
+  });
+  el.innerHTML = h;
 }
