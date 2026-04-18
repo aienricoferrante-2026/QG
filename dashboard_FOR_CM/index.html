@@ -9,6 +9,8 @@
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/tables.css">
   <link rel="stylesheet" href="css/modal.css">
+  <link rel="stylesheet" href="../shared/upload.css">
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 </head>
 <body>
 
@@ -54,6 +56,7 @@
     <div class="filter-group"><label>Corso</label><div class="ms-wrap" id="fTipoCorso"></div></div>
     <div class="filter-group"><label>Classe</label><div class="ms-wrap" id="fClasse"></div></div>
     <button class="filter-reset" onclick="resetFilters()">Reset</button>
+    <button class="filter-reset" style="background:rgba(16,185,129,.12);border-color:#10b981;color:#10b981" onclick="exportExcelCessione()" title="Esporta file Excel per cessione del credito">&#8681; Esporta Excel Cessione</button>
   </div>
 
   <!-- Active Filter Chips -->
@@ -96,6 +99,9 @@
 <script src="js/sections-overview.js?v=3"></script>
 <script src="js/sections-corsi.js?v=3"></script>
 <script src="js/sections-finance.js?v=3"></script>
+<script src="js/export-cessione.js?v=1"></script>
+<script src="js/upload-config.js"></script>
+<script src="../shared/upload.js"></script>
 <script src="js/app.js?v=3"></script>
 
 </body>
