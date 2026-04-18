@@ -14,7 +14,8 @@ const SECTIONS = {
   sedi: renderSedi,
   alert: renderAlert,
   analisiCliente: renderAnalisiCliente,
-  cessione: renderCessione
+  cessione: renderCessione,
+  econFin: renderEconFin
 };
 
 function showSec(name) {

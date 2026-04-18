@@ -81,6 +81,95 @@ function _safeSheetName(s) {
   return String(s || 'N_D').replace(/[\\\/\?\*\[\]:]/g, '').substring(0, 31);
 }
 
+/* ── Aggregazione per Società (con o senza Fase) ── */
+function _aggSocieta(items, splitByFase) {
+  const g = {};
+  items.forEach(c => {
+    const soc = (c.societa || 'N/D').trim();
+    const fase = c.status || 'N/D';
+    const k = splitByFase ? (soc + '|||' + fase) : soc;
+    if (!g[k]) g[k] = { soc, fase, items: [] };
+    g[k].items.push(c);
+  });
+  return Object.values(g).map(e => {
+    const arr = e.items;
+    const tot = arr.reduce((s, c) => s + (c.consulenza || 0), 0);
+    const costi = arr.reduce((s, c) => s + (c.costi || 0), 0);
+    const mol = arr.reduce((s, c) => s + (c.mol || 0), 0);
+    const inc = arr.reduce((s, c) => s + (c.giaIncassato || 0), 0);
+    const daInc = arr.reduce((s, c) => s + (c.daIncassare || 0), 0);
+    const dIn = arr.map(c => _parseDate(c.dataInizio)).filter(Boolean).sort((a, b) => a - b);
+    const dFi = arr.map(c => _parseDate(c.dataFine)).filter(Boolean).sort((a, b) => b - a);
+    const minD = dIn[0], maxD = dFi[0];
+    const durata = (minD && maxD) ? Math.max(1, (maxD.getFullYear() - minD.getFullYear()) * 12 + (maxD.getMonth() - minD.getMonth())) : 0;
+    const fmtD = d => d ? (String(d.getDate()).padStart(2, '0') + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + d.getFullYear()) : '';
+    // SAL medio pesato: media dei singoli SAL medi
+    let salSum = 0, salCnt = 0;
+    arr.forEach(c => {
+      const d = _durataCorso(c.dataInizio, c.dataFine);
+      if (d.mesi > 0) { salSum += (c.consulenza / d.mesi); salCnt++; }
+    });
+    const salMedio = salCnt > 0 ? (salSum / salCnt) : 0;
+    const row = {
+      'Debitore Ceduto': e.soc,
+      'Società P.IVA': '',
+    };
+    if (splitByFase) row['Fase'] = e.fase;
+    row['N. Commesse'] = arr.length;
+    row['€ Totale Corsi'] = Math.round(tot * 100) / 100;
+    row['Data Inizio (prima)'] = fmtD(minD);
+    row['Data Fine (ultima)'] = fmtD(maxD);
+    row['Durata Totale (mesi)'] = durata;
+    row['SAL Medio'] = Math.round(salMedio * 100) / 100;
+    row['Costi Totali'] = Math.round(costi * 100) / 100;
+    row['MOL Totale'] = Math.round(mol * 100) / 100;
+    row['Margine %'] = tot ? Math.round(mol / tot * 10000) / 100 : 0;
+    row['Già Incassato'] = Math.round(inc * 100) / 100;
+    row['Da Incassare'] = Math.round(daInc * 100) / 100;
+    return row;
+  }).sort((a, b) => b['€ Totale Corsi'] - a['€ Totale Corsi']);
+}
+
+function _applyColWidthsAgg(ws, withFase) {
+  const base = [
+    { wch: 40 }, // Debitore
+    { wch: 16 }, // P.IVA
+  ];
+  if (withFase) base.push({ wch: 20 }); // Fase
+  base.push(
+    { wch: 14 }, // N. Commesse
+    { wch: 16 }, // € Totale
+    { wch: 18 }, // Data Inizio
+    { wch: 18 }, // Data Fine
+    { wch: 20 }, // Durata
+    { wch: 14 }, // SAL Medio
+    { wch: 14 }, // Costi
+    { wch: 14 }, // MOL
+    { wch: 14 }, // Margine %
+    { wch: 14 }, // Incassato
+    { wch: 14 }  // Da Incassare
+  );
+  ws['!cols'] = base;
+}
+
+function _applyNumFmtAgg(ws, withFase) {
+  const euroFmt = '#,##0.00 "€"';
+  const pctFmt = '0.00" %"';
+  const offset = withFase ? 1 : 0;
+  // Colonne € (€ Totale, SAL, Costi, MOL, Incassato, Da Incassare): 4,7,8,9,11,12 (senza fase: 3,6,7,8,10,11)
+  const euroCols = withFase ? [4, 7, 8, 9, 11, 12] : [3, 6, 7, 8, 10, 11];
+  const pctCol = withFase ? 10 : 9;
+  const range = XLSX.utils.decode_range(ws['!ref']);
+  for (let r = 1; r <= range.e.r; r++) {
+    euroCols.forEach(c => {
+      const cell = ws[XLSX.utils.encode_cell({ r, c })];
+      if (cell && typeof cell.v === 'number') cell.z = euroFmt;
+    });
+    const pCell = ws[XLSX.utils.encode_cell({ r, c: pctCol })];
+    if (pCell && typeof pCell.v === 'number') pCell.z = pctFmt;
+  }
+}
+
 function exportExcelCessione() {
   if (typeof XLSX === 'undefined') {
     alert('Libreria Excel non caricata. Ricarica la pagina.');
@@ -105,6 +194,20 @@ function exportExcelCessione() {
   _applyColWidths(wsAll);
   _applyNumFmt(wsAll);
   XLSX.utils.book_append_sheet(wb, wsAll, 'TUTTI');
+
+  // Foglio 2: AGGREGATO PER SOCIETÀ (una riga per Società)
+  const aggSoc = _aggSocieta(items, false);
+  const wsAggSoc = XLSX.utils.json_to_sheet(aggSoc);
+  _applyColWidthsAgg(wsAggSoc, false);
+  _applyNumFmtAgg(wsAggSoc, false);
+  XLSX.utils.book_append_sheet(wb, wsAggSoc, 'Aggregato Società');
+
+  // Foglio 3: AGGREGATO PER SOCIETÀ + FASE (una riga per ogni combinazione)
+  const aggSocFase = _aggSocieta(items, true);
+  const wsAggSocFase = XLSX.utils.json_to_sheet(aggSocFase);
+  _applyColWidthsAgg(wsAggSocFase, true);
+  _applyNumFmtAgg(wsAggSocFase, true);
+  XLSX.utils.book_append_sheet(wb, wsAggSocFase, 'Aggr. Società + Fase');
 
   // Un foglio per ogni Status (in ordine di numerosità decrescente)
   const statusOrder = Object.keys(byStatus).sort((a, b) => byStatus[b].length - byStatus[a].length);
@@ -160,7 +263,7 @@ function exportExcelCessione() {
   // Rifaccio l'ordine: RIEPILOGO, TUTTI, poi un foglio per status
   delete wb.Sheets['RIEPILOGO'];
   wb.Sheets['RIEPILOGO'] = wsSummary;
-  const finalOrder = ['RIEPILOGO', 'TUTTI', ...statusOrder.map(st => _safeSheetName(st + ' (' + byStatus[st].length + ')'))];
+  const finalOrder = ['RIEPILOGO', 'TUTTI', 'Aggregato Società', 'Aggr. Società + Fase', ...statusOrder.map(st => _safeSheetName(st + ' (' + byStatus[st].length + ')'))];
   wb.SheetNames = finalOrder.filter(n => wb.Sheets[n]);
 
   const now = new Date();

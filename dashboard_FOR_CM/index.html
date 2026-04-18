@@ -14,6 +14,9 @@
 </head>
 <body>
 
+<!-- SIDEBAR TOGGLE -->
+<button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()" title="Nascondi/Mostra menu">&#9776;</button>
+
 <!-- SIDEBAR -->
 <nav class="sidebar">
   <div class="sidebar-brand"><h2>Qualifica Group</h2><p>Dashboard Formazione v1</p></div>
@@ -21,6 +24,7 @@
     <div class="nav-group-label">Overview</div>
     <a class="nav-item active" data-sec="executive" onclick="showSec('executive')"><span class="nav-icon">&#9632;</span>Executive Summary</a>
     <a class="nav-item" data-sec="ricavi" onclick="showSec('ricavi')"><span class="nav-icon">&#8364;</span>Ricavi & MOL</a>
+    <a class="nav-item" data-sec="econFin" onclick="showSec('econFin')"><span class="nav-icon">&#128202;</span>Econ. &amp; Finanziario</a>
   </div>
   <div class="nav-group">
     <div class="nav-group-label">Formazione</div>
@@ -77,6 +81,7 @@
   <div id="sec-alert" class="hidden"></div>
   <div id="sec-analisiCliente" class="hidden"></div>
   <div id="sec-cessione" class="hidden"></div>
+  <div id="sec-econFin" class="hidden"></div>
 </main>
 
 <!-- Drill-Down Modal -->
@@ -101,10 +106,11 @@
 <script src="js/sections-overview.js?v=3"></script>
 <script src="js/sections-corsi.js?v=3"></script>
 <script src="js/sections-finance.js?v=3"></script>
-<script src="js/export-cessione.js?v=2"></script>
+<script src="js/export-cessione.js?v=3"></script>
+<script src="js/section-econfin.js?v=1"></script>
 <script src="js/upload-config.js"></script>
 <script src="../shared/upload.js"></script>
-<script src="js/app.js?v=4"></script>
+<script src="js/app.js?v=5"></script>
 
 </body>
 </html>
