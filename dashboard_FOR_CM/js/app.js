@@ -15,7 +15,8 @@ const SECTIONS = {
   alert: renderAlert,
   analisiCliente: renderAnalisiCliente,
   cessione: renderCessione,
-  econFin: renderEconFin
+  econFin: renderEconFin,
+  specEcon: renderSpecEcon
 };
 
 function showSec(name) {

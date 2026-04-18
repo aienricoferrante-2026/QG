@@ -20,6 +20,7 @@ function _durataCorso(dStart, dEnd) {
 function _buildRiga(c) {
   const d = _durataCorso(c.dataInizio, c.dataFine);
   const salMedio = d.mesi > 0 ? (c.consulenza / d.mesi) : c.consulenza;
+  const residuo = (c.consulenza || 0) * (1 - (c.avanzamento || 0) / 100);
   return {
     'Debitore Ceduto': (c.societa || '').trim(),
     'Società P.IVA': '',
@@ -29,10 +30,12 @@ function _buildRiga(c) {
     'Durata Corso (mesi)': d.mesi,
     'Durata Corso (giorni)': d.giorni,
     'SAL Medio': Math.round(salMedio * 100) / 100,
+    '% Avanzamento': c.avanzamento || 0,
+    'Valore Residuo': Math.round(residuo * 100) / 100,
     // Colonne di contesto
     'Status': c.status || 'N/D',
     'Stato Corso': c.statoCorso || '',
-    'Cliente / Ente': (c.cliente || '').replace(/_FOR/g, '').trim(),
+    'Regione / Ente': (c.cliente || '').replace(/_FOR/g, '').trim(),
     'Corso': c.corso || '',
     'ID Commessa': c.id,
     'Contratto': c.contratto || '',
@@ -81,7 +84,52 @@ function _safeSheetName(s) {
   return String(s || 'N_D').replace(/[\\\/\?\*\[\]:]/g, '').substring(0, 31);
 }
 
-/* ── Aggregazione per Società (con o senza Fase) ── */
+/* ── Aggregazione flessibile per Società / Regione / Fase ── */
+function _aggFlex(items, opts) {
+  // opts: { byRegione: bool, byFase: bool }
+  const g = {};
+  items.forEach(c => {
+    const soc = (c.societa || 'N/D').trim();
+    const reg = (c.cliente || 'N/D').replace(/_FOR/g, '').trim() || 'N/D';
+    const fase = c.status || 'N/D';
+    let k = soc;
+    if (opts.byRegione) k += '|||' + reg;
+    if (opts.byFase) k += '|||' + fase;
+    if (!g[k]) g[k] = { soc, reg, fase, items: [] };
+    g[k].items.push(c);
+  });
+  return Object.values(g).map(e => {
+    const arr = e.items;
+    const tot = arr.reduce((s, c) => s + (c.consulenza || 0), 0);
+    const costi = arr.reduce((s, c) => s + (c.costi || 0), 0);
+    const mol = arr.reduce((s, c) => s + (c.mol || 0), 0);
+    const inc = arr.reduce((s, c) => s + (c.giaIncassato || 0), 0);
+    const daInc = arr.reduce((s, c) => s + (c.daIncassare || 0), 0);
+    // Avanzamento medio pesato
+    let avanzW = 0, pesoW = 0;
+    arr.forEach(c => { const p = c.consulenza || 0; if (p > 0) { avanzW += p * (c.avanzamento || 0); pesoW += p; } });
+    const avanzMedio = pesoW > 0 ? (avanzW / pesoW) : 0;
+    const residuo = arr.reduce((s, c) => s + (c.consulenza || 0) * (1 - (c.avanzamento || 0) / 100), 0);
+    const row = {
+      'Debitore Ceduto': e.soc,
+      'Società P.IVA': ''
+    };
+    if (opts.byRegione) row['Regione / Ente'] = e.reg;
+    if (opts.byFase) row['Fase'] = e.fase;
+    row['N. Commesse'] = arr.length;
+    row['€ Totale Corsi'] = Math.round(tot * 100) / 100;
+    row['Costi Totali'] = Math.round(costi * 100) / 100;
+    row['MOL'] = Math.round(mol * 100) / 100;
+    row['Margine %'] = tot ? Math.round(mol / tot * 10000) / 100 : 0;
+    row['% Avanzamento'] = Math.round(avanzMedio * 100) / 100;
+    row['Valore Residuo'] = Math.round(residuo * 100) / 100;
+    row['Già Incassato'] = Math.round(inc * 100) / 100;
+    row['Da Incassare'] = Math.round(daInc * 100) / 100;
+    return row;
+  }).sort((a, b) => b['€ Totale Corsi'] - a['€ Totale Corsi']);
+}
+
+/* ── Aggregazione per Società (con o senza Fase) — legacy ── */
 function _aggSocieta(items, splitByFase) {
   const g = {};
   items.forEach(c => {
@@ -195,19 +243,46 @@ function exportExcelCessione() {
   _applyNumFmt(wsAll);
   XLSX.utils.book_append_sheet(wb, wsAll, 'TUTTI');
 
-  // Foglio 2: AGGREGATO PER SOCIETÀ (una riga per Società)
-  const aggSoc = _aggSocieta(items, false);
-  const wsAggSoc = XLSX.utils.json_to_sheet(aggSoc);
-  _applyColWidthsAgg(wsAggSoc, false);
-  _applyNumFmtAgg(wsAggSoc, false);
-  XLSX.utils.book_append_sheet(wb, wsAggSoc, 'Aggregato Società');
+  // Funzione helper per formattare un foglio aggregato
+  const buildAggSheet = (data, opts) => {
+    const ws = XLSX.utils.json_to_sheet(data);
+    // Larghezze colonne
+    const widths = [{ wch: 38 }, { wch: 16 }];
+    if (opts.byRegione) widths.push({ wch: 28 });
+    if (opts.byFase) widths.push({ wch: 20 });
+    widths.push({ wch: 12 }, { wch: 16 }, { wch: 14 }, { wch: 14 }, { wch: 12 }, { wch: 14 }, { wch: 16 }, { wch: 14 }, { wch: 14 });
+    ws['!cols'] = widths;
+    // Formattazione numerica
+    const euroFmt = '#,##0.00 "€"';
+    const pctFmt = '0.00" %"';
+    const keys = Object.keys(data[0] || {});
+    const range = XLSX.utils.decode_range(ws['!ref']);
+    for (let r = 1; r <= range.e.r; r++) {
+      keys.forEach((k, ci) => {
+        const cell = ws[XLSX.utils.encode_cell({ r, c: ci })];
+        if (!cell || typeof cell.v !== 'number') return;
+        if (k === 'Margine %' || k === '% Avanzamento') cell.z = pctFmt;
+        else if (k.includes('€') || k === 'Costi Totali' || k === 'MOL' || k === 'Valore Residuo' || k === 'Già Incassato' || k === 'Da Incassare') cell.z = euroFmt;
+      });
+    }
+    return ws;
+  };
 
-  // Foglio 3: AGGREGATO PER SOCIETÀ + FASE (una riga per ogni combinazione)
-  const aggSocFase = _aggSocieta(items, true);
-  const wsAggSocFase = XLSX.utils.json_to_sheet(aggSocFase);
-  _applyColWidthsAgg(wsAggSocFase, true);
-  _applyNumFmtAgg(wsAggSocFase, true);
-  XLSX.utils.book_append_sheet(wb, wsAggSocFase, 'Aggr. Società + Fase');
+  // Foglio 2: AGGREGATO PER SOCIETÀ
+  const aggSoc = _aggFlex(items, { byRegione: false, byFase: false });
+  XLSX.utils.book_append_sheet(wb, buildAggSheet(aggSoc, { byRegione: false, byFase: false }), 'Agg. Società');
+
+  // Foglio 3: AGGREGATO PER SOCIETÀ + FASE
+  const aggSocFase = _aggFlex(items, { byRegione: false, byFase: true });
+  XLSX.utils.book_append_sheet(wb, buildAggSheet(aggSocFase, { byRegione: false, byFase: true }), 'Agg. Società + Fase');
+
+  // Foglio 4: AGGREGATO PER SOCIETÀ + REGIONE
+  const aggSocReg = _aggFlex(items, { byRegione: true, byFase: false });
+  XLSX.utils.book_append_sheet(wb, buildAggSheet(aggSocReg, { byRegione: true, byFase: false }), 'Agg. Società + Regione');
+
+  // Foglio 5: AGGREGATO PER SOCIETÀ + REGIONE + FASE (dettaglio completo aggregato)
+  const aggSocRegFase = _aggFlex(items, { byRegione: true, byFase: true });
+  XLSX.utils.book_append_sheet(wb, buildAggSheet(aggSocRegFase, { byRegione: true, byFase: true }), 'Agg. Soc+Reg+Fase');
 
   // Un foglio per ogni Status (in ordine di numerosità decrescente)
   const statusOrder = Object.keys(byStatus).sort((a, b) => byStatus[b].length - byStatus[a].length);
@@ -263,7 +338,7 @@ function exportExcelCessione() {
   // Rifaccio l'ordine: RIEPILOGO, TUTTI, poi un foglio per status
   delete wb.Sheets['RIEPILOGO'];
   wb.Sheets['RIEPILOGO'] = wsSummary;
-  const finalOrder = ['RIEPILOGO', 'TUTTI', 'Aggregato Società', 'Aggr. Società + Fase', ...statusOrder.map(st => _safeSheetName(st + ' (' + byStatus[st].length + ')'))];
+  const finalOrder = ['RIEPILOGO', 'TUTTI', 'Agg. Società', 'Agg. Società + Fase', 'Agg. Società + Regione', 'Agg. Soc+Reg+Fase', ...statusOrder.map(st => _safeSheetName(st + ' (' + byStatus[st].length + ')'))];
   wb.SheetNames = finalOrder.filter(n => wb.Sheets[n]);
 
   const now = new Date();
