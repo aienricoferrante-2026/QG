@@ -13,7 +13,8 @@ const SECTIONS = {
   avanzamento: renderAvanzamento,
   sedi: renderSedi,
   alert: renderAlert,
-  analisiCliente: renderAnalisiCliente
+  analisiCliente: renderAnalisiCliente,
+  cessione: renderCessione
 };
 
 function showSec(name) {

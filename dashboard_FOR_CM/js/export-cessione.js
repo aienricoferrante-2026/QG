@@ -169,3 +169,109 @@ function exportExcelCessione() {
     String(now.getDate()).padStart(2, '0');
   XLSX.writeFile(wb, 'Cessione_Credito_Formazione_' + dStr + '.xlsx');
 }
+
+/* ── Sezione Cessione Credito: tabella pivot per Società con espansione ── */
+function renderCessione() {
+  const el = document.getElementById('sec-cessione');
+  const f = filtered;
+
+  // Aggrega per Società
+  const soc = {};
+  f.forEach(c => {
+    const k = c.societa || 'N/D';
+    if (!soc[k]) soc[k] = [];
+    soc[k].push(c);
+  });
+  const socKeys = Object.keys(soc).sort((a, b) => {
+    const sumA = soc[a].reduce((s, c) => s + (c.consulenza || 0), 0);
+    const sumB = soc[b].reduce((s, c) => s + (c.consulenza || 0), 0);
+    return sumB - sumA;
+  });
+
+  let h = '<div class="sec"><h3 class="sec-title">Cessione Credito &mdash; Aggregazione per Società</h3>';
+  h += '<p style="color:var(--text3);font-size:11px;margin-bottom:14px">Clicca &#9654; per espandere e vedere le singole commesse di ogni Società. Usa il pulsante verde "Esporta Excel Cessione" in alto per scaricare il file completo.</p>';
+
+  // Totali globali
+  const tot = f.reduce((s, c) => s + (c.consulenza || 0), 0);
+  const minD = f.map(c => _parseDate(c.dataInizio)).filter(Boolean).sort((a, b) => a - b)[0];
+  const maxD = f.map(c => _parseDate(c.dataFine)).filter(Boolean).sort((a, b) => b - a)[0];
+  const dStr = d => d ? (String(d.getDate()).padStart(2, '0') + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + d.getFullYear()) : '-';
+  const durTot = (minD && maxD) ? Math.max(1, (maxD.getFullYear() - minD.getFullYear()) * 12 + (maxD.getMonth() - minD.getMonth())) : 0;
+
+  h += '<div class="row3" style="margin-bottom:14px">';
+  h += '<div class="card"><h4>Società</h4><div style="font-size:28px;font-weight:700">' + fmt(socKeys.length) + '</div><div style="color:var(--text2);font-size:11px;margin-top:4px">' + fmt(f.length) + ' commesse totali</div></div>';
+  h += '<div class="card"><h4>Totale € Corsi</h4><div style="font-size:28px;font-weight:700;color:var(--green)">' + fmtK(tot) + '</div><div style="color:var(--text2);font-size:11px;margin-top:4px">' + fmtE(tot) + '</div></div>';
+  h += '<div class="card"><h4>Periodo</h4><div style="font-size:16px;font-weight:700">' + dStr(minD) + ' &rarr; ' + dStr(maxD) + '</div><div style="color:var(--text2);font-size:11px;margin-top:4px">Durata: ' + durTot + ' mesi</div></div>';
+  h += '</div>';
+
+  // Tabella tree
+  h += '<div class="card"><div class="tbl-scroll"><table id="tblCessione"><thead><tr>';
+  h += '<th style="width:30px"></th>';
+  h += '<th>Debitore Ceduto (Società)</th>';
+  h += '<th>P.IVA</th>';
+  h += '<th class="text-right">€ Corso</th>';
+  h += '<th>Data Inizio</th>';
+  h += '<th>Data Fine</th>';
+  h += '<th class="text-right">Durata (mesi)</th>';
+  h += '<th class="text-right">SAL Medio</th>';
+  h += '<th>Corso / ID</th>';
+  h += '</tr></thead><tbody>';
+
+  socKeys.forEach((sk, gi) => {
+    const gid = 'cess_g' + gi;
+    const items = soc[sk];
+    const totSoc = items.reduce((s, c) => s + (c.consulenza || 0), 0);
+    const datesInizio = items.map(c => _parseDate(c.dataInizio)).filter(Boolean);
+    const datesFine = items.map(c => _parseDate(c.dataFine)).filter(Boolean);
+    const minDS = datesInizio.length ? datesInizio.sort((a, b) => a - b)[0] : null;
+    const maxDS = datesFine.length ? datesFine.sort((a, b) => b - a)[0] : null;
+    const durSoc = (minDS && maxDS) ? Math.max(1, (maxDS.getFullYear() - minDS.getFullYear()) * 12 + (maxDS.getMonth() - minDS.getMonth())) : 0;
+    // SAL medio pesato: somma (consulenza[i] / mesi[i]) / n
+    let salSum = 0, salCnt = 0;
+    items.forEach(c => {
+      const d = _durataCorso(c.dataInizio, c.dataFine);
+      if (d.mesi > 0) { salSum += (c.consulenza / d.mesi); salCnt++; }
+    });
+    const salMedioSoc = salCnt > 0 ? salSum / salCnt : 0;
+
+    // Riga Società (aggregata)
+    h += '<tr class="tree-row tree-l0" onclick="toggleTree(\'' + gid + '\')">';
+    h += '<td class="tree-toggle" id="tog_' + gid + '">&#9654;</td>';
+    h += '<td><strong>' + (sk.length > 45 ? sk.substring(0, 43) + '..' : sk) + '</strong> <span style="color:var(--text3);font-size:10px">(' + items.length + ')</span></td>';
+    h += '<td style="color:var(--text3);font-style:italic">da compilare</td>';
+    h += '<td class="text-right"><strong>' + fmtE(totSoc) + '</strong></td>';
+    h += '<td>' + dStr(minDS) + '</td>';
+    h += '<td>' + dStr(maxDS) + '</td>';
+    h += '<td class="text-right">' + durSoc + '</td>';
+    h += '<td class="text-right">' + fmtE(salMedioSoc) + '</td>';
+    h += '<td style="color:var(--text3);font-size:10px">' + items.length + ' commesse</td>';
+    h += '</tr>';
+
+    // Righe foglie (commesse)
+    items.forEach(c => {
+      const d = _durataCorso(c.dataInizio, c.dataFine);
+      const salM = d.mesi > 0 ? c.consulenza / d.mesi : c.consulenza;
+      h += '<tr class="tree-row tree-l1 tree-child-' + gid + '" style="display:none">';
+      h += '<td></td>';
+      h += '<td style="padding-left:24px;font-size:11px;color:var(--text2)">' + (sk.length > 45 ? sk.substring(0, 43) + '..' : sk) + '</td>';
+      h += '<td></td>';
+      h += '<td class="text-right" style="font-size:11px">' + fmtE(c.consulenza || 0) + '</td>';
+      h += '<td style="font-size:11px">' + (c.dataInizio || '-') + '</td>';
+      h += '<td style="font-size:11px">' + (c.dataFine || '-') + '</td>';
+      h += '<td class="text-right" style="font-size:11px">' + d.mesi + '</td>';
+      h += '<td class="text-right" style="font-size:11px">' + fmtE(salM) + '</td>';
+      h += '<td style="font-size:10px;color:var(--text3)">' + (c.corso || '').substring(0, 35) + ' <strong>#' + c.id + '</strong></td>';
+      h += '</tr>';
+    });
+  });
+
+  h += '</tbody></table></div></div>';
+
+  // Pulsante di esportazione in fondo
+  h += '<div style="margin-top:14px;text-align:center">';
+  h += '<button class="filter-reset" style="background:rgba(16,185,129,.12);border-color:#10b981;color:#10b981;padding:10px 24px;font-size:13px" onclick="exportExcelCessione()">&#8681; Esporta Excel Cessione (' + fmt(f.length) + ' commesse)</button>';
+  h += '</div>';
+
+  h += '</div>';
+  el.innerHTML = h;
+}
