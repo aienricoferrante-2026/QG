@@ -39,12 +39,12 @@ function renderEconFin() {
   // ═══ DATI ECONOMICI ═══
   h += '<h4 style="font-size:13px;font-weight:700;color:var(--accent);margin:8px 0 10px 0;padding-left:2px;border-left:3px solid var(--accent);padding:4px 8px">REDDITUALE (Conto Economico)</h4>';
   h += '<div class="kpi-grid" style="padding:0 0 14px 0">';
-  h += '<div class="kpi blue"><div class="kpi-label">Ricavi Totali</div><div class="kpi-value">' + fmtK(ricavi) + '</div><div class="kpi-sub">' + fmtE(ricavi) + '</div></div>';
-  h += '<div class="kpi orange"><div class="kpi-label">Costi Totali</div><div class="kpi-value">' + fmtK(costi) + '</div><div class="kpi-sub">' + pct(costi, ricavi) + ' dei ricavi</div></div>';
-  h += '<div class="kpi green"><div class="kpi-label">MOL (Margine)</div><div class="kpi-value">' + fmtK(mol) + '</div><div class="kpi-sub">Margine: ' + marginePct.toFixed(1) + '%</div></div>';
-  h += '<div class="kpi cyan"><div class="kpi-label">Ore Lavorate</div><div class="kpi-value">' + fmt(ore) + '</div><div class="kpi-sub">media ' + fmt(Math.round(ore / (f.length || 1))) + '/commessa</div></div>';
-  h += '<div class="kpi purple"><div class="kpi-label">Ricavo / Ora</div><div class="kpi-value">' + fmtE(ricavoOra) + '</div><div class="kpi-sub">medio</div></div>';
-  h += '<div class="kpi pink"><div class="kpi-label">Costo / Ora</div><div class="kpi-value">' + fmtE(costoOra) + '</div><div class="kpi-sub">medio</div></div>';
+  h += '<div class="kpi blue"><div class="kpi-label">Ricavi Totali' + infoIcon('ricavi') + '</div><div class="kpi-value">' + fmtK(ricavi) + '</div><div class="kpi-sub">' + fmtE(ricavi) + '</div></div>';
+  h += '<div class="kpi orange"><div class="kpi-label">Costi Totali' + infoIcon('costi') + '</div><div class="kpi-value">' + fmtK(costi) + '</div><div class="kpi-sub">' + pct(costi, ricavi) + ' dei ricavi</div></div>';
+  h += '<div class="kpi green"><div class="kpi-label">MOL (Margine)' + infoIcon('mol') + '</div><div class="kpi-value">' + fmtK(mol) + '</div><div class="kpi-sub">Margine: ' + marginePct.toFixed(1) + '% ' + infoIcon('margine') + '</div></div>';
+  h += '<div class="kpi cyan"><div class="kpi-label">Ore Lavorate' + infoIcon('ore') + '</div><div class="kpi-value">' + fmt(ore) + '</div><div class="kpi-sub">media ' + fmt(Math.round(ore / (f.length || 1))) + '/commessa</div></div>';
+  h += '<div class="kpi purple"><div class="kpi-label">Ricavo / Ora' + infoIcon('ricavoOra') + '</div><div class="kpi-value">' + fmtE(ricavoOra) + '</div><div class="kpi-sub">medio</div></div>';
+  h += '<div class="kpi pink"><div class="kpi-label">Costo / Ora' + infoIcon('costoOra') + '</div><div class="kpi-value">' + fmtE(costoOra) + '</div><div class="kpi-sub">medio</div></div>';
   h += '</div>';
 
   // Grafico Ricavi vs Costi vs MOL per Società
@@ -56,12 +56,12 @@ function renderEconFin() {
   // ═══ DATI FINANZIARI ═══
   h += '<h4 style="font-size:13px;font-weight:700;color:var(--green);margin:20px 0 10px 0;padding:4px 8px;border-left:3px solid var(--green)">FINANZIARIO (Cassa)</h4>';
   h += '<div class="kpi-grid" style="padding:0 0 14px 0">';
-  h += '<div class="kpi green"><div class="kpi-label">Già Incassato</div><div class="kpi-value">' + fmtK(incassato) + '</div><div class="kpi-sub">' + incassatoPct.toFixed(1) + '% dei ricavi</div></div>';
-  h += '<div class="kpi orange"><div class="kpi-label">Da Incassare</div><div class="kpi-value">' + fmtK(daIncassare) + '</div><div class="kpi-sub">' + pct(daIncassare, ricavi) + ' dei ricavi</div></div>';
-  h += '<div class="kpi cyan"><div class="kpi-label">Anticipi Ricevuti</div><div class="kpi-value">' + fmtK(anticipi) + '</div><div class="kpi-sub">' + pct(anticipi, ricavi) + '</div></div>';
-  h += '<div class="kpi purple"><div class="kpi-label">Saldi da Ricevere</div><div class="kpi-value">' + fmtK(saldi) + '</div><div class="kpi-sub">' + pct(saldi, ricavi) + '</div></div>';
-  h += '<div class="kpi blue"><div class="kpi-label">Ricevuto da Regione</div><div class="kpi-value">' + fmtK(totRicevutoRegione) + '</div><div class="kpi-sub">contributi pubblici</div></div>';
-  h += '<div class="kpi pink"><div class="kpi-label">Esposizione</div><div class="kpi-value">' + fmtK(ricavi - incassato) + '</div><div class="kpi-sub">credito aperto</div></div>';
+  h += '<div class="kpi green"><div class="kpi-label">Già Incassato' + infoIcon('giaIncassato') + '</div><div class="kpi-value">' + fmtK(incassato) + '</div><div class="kpi-sub">' + incassatoPct.toFixed(1) + '% dei ricavi</div></div>';
+  h += '<div class="kpi orange"><div class="kpi-label">Da Incassare' + infoIcon('daIncassare') + '</div><div class="kpi-value">' + fmtK(daIncassare) + '</div><div class="kpi-sub">' + pct(daIncassare, ricavi) + ' dei ricavi</div></div>';
+  h += '<div class="kpi cyan"><div class="kpi-label">Anticipi Ricevuti' + infoIcon('anticipi') + '</div><div class="kpi-value">' + fmtK(anticipi) + '</div><div class="kpi-sub">' + pct(anticipi, ricavi) + '</div></div>';
+  h += '<div class="kpi purple"><div class="kpi-label">Saldi da Ricevere' + infoIcon('saldi') + '</div><div class="kpi-value">' + fmtK(saldi) + '</div><div class="kpi-sub">' + pct(saldi, ricavi) + '</div></div>';
+  h += '<div class="kpi blue"><div class="kpi-label">Ricevuto da Regione' + infoIcon('ricevutoRegione') + '</div><div class="kpi-value">' + fmtK(totRicevutoRegione) + '</div><div class="kpi-sub">contributi pubblici</div></div>';
+  h += '<div class="kpi pink"><div class="kpi-label">Esposizione' + infoIcon('esposizione') + '</div><div class="kpi-value">' + fmtK(ricavi - incassato) + '</div><div class="kpi-sub">credito aperto</div></div>';
   h += '</div>';
 
   // Grafico Incassato vs Da Incassare per Società
