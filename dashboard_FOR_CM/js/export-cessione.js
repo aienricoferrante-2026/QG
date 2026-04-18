@@ -36,7 +36,8 @@ function _buildRiga(c) {
     'Status': c.status || 'N/D',
     'Stato Corso': c.statoCorso || '',
     'Regione / Ente': (c.cliente || '').replace(/_FOR/g, '').trim(),
-    'Corso': c.corso || '',
+    'Titolo del corso': c.titolo || c.corso || '',
+    'Corso (tipo)': c.corso || '',
     'ID Commessa': c.id,
     'Contratto': c.contratto || '',
     'Responsabile': c.responsabile || '',
@@ -438,7 +439,7 @@ function renderCessione() {
       h += '<td style="font-size:11px">' + (c.dataFine || '-') + '</td>';
       h += '<td class="text-right" style="font-size:11px">' + d.mesi + '</td>';
       h += '<td class="text-right" style="font-size:11px">' + fmtE(salM) + '</td>';
-      h += '<td style="font-size:10px;color:var(--text3)">' + (c.corso || '').substring(0, 35) + ' <strong>#' + c.id + '</strong></td>';
+      h += '<td style="font-size:10px;color:var(--text3)">' + ((c.titolo || c.corso) || '').substring(0, 50) + ' <strong>#' + c.id + '</strong></td>';
       h += '</tr>';
     });
   });

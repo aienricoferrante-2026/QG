@@ -157,10 +157,10 @@ function renderAvanzamento() {
   if (lowAvz.length > 0) {
     const sorted = lowAvz.sort((a, b) => b.consulenza - a.consulenza);
     buildTbl('tblLowAvz',
-      ['ID', 'Corso', 'Cliente', 'Ricavi', 'Avz.', 'Status', 'Stato Corso', 'ERP'],
+      ['ID', 'Titolo del corso', 'Cliente', 'Ricavi', 'Avz.', 'Status', 'Stato Corso', 'ERP'],
       sorted.slice(0, 50).map(c => [
         c.id,
-        { display: (c.corso || '').substring(0, 35), val: c.corso },
+        { display: ((c.titolo || c.corso) || '').substring(0, 50), val: (c.titolo || c.corso) },
         { display: c.cliente.replace(/_FOR/g, ''), val: c.cliente },
         { display: fmtE(c.consulenza), val: c.consulenza },
         { display: c.avanzamento + '%', val: c.avanzamento },

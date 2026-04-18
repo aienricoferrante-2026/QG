@@ -332,7 +332,7 @@ function buildMTable(items) {
   paged.forEach(c => {
     h += '<tr>';
     h += '<td>' + c.id + '</td>';
-    h += '<td>' + (c.corso || c.titolo || '') + '</td>';
+    h += '<td>' + (c.titolo || c.corso || '') + '</td>';
     h += '<td>' + c.cliente + '</td>';
     h += '<td>' + tagStatus(c.status) + '</td>';
     h += '<td>' + tagCorso(c.statoCorso) + '</td>';
@@ -402,10 +402,10 @@ function openErp(commessaId) {
 /* ── Export CSV ── */
 function exportMCSV() {
   const items = getFilteredMItems();
-  const hdrs = ['ID', 'Contratto', 'Corso', 'Cliente', 'Societa', 'Sede', 'Responsabile', 'Status', 'Stato Corso', 'Ricavi', 'Costi', 'MOL', 'Ore', 'Avanzamento'];
+  const hdrs = ['ID', 'Contratto', 'Titolo del corso', 'Corso (tipo)', 'Cliente', 'Societa', 'Sede', 'Responsabile', 'Status', 'Stato Corso', 'Ricavi', 'Costi', 'MOL', 'Ore', 'Avanzamento'];
   let csv = '\uFEFF' + hdrs.join(';') + '\n';
   items.forEach(c => {
-    csv += [c.id, csvSafe(c.contratto), csvSafe(c.corso), csvSafe(c.cliente), csvSafe(c.societa),
+    csv += [c.id, csvSafe(c.contratto), csvSafe(c.titolo || c.corso), csvSafe(c.corso), csvSafe(c.cliente), csvSafe(c.societa),
       csvSafe(c.sedeOp), csvSafe(c.responsabile), csvSafe(c.status), csvSafe(c.statoCorso),
       c.consulenza, c.costi, c.mol, c.ore, c.avanzamento].join(';') + '\n';
   });

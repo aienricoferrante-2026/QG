@@ -127,7 +127,7 @@ function showInfo(key) {
 
   if (cfg.type === 'sum' || cfg.type === 'sum-int') {
     const field = cfg.field;
-    const vals = f.map(c => ({ id: c.id, val: (c[field] || 0), cliente: (c.cliente || '').replace(/_FOR/g, '').trim(), corso: c.corso, societa: c.societa }));
+    const vals = f.map(c => ({ id: c.id, val: (c[field] || 0), cliente: (c.cliente || '').replace(/_FOR/g, '').trim(), corso: (c.titolo || c.corso || ''), societa: c.societa }));
     const tot = vals.reduce((s, v) => s + v.val, 0);
     const conVal = vals.filter(v => v.val !== 0).length;
     const zero = f.length - conVal;
@@ -157,7 +157,7 @@ function showInfo(key) {
     }
 
     html += '<h4 style="font-size:12px;margin-bottom:8px;color:var(--text2)">Top 10 commesse contribuenti</h4>';
-    html += '<div style="max-height:350px;overflow-y:auto"><table style="width:100%;font-size:11px"><thead><tr><th>ID</th><th>Società</th><th>Cliente</th><th>Corso</th><th class="text-right">Valore</th><th class="text-right">% sul tot</th></tr></thead><tbody>';
+    html += '<div style="max-height:350px;overflow-y:auto"><table style="width:100%;font-size:11px"><thead><tr><th>ID</th><th>Società</th><th>Cliente</th><th>Titolo del corso</th><th class="text-right">Valore</th><th class="text-right">% sul tot</th></tr></thead><tbody>';
     top.forEach(v => {
       html += '<tr><td>#' + v.id + '</td><td>' + ((v.societa || '').substring(0, 30)) + '</td><td>' + ((v.cliente || '').substring(0, 25)) + '</td><td>' + ((v.corso || '').substring(0, 40)) + '</td><td class="text-right">' + (cfg.type === 'sum-int' ? fmt(v.val) : fmtE(v.val)) + '</td><td class="text-right" style="color:var(--text3)">' + pct(v.val, tot) + '</td></tr>';
     });
