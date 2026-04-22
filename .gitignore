@@ -5,3 +5,4 @@
 dashboard_data.json
 dashboard_commesse_iso.html
 dashboard_offerte.html
+*.backup_*.json
