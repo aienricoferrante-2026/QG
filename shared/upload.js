@@ -46,6 +46,17 @@ var ExcelUpload = (function() {
           '<span class="dot"></span> Origine attuale: <strong id="uploadSourceLabel">' + _sourceLabel + '</strong>' +
         '</div>' +
         '<div class="upload-status" id="uploadStatus"></div>' +
+        '<div class="upload-persist" id="uploadPersist" style="display:none;background:rgba(16,185,129,.08);border:1px solid #10b981;border-radius:8px;padding:12px;margin-top:10px;font-size:12px;color:var(--text2)">' +
+          '<div style="color:#10b981;font-weight:700;margin-bottom:6px;font-size:13px">✓ Dati aggiornati per la tua sessione</div>' +
+          '<div style="margin-bottom:10px">Per rendere permanente l\'aggiornamento <b>online per tutti</b>:</div>' +
+          '<ol style="margin:0 0 10px 18px;padding:0;line-height:1.6">' +
+            '<li>Clicca <b>"Scarica JSON"</b> qui sotto</li>' +
+            '<li>Apri <a id="ghLink" target="_blank" style="color:var(--accent)">la cartella data/ su GitHub</a></li>' +
+            '<li>Trascina il JSON scaricato sulla pagina (sostituisce il file)</li>' +
+            '<li>Scrivi un commit message e clicca <b>"Commit changes"</b></li>' +
+          '</ol>' +
+          '<button class="btn-upload" style="background:#10b981;border-color:#10b981;width:100%" onclick="ExcelUpload.downloadJson()">&#8681; Scarica JSON (pronto da caricare su GitHub)</button>' +
+        '</div>' +
         '<div class="upload-actions">' +
           '<button class="btn-cancel" onclick="ExcelUpload.close()">Annulla</button>' +
           '<button class="btn-upload" id="uploadGo" disabled onclick="ExcelUpload.process()">Aggiorna Dati</button>' +
@@ -132,7 +143,16 @@ var ExcelUpload = (function() {
         var sl = document.getElementById('uploadSourceLabel');
         if (sl) sl.textContent = _sourceLabel;
         setStatus('Caricati ' + records.length + ' record da ' + _file.name, 'success');
-        setTimeout(close, 1500);
+        // Mostra il box "persist online"
+        var persistBox = document.getElementById('uploadPersist');
+        if (persistBox) {
+          persistBox.style.display = 'block';
+          // Link a GitHub nella cartella data/ della dashboard corrente
+          var ghLink = document.getElementById('ghLink');
+          if (ghLink && cfg.githubDataPath) {
+            ghLink.href = 'https://github.com/aienricoferrante-2026/QG/upload/main/' + cfg.githubDataPath.replace(/\/[^\/]+$/, '');
+          }
+        }
       } catch (err) {
         setStatus('Errore: ' + err.message, 'error');
         console.error('[Upload] Error:', err, err.stack);
@@ -224,7 +244,27 @@ var ExcelUpload = (function() {
     }
   }
 
-  return { init: init, open: open, close: close, process: process };
+  function downloadJson() {
+    var cfg = _getCfg();
+    if (!cfg) { alert('Configurazione non disponibile'); return; }
+    var data = cfg.dataKey ? D[cfg.dataKey] : D;
+    if (!data || (Array.isArray(data) && !data.length)) {
+      alert('Nessun dato da esportare. Carica prima un Excel.');
+      return;
+    }
+    var json = JSON.stringify(data, null, 0);
+    var fileName = cfg.githubDataPath ? cfg.githubDataPath.split('/').pop() : 'dati.json';
+    var blob = new Blob([json], { type: 'application/json' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setStatus('JSON scaricato: ' + fileName + ' (' + (blob.size / 1024).toFixed(0) + ' KB). Ora caricalo su GitHub.', 'success');
+  }
+
+  return { init: init, open: open, close: close, process: process, downloadJson: downloadJson };
 })();
 
 document.addEventListener('DOMContentLoaded', function() { ExcelUpload.init(); });

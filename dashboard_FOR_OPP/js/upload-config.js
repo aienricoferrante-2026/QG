@@ -2,6 +2,7 @@
 window.UPLOAD_CONFIG = {
   label: 'Opportunita Formazione',
   dataKey: null,
+  githubDataPath: 'dashboard_FOR_OPP/data/opportunita_for.json',
   numericFields: [],
   fieldMap: {
     'ID': 'id',

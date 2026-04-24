@@ -2,6 +2,7 @@
 window.UPLOAD_CONFIG = {
   label: 'Offerte',
   dataKey: null, // D is a flat array
+  githubDataPath: 'dashboard_offerte/data/offerte.json',
   numericFields: ['totale', 'anno'],
   fieldMap: {
     'ID': 'id',

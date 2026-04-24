@@ -2,6 +2,7 @@
 window.UPLOAD_CONFIG = {
   label: 'Commesse ISO',
   dataKey: 'commesse',
+  githubDataPath: 'dashboard/data/commesse.json',
   numericFields: ['co', 'en', 'an', 'me'],
   fieldMap: {
     'ID': 'id', 'Tipo Commessa': 'ti', 'Contratto': 'ct', 'Cliente': 'cl',

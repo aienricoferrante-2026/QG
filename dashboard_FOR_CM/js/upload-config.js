@@ -2,6 +2,7 @@
 window.UPLOAD_CONFIG = {
   label: 'Commesse Formazione',
   dataKey: null,
+  githubDataPath: 'dashboard_FOR_CM/data/commesse_for.json',
   numericFields: ['consulenza', 'ricavi', 'costi', 'mol', 'ente', 'ore',
     'avanzamento', 'discenti', 'anticipoImporto', 'saldoImporto',
     'totRicavo', 'totRicevutoRegione', 'giaIncassato', 'daIncassare', 'euroResiduo',
