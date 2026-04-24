@@ -1,0 +1,87 @@
+/* Upload Excel Component Styles */
+
+.upload-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 14px; border-radius: 6px; cursor: pointer;
+  background: rgba(59,130,246,.12); color: var(--accent, #3b82f6);
+  border: 1px solid rgba(59,130,246,.25); font-size: 12px; font-weight: 600;
+  transition: all .2s;
+}
+.upload-btn:hover { background: rgba(59,130,246,.22); border-color: var(--accent, #3b82f6); }
+.upload-btn svg { width: 14px; height: 14px; }
+
+/* Upload Modal Overlay */
+.upload-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: rgba(0,0,0,.55); display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity .2s;
+}
+.upload-overlay.open { opacity: 1; pointer-events: auto; }
+
+.upload-modal {
+  background: var(--card, #1e293b); border-radius: 12px;
+  width: 480px; max-width: 92vw; padding: 28px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.4); border: 1px solid var(--border, #334155);
+}
+.upload-modal h3 { margin: 0 0 4px; font-size: 16px; color: var(--text1, #f1f5f9); }
+.upload-modal .upload-sub { color: var(--text3, #94a3b8); font-size: 12px; margin-bottom: 20px; }
+
+/* Drop zone */
+.upload-drop {
+  border: 2px dashed var(--border, #334155); border-radius: 8px;
+  padding: 32px 20px; text-align: center; cursor: pointer;
+  transition: all .2s; position: relative;
+}
+.upload-drop:hover, .upload-drop.dragover {
+  border-color: var(--accent, #3b82f6);
+  background: rgba(59,130,246,.06);
+}
+.upload-drop svg { width: 36px; height: 36px; color: var(--text3, #94a3b8); margin-bottom: 8px; }
+.upload-drop p { margin: 0; color: var(--text2, #cbd5e1); font-size: 13px; }
+.upload-drop span { color: var(--accent, #3b82f6); text-decoration: underline; cursor: pointer; }
+.upload-drop input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+
+/* Status */
+.upload-status {
+  margin-top: 16px; padding: 12px; border-radius: 6px; font-size: 12px; display: none;
+}
+.upload-status.success { display: block; background: rgba(34,197,94,.12); color: #22c55e; }
+.upload-status.error { display: block; background: rgba(239,68,68,.12); color: #ef4444; }
+.upload-status.loading { display: block; background: rgba(59,130,246,.12); color: #3b82f6; }
+
+/* File info */
+.upload-file-info {
+  margin-top: 12px; padding: 10px 12px; border-radius: 6px;
+  background: var(--bg, #0f172a); display: none; align-items: center; gap: 10px;
+  font-size: 12px; color: var(--text2, #cbd5e1);
+}
+.upload-file-info.visible { display: flex; }
+.upload-file-info .fname { flex: 1; font-weight: 600; color: var(--text1, #f1f5f9); }
+.upload-file-info .fsize { color: var(--text3, #94a3b8); }
+
+/* Actions */
+.upload-actions {
+  display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px;
+}
+.upload-actions button {
+  padding: 8px 18px; border-radius: 6px; font-size: 13px; font-weight: 600;
+  cursor: pointer; border: none; transition: all .2s;
+}
+.upload-actions .btn-cancel {
+  background: var(--bg, #0f172a); color: var(--text2, #cbd5e1);
+  border: 1px solid var(--border, #334155);
+}
+.upload-actions .btn-cancel:hover { background: var(--border, #334155); }
+.upload-actions .btn-upload {
+  background: var(--accent, #3b82f6); color: #fff;
+}
+.upload-actions .btn-upload:hover { filter: brightness(1.15); }
+.upload-actions .btn-upload:disabled { opacity: .4; cursor: not-allowed; }
+
+/* Current source indicator */
+.upload-source {
+  margin-top: 12px; padding: 8px 12px; border-radius: 6px;
+  background: var(--bg, #0f172a); font-size: 11px; color: var(--text3, #94a3b8);
+  display: flex; align-items: center; gap: 6px;
+}
+.upload-source .dot { width: 6px; height: 6px; border-radius: 50%; background: #22c55e; }
