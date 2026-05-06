@@ -9,8 +9,10 @@
   <link rel="stylesheet" href="../dashboard_FOR_CM/css/layout.css">
   <link rel="stylesheet" href="../dashboard_FOR_CM/css/tables.css">
   <link rel="stylesheet" href="../dashboard_FOR_CM/css/modal.css">
+  <link rel="stylesheet" href="../shared/upload.css">
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
   <script>
-    /* Partner mode bootstrap */
+    /* Partner mode bootstrap: leggi ?t=TOKEN dall'URL e configura sorgente dati */
     (function () {
       const params = new URLSearchParams(window.location.search);
       const token = (params.get('t') || '').replace(/[^a-zA-Z0-9_-]/g, '');
@@ -26,14 +28,14 @@
     })();
   </script>
 </head>
-<body class="partner-mode">
+<body>
 
 <!-- SIDEBAR TOGGLE -->
 <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()" title="Nascondi/Mostra menu">&#9776;</button>
 
-<!-- SIDEBAR -->
+<!-- SIDEBAR (identica a admin, solo niente sezione Admin) -->
 <nav class="sidebar">
-  <div class="sidebar-brand"><h2>Qualifica Group</h2><p id="partnerSedeLabel">Dashboard Partner</p></div>
+  <div class="sidebar-brand"><h2>Qualifica Group</h2><p id="partnerSedeLabel">Dashboard Formazione</p></div>
   <div class="nav-group">
     <div class="nav-group-label">Overview</div>
     <a class="nav-item active" data-sec="executive" onclick="showSec('executive')"><span class="nav-icon">&#9632;</span>Executive Summary</a>
@@ -45,7 +47,10 @@
     <a class="nav-item" data-sec="corsi" onclick="showSec('corsi')"><span class="nav-icon">&#9654;</span>Corsi</a>
     <a class="nav-item" data-sec="responsabili" onclick="showSec('responsabili')"><span class="nav-icon">&#9881;</span>Responsabili</a>
     <a class="nav-item" data-sec="clienti" onclick="showSec('clienti')"><span class="nav-icon">&#9673;</span>Clienti / Enti</a>
+    <a class="nav-item" data-sec="sedi" onclick="showSec('sedi')"><span class="nav-icon">&#9660;</span>Sedi</a>
     <a class="nav-item" data-sec="analisiCliente" onclick="showSec('analisiCliente')"><span class="nav-icon">&#9776;</span>Analisi Cliente</a>
+    <a class="nav-item" data-sec="cessione" onclick="showSec('cessione')"><span class="nav-icon">&#8381;</span>Cessione Credito</a>
+    <a class="nav-item" data-sec="specEcon" onclick="showSec('specEcon')"><span class="nav-icon">&#9965;</span>Specifica Economica</a>
   </div>
   <div class="nav-group">
     <div class="nav-group-label">Stato</div>
@@ -56,23 +61,25 @@
 
 <!-- MAIN CONTENT -->
 <main class="main">
-  <div class="partner-banner">Vista Partner &middot; Solo i dati della tua sede &middot; Read-only</div>
   <div class="header">
     <div>
-      <h1 id="partnerHeader">Dashboard Partner</h1>
+      <h1>Dashboard Formazione Commesse</h1>
       <div class="header-sub" id="partnerHeaderSub">Caricamento&hellip;</div>
     </div>
   </div>
 
-  <!-- Filters (no Sede, no upload) -->
+  <!-- Global Filters (identici all'admin) -->
   <div class="filters">
     <div class="filter-group"><label>Status</label><div class="ms-wrap" id="fStatus"></div></div>
     <div class="filter-group"><label>Stato Corso</label><div class="ms-wrap" id="fCorso"></div></div>
     <div class="filter-group"><label>Cliente</label><div class="ms-wrap" id="fCliente"></div></div>
+    <div class="filter-group"><label>Societa</label><div class="ms-wrap" id="fSocieta"></div></div>
+    <div class="filter-group"><label>Sede</label><div class="ms-wrap" id="fSede"></div></div>
     <div class="filter-group"><label>Responsabile</label><div class="ms-wrap" id="fResp"></div></div>
     <div class="filter-group"><label>Corso</label><div class="ms-wrap" id="fTipoCorso"></div></div>
     <div class="filter-group"><label>Classe</label><div class="ms-wrap" id="fClasse"></div></div>
     <button class="filter-reset" onclick="resetFilters()">Reset</button>
+    <button class="filter-reset" style="background:rgba(16,185,129,.12);border-color:#10b981;color:#10b981" onclick="exportExcelCessione()" title="Esporta file Excel per cessione del credito">&#8681; Esporta Excel Cessione</button>
   </div>
 
   <div id="activeFilters" class="active-filters"></div>
@@ -83,12 +90,16 @@
   <div id="sec-corsi" class="hidden"></div>
   <div id="sec-responsabili" class="hidden"></div>
   <div id="sec-clienti" class="hidden"></div>
+  <div id="sec-sedi" class="hidden"></div>
   <div id="sec-avanzamento" class="hidden"></div>
   <div id="sec-alert" class="hidden"></div>
   <div id="sec-analisiCliente" class="hidden"></div>
+  <div id="sec-cessione" class="hidden"></div>
   <div id="sec-econFin" class="hidden"></div>
+  <div id="sec-specEcon" class="hidden"></div>
 </main>
 
+<!-- Drill-Down Modal -->
 <div class="modal-overlay" id="modal">
   <div class="modal">
     <div class="modal-header">
@@ -99,41 +110,43 @@
   </div>
 </div>
 
-<!-- Partner mode: filtri ridotti (senza fSede, senza fSocieta) -->
-<script>
-  // Override FILTER_DEFS prima del caricamento di filters.js
-  // (filters.js dichiara const FILTER_DEFS, quindi sovrascrivere non funziona; usiamo una flag che filters.js leggerà)
-  window.PARTNER_FILTERS = ['fStatus', 'fCorso', 'fCliente', 'fResp', 'fTipoCorso', 'fClasse'];
-</script>
-
+<!-- Scripts: stessi della dashboard admin (eccetto auth.js e section-link-partner.js).
+     Tutti i path puntano alla cartella dashboard_FOR_CM cosicché ogni futura modifica
+     all'admin si riflette automaticamente nelle dashboard partner. -->
 <script src="../shared/multiselect.js?v=1"></script>
 <script src="../dashboard_FOR_CM/js/utils.js?v=4"></script>
 <script src="../dashboard_FOR_CM/js/tables.js?v=3"></script>
 <script src="../dashboard_FOR_CM/js/charts.js?v=3"></script>
 <script src="../dashboard_FOR_CM/js/drilldown.js?v=4"></script>
-<script src="../dashboard_FOR_CM/js/filters.js?v=4"></script>
+<script src="../dashboard_FOR_CM/js/filters.js?v=5"></script>
 <script src="../dashboard_FOR_CM/js/kpis.js?v=3"></script>
 <script src="../dashboard_FOR_CM/js/sections-overview.js?v=3"></script>
 <script src="../dashboard_FOR_CM/js/sections-corsi.js?v=3"></script>
 <script src="../dashboard_FOR_CM/js/sections-finance.js?v=4"></script>
+<script src="../dashboard_FOR_CM/js/export-cessione.js?v=4"></script>
 <script src="../dashboard_FOR_CM/js/info-tooltip.js?v=1"></script>
 <script src="../dashboard_FOR_CM/js/section-econfin.js?v=3"></script>
-<script src="../dashboard_FOR_CM/js/app.js?v=7"></script>
+<script src="../dashboard_FOR_CM/js/section-spec-econ.js?v=2"></script>
+<script src="../dashboard_FOR_CM/js/upload-config.js?v=2"></script>
+<script src="../shared/upload.js"></script>
+<script src="../dashboard_FOR_CM/js/app.js?v=8"></script>
 
 <script>
-  /* Carica meta.json per personalizzare header/sidebar */
+  /* Carica meta.json per personalizzare l'header con il nome della sede */
   if (window.META_URL) {
     fetch(window.META_URL)
       .then(r => r.json())
       .then(meta => {
-        const sede = meta.sede || 'Sede sconosciuta';
+        const sede = meta.sede || 'Sede';
+        const sedeShort = sede.split(' - ')[0] || sede;
         const partner = meta.partner || '';
-        document.getElementById('partnerSedeLabel').textContent = 'Partner · ' + sede.split(' - ')[0];
-        document.getElementById('partnerHeader').textContent = 'Sede ' + (sede.split(' - ')[0] || sede);
+        const num = meta.num || 0;
+        document.getElementById('partnerSedeLabel').textContent = 'Sede ' + sedeShort;
         document.getElementById('partnerHeaderSub').innerHTML =
-          (partner ? '<strong>' + partner + '</strong> &middot; ' : '') +
-          sede + ' &middot; ' + (meta.num || 0) + ' commesse';
-        document.title = 'Dashboard ' + (sede.split(' - ')[0] || 'Partner') + ' — Qualifica Group';
+          'Qualifica Group &middot; Sede <strong>' + sedeShort + '</strong>' +
+          (partner ? ' &middot; Partner: ' + partner : '') +
+          ' &middot; ' + num + ' commesse';
+        document.title = 'Dashboard ' + sedeShort + ' — Qualifica Group';
       })
       .catch(() => {});
   }
