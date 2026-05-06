@@ -8,17 +8,6 @@ body {
   min-height: 100vh;
 }
 
-/* Partner mode: nasconde elementi non pertinenti al singolo partner */
-body.partner-mode .partner-hide { display: none !important; }
-body.partner-mode .partner-banner {
-  background: linear-gradient(90deg, #6366f1, #8b5cf6);
-  color: white;
-  padding: 6px 14px;
-  font-size: 11px;
-  text-align: center;
-  letter-spacing: .3px;
-}
-
 /* Sidebar */
 .sidebar {
   width: var(--sidebar-w);
