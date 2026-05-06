@@ -16,7 +16,8 @@ const SECTIONS = {
   analisiCliente: renderAnalisiCliente,
   cessione: renderCessione,
   econFin: renderEconFin,
-  specEcon: renderSpecEcon
+  specEcon: renderSpecEcon,
+  linkPartner: typeof renderLinkPartner === 'function' ? renderLinkPartner : function(){}
 };
 
 function showSec(name) {
@@ -44,8 +45,8 @@ function renderCurrentSection() {
   }
 }
 
-// Load data
-fetch('data/commesse_for.json')
+// Load data (DATA_URL override per partner mode)
+fetch(window.DATA_URL || 'data/commesse_for.json')
   .then(r => r.json())
   .then(data => {
     D = data;
