@@ -157,7 +157,7 @@ function renderAvanzamento() {
   if (lowAvz.length > 0) {
     const sorted = lowAvz.sort((a, b) => b.consulenza - a.consulenza);
     buildTbl('tblLowAvz',
-      ['ID', 'Titolo del corso', 'Cliente', 'Ricavi', 'Avz.', 'Status', 'Stato Corso', 'ERP'],
+      ['ID', 'Titolo del corso', 'Cliente', 'Ricavi', 'Avz.', 'Status', 'Stato Corso', 'Qnet'],
       sorted.slice(0, 50).map(c => [
         c.id,
         { display: ((c.titolo || c.corso) || '').substring(0, 50), val: (c.titolo || c.corso) },
@@ -166,7 +166,7 @@ function renderAvanzamento() {
         { display: c.avanzamento + '%', val: c.avanzamento },
         tagStatus(c.status),
         tagCorso(c.statoCorso),
-        '<button class="btn-erp" onclick="openErp(' + c.id + ')">ERP</button>'
+        qnetBtn(c)
       ]),
       ['num', 'str', 'str', 'num', 'num', 'str', 'str', 'str']
     );
@@ -180,7 +180,7 @@ function renderSedi() {
 
   const g = {};
   f.forEach(c => {
-    const k = c.sedeOp || 'N/D';
+    const k = c.sedeNorm || c.sedeOp || 'N/D';
     if (!g[k]) g[k] = { cnt: 0, cons: 0, mol: 0 };
     g[k].cnt++;
     g[k].cons += c.consulenza;
@@ -189,6 +189,7 @@ function renderSedi() {
   const sorted = Object.entries(g).sort((a, b) => b[1].cons - a[1].cons);
 
   let h = '<div class="sec"><h3 class="sec-title">Sedi Operative</h3>';
+  h += '<p style="color:var(--text3);font-size:11px;margin-bottom:10px">Le sedi sono prefissate dal nome della Città per facilitare ricerca e raggruppamento.</p>';
   h += '<div class="card"><h4>Ricavi per Sede</h4><div class="chart-wrap"><canvas id="chSedi"></canvas></div></div>';
   h += '<div class="card" style="margin-top:14px"><div class="tbl-scroll"><table id="tblSedi"></table></div></div>';
   h += '</div>';
@@ -202,13 +203,13 @@ function renderSedi() {
   buildTbl('tblSedi',
     ['Sede', 'Comm.', 'Ricavi', 'MOL'],
     sorted.map(([k, v]) => [
-      { display: k.length > 50 ? k.substring(0, 48) + '..' : k, val: k },
+      { display: k.length > 60 ? k.substring(0, 58) + '..' : k, val: k },
       { display: fmt(v.cnt), val: v.cnt },
       { display: fmtE(v.cons), val: v.cons },
       { display: fmtE(v.mol), val: v.mol }
     ]),
     ['str', 'num', 'num', 'num'],
-    { clickField: 'sedeOp' }
+    { clickField: 'sedeNorm' }
   );
 }
 

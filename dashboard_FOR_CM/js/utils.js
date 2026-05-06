@@ -41,3 +41,12 @@ function progressBar(pct) {
 function mkpi(val, label) {
   return '<div class="modal-kpi"><div class="v">' + val + '</div><div class="l">' + label + '</div></div>';
 }
+
+/* Bottone "Apri in Qnet" — usa qnetLink/erpLink della commessa */
+function qnetBtn(c) {
+  const link = c && (c.qnetLink || c.erpLink);
+  if (link) {
+    return '<a class="btn-erp" href="' + link + '" target="_blank" rel="noopener" title="Apri commessa #' + c.id + ' in Qnet" onclick="event.stopPropagation()">Qnet &#8599;</a>';
+  }
+  return '<button class="btn-erp" disabled title="Link Qnet non disponibile" style="opacity:.4;cursor:not-allowed">Qnet</button>';
+}

@@ -16,7 +16,7 @@ function renderEconFin() {
   const el = document.getElementById('sec-econFin');
   const f = filtered;
 
-  // ── Dati ECONOMICI ──
+  // ── Dati ECONOMICI (totale teorico commessa) ──
   const ricavi = f.reduce((s, c) => s + (c.consulenza || 0), 0);
   const costi = f.reduce((s, c) => s + (c.costi || 0), 0);
   const mol = f.reduce((s, c) => s + (c.mol || 0), 0);
@@ -25,6 +25,17 @@ function renderEconFin() {
   const costoOra = ore ? (costi / ore) : 0;
   const ricavoOra = ore ? (ricavi / ore) : 0;
 
+  // ── Budget Commessa: Consuntivo Economico (% × totale) ──
+  const ecRic = f.reduce((s, c) => s + (c.ecRicaviCons || 0), 0);
+  const ecCos = f.reduce((s, c) => s + (c.ecCostiCons || 0), 0);
+  const ecMol = f.reduce((s, c) => s + (c.ecMolCons || 0), 0);
+  const avgAvanzEc = f.length ? f.reduce((s, c) => s + (c.pctAvanzEc || 0), 0) / f.length : 0;
+
+  // ── Budget Commessa: Documentale (fatturato/registrato) ──
+  const docRic = f.reduce((s, c) => s + (c.ricaviDocum || 0), 0);
+  const docCos = f.reduce((s, c) => s + (c.costiDocum || 0), 0);
+  const docMol = f.reduce((s, c) => s + (c.molDocum || 0), 0);
+
   // ── Dati FINANZIARI ──
   const incassato = f.reduce((s, c) => s + (c.giaIncassato || 0), 0);
   const daIncassare = f.reduce((s, c) => s + (c.daIncassare || 0), 0);
@@ -32,9 +43,31 @@ function renderEconFin() {
   const anticipi = f.reduce((s, c) => s + (c.anticipoImporto || 0), 0);
   const saldi = f.reduce((s, c) => s + (c.saldoImporto || 0), 0);
   const incassatoPct = ricavi ? (incassato / ricavi * 100) : 0;
+  // Budget Commessa: Finanziario (cassa reale)
+  const finIn = f.reduce((s, c) => s + (c.finIncassiTot || 0), 0);
+  const finOut = f.reduce((s, c) => s + (c.finUsciteTot || 0), 0);
+  const finDelta = f.reduce((s, c) => s + (c.finDeltaTot || 0), 0);
 
   let h = '<div class="sec"><h3 class="sec-title">Economico & Finanziario</h3>';
-  h += '<p style="color:var(--text3);font-size:11px;margin-bottom:14px">Analisi reddituale (Ricavi/Costi/MOL) e finanziaria (Incassato/Da Incassare) per Società, Cliente e Responsabile.</p>';
+  h += '<p style="color:var(--text3);font-size:11px;margin-bottom:14px">Analisi reddituale (totale teorico), Budget Commessa (Consuntivo Ec., Documentale, %) e Finanziario (cassa reale, allineato a Qnet).</p>';
+
+  // ═══ BUDGET COMMESSA: blocchi allineati a Qnet ═══
+  h += '<h4 style="font-size:13px;font-weight:700;color:#6366f1;margin:8px 0 10px 0;padding:4px 8px;border-left:3px solid #6366f1">BUDGET COMMESSA &middot; allineato a Qnet</h4>';
+  h += '<div class="kpi-grid" style="padding:0 0 14px 0">';
+  // Consuntivo Economico
+  h += '<div class="kpi blue"><div class="kpi-label">Ec. Ricavi Cons.</div><div class="kpi-value">' + fmtK(ecRic) + '</div><div class="kpi-sub">' + pct(ecRic, ricavi) + ' del teorico</div></div>';
+  h += '<div class="kpi orange"><div class="kpi-label">Ec. Costi Cons.</div><div class="kpi-value">' + fmtK(ecCos) + '</div><div class="kpi-sub">' + pct(ecCos, costi) + ' del teorico</div></div>';
+  h += '<div class="kpi green"><div class="kpi-label">Ec. MOL Cons.</div><div class="kpi-value">' + fmtK(ecMol) + '</div><div class="kpi-sub">margine consuntivato</div></div>';
+  h += '<div class="kpi cyan"><div class="kpi-label">% Avanz. Ec. medio</div><div class="kpi-value">' + avgAvanzEc.toFixed(1) + '%</div><div class="kpi-sub">media commesse</div></div>';
+  // Documentale
+  h += '<div class="kpi purple"><div class="kpi-label">Ricavi Documentali</div><div class="kpi-value">' + fmtK(docRic) + '</div><div class="kpi-sub">fatturato registrato</div></div>';
+  h += '<div class="kpi pink"><div class="kpi-label">Costi Documentali</div><div class="kpi-value">' + fmtK(docCos) + '</div><div class="kpi-sub">costi registrati</div></div>';
+  h += '<div class="kpi green"><div class="kpi-label">MOL Documentale</div><div class="kpi-value">' + fmtK(docMol) + '</div><div class="kpi-sub">margine fatturato</div></div>';
+  // Finanziario
+  h += '<div class="kpi blue"><div class="kpi-label">Fin. Incassi Tot.</div><div class="kpi-value">' + fmtK(finIn) + '</div><div class="kpi-sub">= Ricevuto Regione</div></div>';
+  h += '<div class="kpi orange"><div class="kpi-label">Fin. Uscite Tot.</div><div class="kpi-value">' + fmtK(finOut) + '</div><div class="kpi-sub">cassa uscita</div></div>';
+  h += '<div class="kpi ' + (finDelta >= 0 ? 'green' : 'pink') + '"><div class="kpi-label">Fin. Delta Tot.</div><div class="kpi-value">' + fmtK(finDelta) + '</div><div class="kpi-sub">netto cassa</div></div>';
+  h += '</div>';
 
   // ═══ DATI ECONOMICI ═══
   h += '<h4 style="font-size:13px;font-weight:700;color:var(--accent);margin:8px 0 10px 0;padding-left:2px;border-left:3px solid var(--accent);padding:4px 8px">REDDITUALE (Conto Economico)</h4>';

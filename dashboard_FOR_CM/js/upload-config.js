@@ -1,4 +1,4 @@
-/* Upload config — Dashboard Commesse Formazione */
+/* Upload config — Dashboard Commesse Formazione (V7) */
 window.UPLOAD_CONFIG = {
   label: 'Commesse Formazione',
   dataKey: null,
@@ -6,7 +6,11 @@ window.UPLOAD_CONFIG = {
   numericFields: ['consulenza', 'ricavi', 'costi', 'mol', 'ente', 'ore',
     'avanzamento', 'discenti', 'anticipoImporto', 'saldoImporto',
     'totRicavo', 'totRicevutoRegione', 'giaIncassato', 'daIncassare', 'euroResiduo',
-    'ed', 'anticipoDecreto', 'saldoDecreto'],
+    'ed', 'anticipoDecreto', 'saldoDecreto',
+    'ecRicaviCons', 'ecCostiCons', 'ecMolCons',
+    'ricaviDocum', 'costiDocum', 'molDocum',
+    'pctAvanzEc', 'pctRicaviEc', 'pctCostiEc', 'pctMolEc',
+    'finIncassiTot', 'finUsciteTot', 'finDeltaTot'],
   fieldMap: {
     'ID': 'id',
     'ID Contratto': 'idContratto',
@@ -18,6 +22,7 @@ window.UPLOAD_CONFIG = {
     'Sede Operativa': 'sedeOp',
     'Funzione aziendale': 'funzione',
     'Cliente': 'cliente',
+    'Regione': 'regione',
     'Responsabile': 'responsabile',
     'Corso': 'corso',
     'Titolo': 'titolo',
@@ -58,7 +63,7 @@ window.UPLOAD_CONFIG = {
     'Ultima Nota': 'ultimaNota',
     'Data Ultima Nota': 'dataUltimaNota',
     'Link ERP': 'erpLink',
-    /* ── Nuovi campi V6 ── */
+    /* ── Campi V6 ── */
     'Tipo Commessa': 'tipoCommessa',
     'Stato Corso': 'statoCorso',
     'Agente': 'agente',
@@ -78,15 +83,56 @@ window.UPLOAD_CONFIG = {
     'Saldo Data Richiesta': 'saldoDataRichiesta',
     'Saldo € da Decreto': 'saldoDecreto',
     'Saldo Data Accredito': 'saldoDataAccredito',
-    'Saldo Decreto Numero e Data': 'saldoDecretoNum'
+    'Saldo Decreto Numero e Data': 'saldoDecretoNum',
+    /* ── Nuovi campi V7 (Budget Commessa) ── */
+    'Ec. Ricavi Cons.': 'ecRicaviCons',
+    'Ec. Costi Cons.': 'ecCostiCons',
+    'Ec. MOL Cons.': 'ecMolCons',
+    'Ricavi Documentali': 'ricaviDocum',
+    'Costi Documentali': 'costiDocum',
+    'MOL Documentale': 'molDocum',
+    '% Avanzamento Ec.': 'pctAvanzEc',
+    '% Ricavi Economici': 'pctRicaviEc',
+    '% Costi Economici': 'pctCostiEc',
+    '% MOL Economico': 'pctMolEc',
+    'Fin. Incassi Tot.': 'finIncassiTot',
+    'Fin. Uscite Tot.': 'finUsciteTot',
+    'Fin. Delta Tot.': 'finDeltaTot',
+    'Link Commessa': 'qnetLink'
   },
   buildData: function(records) {
     records.forEach(r => {
+      // Avanzamento numerico da "XX%"
       if (r.avanzamentoRaw && !r.avanzamento) {
         const m = String(r.avanzamentoRaw).match(/(\d+)%/);
         r.avanzamento = m ? parseInt(m[1]) : 0;
       }
+      // Sede normalizzata: "Città - Indirizzo"
+      r.sedeNorm = window.UPLOAD_CONFIG._normalizeSede(r.sedeOp, r.citta);
+      // Fin. Incassi Tot. → fallback su Totale Ricevuto Regione
+      if (!r.finIncassiTot && r.totRicevutoRegione) {
+        r.finIncassiTot = r.totRicevutoRegione;
+      }
+      // Alias erpLink ↔ qnetLink
+      if (r.qnetLink && !r.erpLink) r.erpLink = r.qnetLink;
+      if (r.erpLink && !r.qnetLink) r.qnetLink = r.erpLink;
     });
     return records;
+  },
+  _normalizeSede: function(sedeOp, citta) {
+    if (!sedeOp) return '';
+    const txt = String(sedeOp).trim();
+    let cit = (citta || '').trim();
+    if (!cit) {
+      const m = txt.match(/[-–]\s*([^-–]+?)\s*$/);
+      if (m) {
+        cit = m[1].trim().replace(/^\d+\s*-?\s*/, '').trim();
+      }
+    }
+    if (!cit) return txt;
+    if (cit === cit.toUpperCase() || cit === cit.toLowerCase()) {
+      cit = cit.toLowerCase().replace(/\b\w/g, ch => ch.toUpperCase());
+    }
+    return cit + ' - ' + txt;
   }
 };
