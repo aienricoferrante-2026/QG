@@ -1,9 +1,11 @@
 /* ── Multi-level Stack-based Drill-down Navigator ── */
 
 const DRILL_FIELDS = [
+  { key: 'sedeNorm', label: 'Sede' },
   { key: 'sedeOp', label: 'Sede Operativa' },
   { key: 'corso', label: 'Corso' },
   { key: 'cliente', label: 'Cliente' },
+  { key: 'regione', label: 'Regione' },
   { key: 'responsabile', label: 'Responsabile' },
   { key: 'societa', label: 'Societa' },
   { key: 'status', label: 'Status' },
@@ -185,7 +187,7 @@ function buildMFilters() {
     { id: 'mfCorso', label: 'Stato Corso', key: 'statoCorso' },
     { id: 'mfClasse', label: 'Classe', key: 'statoClasse' },
     { id: 'mfResp', label: 'Responsabile', key: 'responsabile' },
-    { id: 'mfSede', label: 'Sede Operativa', key: 'sedeOp' },
+    { id: 'mfSede', label: 'Sede', key: 'sedeNorm' },
     { id: 'mfCliM', label: 'Cliente', key: 'cliente' },
   ].filter(f => !drilledFields.includes(f.key));
 
@@ -210,7 +212,7 @@ function getFilteredMItems() {
   if (!_mStack.length) return [];
   const cur = _cur();
   const fIds = ['mfStatus', 'mfCorso', 'mfClasse', 'mfResp', 'mfSede', 'mfCliM'];
-  const fKeys = ['status', 'statoCorso', 'statoClasse', 'responsabile', 'sedeOp', 'cliente'];
+  const fKeys = ['status', 'statoCorso', 'statoClasse', 'responsabile', 'sedeNorm', 'cliente'];
   const fv = {};
   fIds.forEach((id, i) => { const el = document.getElementById(id); if (el) fv[fKeys[i]] = el.value; });
   const q = (document.getElementById('modalSearch') || {}).value;
@@ -317,7 +319,7 @@ function buildGroupedTable(items, groupField) {
 /* ── Detail table (individual commesse) with pagination and ERP ── */
 function buildMTable(items) {
   const cur = _cur();
-  const hdrs = ['ID', 'Corso', 'Cliente', 'Status', 'Stato Corso', 'Ricavi', 'Costi', 'MOL', 'Ore', 'Avz.', 'ERP'];
+  const hdrs = ['ID', 'Corso', 'Cliente', 'Status', 'Stato Corso', 'Ricavi', 'Costi', 'MOL', 'Ore', 'Avz.', 'Qnet'];
   const types = ['num', 'str', 'str', 'str', 'str', 'num', 'num', 'num', 'num', 'num', 'str'];
 
   const pp = cur.perPage === 0 ? items.length : cur.perPage;
@@ -341,7 +343,7 @@ function buildMTable(items) {
     h += '<td class="text-right" data-val="' + c.mol + '">' + fmtE(c.mol) + '</td>';
     h += '<td class="text-right" data-val="' + c.ore + '">' + fmt(c.ore) + '</td>';
     h += '<td data-val="' + c.avanzamento + '">' + c.avanzamento + '%</td>';
-    h += '<td><button class="btn-erp" onclick="openErp(' + c.id + ')">Apri ERP</button></td>';
+    h += '<td>' + qnetBtn(c) + '</td>';
     h += '</tr>';
   });
 

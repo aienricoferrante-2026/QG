@@ -5,6 +5,7 @@ const FILTER_DEFS = [
   { id: 'fCorso', key: 'statoCorso', ph: 'Tutti' },
   { id: 'fCliente', key: 'cliente', ph: 'Tutti' },
   { id: 'fSocieta', key: 'societa', ph: 'Tutte' },
+  { id: 'fSede', key: 'sedeNorm', ph: 'Tutte' },
   { id: 'fResp', key: 'responsabile', ph: 'Tutti' },
   { id: 'fTipoCorso', key: 'corso', ph: 'Tutti' },
   { id: 'fClasse', key: 'statoClasse', ph: 'Tutte' }
@@ -58,7 +59,7 @@ function renderActiveFilters() {
   const el = document.getElementById('activeFilters');
   const labels = {
     fStatus: 'Status', fCorso: 'Stato Corso', fCliente: 'Cliente',
-    fSocieta: 'Societa', fResp: 'Responsabile', fTipoCorso: 'Corso', fClasse: 'Classe'
+    fSocieta: 'Societa', fSede: 'Sede', fResp: 'Responsabile', fTipoCorso: 'Corso', fClasse: 'Classe'
   };
   let h = '';
   FILTER_DEFS.forEach(f => {
