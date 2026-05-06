@@ -2,262 +2,299 @@
   "partners": [
     {
       "sede": "-",
-      "token": "VL2ECRlWcaw0",
+      "token": "ZZZ_XXX_FPDzRxewMLa0",
       "partner": "",
       "created": null,
-      "num": 1
+      "num": 1,
+      "regione": ""
     },
     {
       "sede": "Arese - Via delle Industrie, 18 - Arese",
-      "token": "AyGGZJ4jPwQ6",
+      "token": "LOM_ARESE_GTST2_MKlaMW",
       "partner": "",
       "created": null,
-      "num": 14
+      "num": 14,
+      "regione": "Lombardia"
     },
     {
       "sede": "Avellino - Largo S. Scoca, 2 - Avellino",
-      "token": "qgBibNdIIKwd",
+      "token": "CAM_AVELLINO_JMakRBpsLFz5",
       "partner": "",
       "created": null,
-      "num": 16
+      "num": 16,
+      "regione": "Campania"
     },
     {
       "sede": "Aversa - Via Armando Diaz, 57 - Aversa",
-      "token": "FXxeQSt9_rV4",
+      "token": "CAM_AVERSA_YlAX0W1ofxS2",
       "partner": "",
       "created": null,
-      "num": 38
+      "num": 38,
+      "regione": "Campania"
     },
     {
       "sede": "Bergamo 1 - Via dei Partigiani, 4 - Bergamo 1",
-      "token": "CE3h5ddNo2gI",
+      "token": "LOM_BERGAMO_1_LLn2zVRn3jff",
       "partner": "",
       "created": null,
-      "num": 56
+      "num": 56,
+      "regione": "Lombardia"
     },
     {
       "sede": "Caltanissetta - Via Libertà,  136 - Caltanissetta",
-      "token": "DXy4j1wNLJP-",
+      "token": "SIC_CALTANISSETTA_NNyBegyVSAly",
       "partner": "",
       "created": null,
-      "num": 32
+      "num": 32,
+      "regione": "Sicilia"
     },
     {
       "sede": "Cardito - Madre Teresa di Calcutta 8 - Cardito",
-      "token": "BT_rs1YBChOM",
+      "token": "CAM_CARDITO_HpUnRomvZTkp",
       "partner": "",
       "created": null,
-      "num": 63
+      "num": 63,
+      "regione": "Campania"
     },
     {
       "sede": "Casal di Principe - Via Milano, 52 - Casal di Principe",
-      "token": "7gQe5yxU4DH2",
+      "token": "CAM_CASAL_DI_PRINCIPE_VA6inacw3JoL",
       "partner": "",
       "created": null,
-      "num": 36
+      "num": 36,
+      "regione": "Campania"
     },
     {
       "sede": "Casalnuovo di Napoli - Via Padre Carmine Fico, 23 - Casalnuovo di Napoli",
-      "token": "z0l05CBFYbVX",
+      "token": "CAM_CASALNUOVO_DI_NAPOLI_4TwvGL5wu6O7",
       "partner": "",
       "created": null,
-      "num": 108
+      "num": 108,
+      "regione": "Campania"
     },
     {
       "sede": "Caserta - Via Arena snc - Caserta",
-      "token": "HOInjK8ggJWS",
+      "token": "CAM_CASERTA_dbZ3TkImju26",
       "partner": "",
       "created": null,
-      "num": 72
+      "num": 72,
+      "regione": "Campania"
     },
     {
       "sede": "Cassino - Via Gabriele D’Annunzio, 69 - Cassino",
-      "token": "auc_M1aoMMgS",
+      "token": "LAZ_CASSINO_KRVXH0NJSX0c",
       "partner": "",
       "created": null,
-      "num": 26
+      "num": 26,
+      "regione": "Lazio"
     },
     {
       "sede": "Catanzaro - Viale Vincenzo De filippis, 38 - Catanzaro",
-      "token": "7D2p3TcIVglM",
+      "token": "CAL_CATANZARO_XA41EkKkBKdc",
       "partner": "",
       "created": null,
-      "num": 3
+      "num": 3,
+      "regione": "Calabria"
     },
     {
       "sede": "Comiso 1 - Via Lagrange 2/A - Comiso 1",
-      "token": "RYPvkl41xWDs",
+      "token": "SIC_COMISO_1_b4By2h6o8oF1",
       "partner": "",
       "created": null,
-      "num": 2
+      "num": 2,
+      "regione": "Sicilia"
     },
     {
       "sede": "Fonte Nuova - Via II Giugno , SNC - Fonte Nuova",
-      "token": "Xb4mZcWHE_EE",
+      "token": "LAZ_FONTE_NUOVA_u3KPZYrrtuMp",
       "partner": "",
       "created": null,
-      "num": 20
+      "num": 20,
+      "regione": "Lazio"
     },
     {
       "sede": "Frattamaggiore - -",
-      "token": "PkFYv31e31ON",
+      "token": "ZZZ_FRATTAMAGGIORE_e3jGJh9P4Drj",
       "partner": "",
       "created": null,
-      "num": 1
+      "num": 1,
+      "regione": ""
     },
     {
       "sede": "Frattamaggiore 1 (Hq) - Via Sepano, lotto 28 -  FRATTAMAGGIORE 1 (HQ)",
-      "token": "8ImhVTAg2p9e",
+      "token": "CAM_FRATTAMAGGIORE_1_HQ_KkjSrObhGa_Z",
       "partner": "",
       "created": null,
-      "num": 177
+      "num": 177,
+      "regione": "Campania"
     },
     {
       "sede": "Frattamaggiore 2 - Via Venezia, 21 - Frattamaggiore 2",
-      "token": "wZgYQogtQx6C",
+      "token": "CAM_FRATTAMAGGIORE_2__wO8pw6zdizl",
       "partner": "",
       "created": null,
-      "num": 77
+      "num": 77,
+      "regione": "Campania"
     },
     {
       "sede": "Grumello del Monte - Via Europa - Grumello del Monte",
-      "token": "zRqUycJYEle9",
+      "token": "LOM_GRUMELLO_DEL_MONTE_pqy3lbt3Wwth",
       "partner": "",
       "created": null,
-      "num": 25
+      "num": 25,
+      "regione": "Lombardia"
     },
     {
       "sede": "Isernia - Corso Giuseppe Garibaldi, 303/A - Isernia",
-      "token": "rAJdCh0co2Iw",
+      "token": "MOL_ISERNIA_7fH3hV0zrfjE",
       "partner": "",
       "created": null,
-      "num": 11
+      "num": 11,
+      "regione": "Molise"
     },
     {
       "sede": "Latina - Viale dello Statuto, 24 - Latina",
-      "token": "6lT2kVLG_Qzg",
+      "token": "LAZ_LATINA_ZBm7AAOiVsUL",
       "partner": "",
       "created": null,
-      "num": 33
+      "num": 33,
+      "regione": "Lazio"
     },
     {
       "sede": "Mazzarino - Via Antonio Meucci, 1 - Mazzarino",
-      "token": "vsYEZFgQH5FN",
+      "token": "SIC_MAZZARINO_YjIrfDQBzGZr",
       "partner": "",
       "created": null,
-      "num": 2
+      "num": 2,
+      "regione": "Sicilia"
     },
     {
       "sede": "Melfi - Contrada Vessinella, 5/A - Melfi",
-      "token": "mFqms3W3rO3i",
+      "token": "BAS_MELFI_HxBUaRVd1ETZ",
       "partner": "",
       "created": null,
-      "num": 42
+      "num": 42,
+      "regione": "Basilicata"
     },
     {
       "sede": "Mondragone - Via Caserta n. 50 - Mondragone",
-      "token": "DLdlbaLvjTZ4",
+      "token": "CAM_MONDRAGONE_oF_h2oerLLt4",
       "partner": "",
       "created": null,
-      "num": 46
+      "num": 46,
+      "regione": "Campania"
     },
     {
       "sede": "Mussomeli - Via santa Maria del monte , 14 - Mussomeli",
-      "token": "CynqW4uLtuxO",
+      "token": "SIC_MUSSOMELI_5fyuHDK-tQvc",
       "partner": "",
       "created": null,
-      "num": 6
+      "num": 6,
+      "regione": "Sicilia"
     },
     {
       "sede": "Niscemi - Via V. Bellini, 2 - Niscemi",
-      "token": "6wpLDFDx_LgR",
+      "token": "SIC_NISCEMI_vMYE3QMiMMX5",
       "partner": "",
       "created": null,
-      "num": 5
+      "num": 5,
+      "regione": "Sicilia"
     },
     {
       "sede": "Nola - Via On. Francesco Napolitano n° 25, 27 Piano 2 Scala Int. 21,22 - Nola",
-      "token": "U9nEL3mpRutz",
+      "token": "CAM_NOLA_7cJQJCtPrktb",
       "partner": "",
       "created": null,
-      "num": 82
+      "num": 82,
+      "regione": "Campania"
     },
     {
       "sede": "Pero - Via Figino, n. 22 - Pero",
-      "token": "Fu8NJQQjUOq1",
+      "token": "LOM_PERO_NrYebs0inQbC",
       "partner": "",
       "created": null,
-      "num": 28
+      "num": 28,
+      "regione": "Lombardia"
     },
     {
       "sede": "Pescara - Via del Santuario, 160 - Pescara",
-      "token": "tcadXblJhELc",
+      "token": "ABR_PESCARA_azilP41Fk-B3",
       "partner": "",
       "created": null,
-      "num": 28
+      "num": 28,
+      "regione": "Abruzzo"
     },
     {
       "sede": "Riesi - Via Principe Umberto, 38 - Riesi",
-      "token": "bzE3yxKIgB2M",
+      "token": "SIC_RIESI_VPCAW59bAPTk",
       "partner": "",
       "created": null,
-      "num": 5
+      "num": 5,
+      "regione": "Sicilia"
     },
     {
       "sede": "Roma - Via Sepano, lotto 28 -  FRATTAMAGGIORE 1 (HQ)",
-      "token": "Q_B1pxND5_k-",
+      "token": "CAM_ROMA_JztjuUtiGG4v",
       "partner": "",
       "created": null,
-      "num": 2
+      "num": 2,
+      "regione": "Campania"
     },
     {
       "sede": "Roma 1 - Via Zoe Fontana , 220 - Roma 1",
-      "token": "Ugla8VX_EDtF",
+      "token": "LAZ_ROMA_1_g2wPkWYlCdQ_",
       "partner": "",
       "created": null,
-      "num": 103
+      "num": 103,
+      "regione": "Lazio"
     },
     {
       "sede": "Roma 2 - Via Casilina, 526 - Roma 2",
-      "token": "pvTPQLZ713l9",
+      "token": "LAZ_ROMA_2_h2hpolKRLJej",
       "partner": "",
       "created": null,
-      "num": 5
+      "num": 5,
+      "regione": "Lazio"
     },
     {
       "sede": "Roma 3 - Via Casilina , 1665 - Roma 3",
-      "token": "3luHj63U0aem",
+      "token": "LAZ_ROMA_3_z1R_hcPCnapr",
       "partner": "",
       "created": null,
-      "num": 4
+      "num": 4,
+      "regione": "Lazio"
     },
     {
       "sede": "Teverola - Zona Industriale ASI SNC - Teverola",
-      "token": "jX2X4wrwiI9p",
+      "token": "CAM_TEVEROLA_KS8THVp0IzuS",
       "partner": "",
       "created": null,
-      "num": 41
+      "num": 41,
+      "regione": "Campania"
     },
     {
       "sede": "Villa di Briano - Via Nikita Kruscev snc - Villa di Briano",
-      "token": "3gNwd5ckkOn5",
+      "token": "CAM_VILLA_DI_BRIANO_Sju_1PofAs2t",
       "partner": "",
       "created": null,
-      "num": 48
+      "num": 48,
+      "regione": "Campania"
     },
     {
       "sede": "Villaricca - Via della Libertà, 1104 - Villaricca",
-      "token": "ZCpy4N5z84Ur",
+      "token": "CAM_VILLARICCA_3kksSYm5S8EX",
       "partner": "",
       "created": null,
-      "num": 66
+      "num": 66,
+      "regione": "Campania"
     },
     {
       "sede": "Viterbo - Via Tarcone, 30 - Viterbo",
-      "token": "Q4ENVybO0Ryv",
+      "token": "LAZ_VITERBO_HmAUrtB4DNdu",
       "partner": "",
       "created": null,
-      "num": 11
+      "num": 11,
+      "regione": "Lazio"
     }
   ],
   "count": 37
