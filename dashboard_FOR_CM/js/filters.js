@@ -1,6 +1,6 @@
 /* ── Filter Logic with dynamic counts (Multi-Select) ── */
 
-const FILTER_DEFS = [
+const _ALL_FILTER_DEFS = [
   { id: 'fStatus', key: 'status', ph: 'Tutti' },
   { id: 'fCorso', key: 'statoCorso', ph: 'Tutti' },
   { id: 'fCliente', key: 'cliente', ph: 'Tutti' },
@@ -10,6 +10,11 @@ const FILTER_DEFS = [
   { id: 'fTipoCorso', key: 'corso', ph: 'Tutti' },
   { id: 'fClasse', key: 'statoClasse', ph: 'Tutte' }
 ];
+
+/* In partner mode, restringi i filtri agli ID elencati in window.PARTNER_FILTERS */
+const FILTER_DEFS = (window.PARTNER_FILTERS && Array.isArray(window.PARTNER_FILTERS))
+  ? _ALL_FILTER_DEFS.filter(f => window.PARTNER_FILTERS.indexOf(f.id) !== -1)
+  : _ALL_FILTER_DEFS;
 
 function _norm(v) { return (v && v.trim()) ? v : 'N/D'; }
 

@@ -3,23 +3,37 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard Formazione Commesse - Qualifica Group</title>
+  <title>Dashboard Partner — Qualifica Group</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <link rel="stylesheet" href="css/variables.css">
-  <link rel="stylesheet" href="css/layout.css">
-  <link rel="stylesheet" href="css/tables.css">
-  <link rel="stylesheet" href="css/modal.css">
-  <link rel="stylesheet" href="../shared/upload.css">
-  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+  <link rel="stylesheet" href="../dashboard_FOR_CM/css/variables.css">
+  <link rel="stylesheet" href="../dashboard_FOR_CM/css/layout.css">
+  <link rel="stylesheet" href="../dashboard_FOR_CM/css/tables.css">
+  <link rel="stylesheet" href="../dashboard_FOR_CM/css/modal.css">
+  <script>
+    /* Partner mode bootstrap */
+    (function () {
+      const params = new URLSearchParams(window.location.search);
+      const token = (params.get('t') || '').replace(/[^a-zA-Z0-9_-]/g, '');
+      if (!token) {
+        document.addEventListener('DOMContentLoaded', () => {
+          document.body.innerHTML = '<div style="padding:60px;text-align:center;font-family:sans-serif"><h2 style="color:#ef4444">Link non valido</h2><p style="color:#94a3b8;margin-top:8px">Manca il token di accesso.</p></div>';
+        });
+        return;
+      }
+      window.PARTNER_TOKEN = token;
+      window.DATA_URL = './' + token + '/data.json';
+      window.META_URL = './' + token + '/meta.json';
+    })();
+  </script>
 </head>
-<body>
+<body class="partner-mode">
 
 <!-- SIDEBAR TOGGLE -->
 <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()" title="Nascondi/Mostra menu">&#9776;</button>
 
 <!-- SIDEBAR -->
 <nav class="sidebar">
-  <div class="sidebar-brand"><h2>Qualifica Group</h2><p>Dashboard Formazione v1</p></div>
+  <div class="sidebar-brand"><h2>Qualifica Group</h2><p id="partnerSedeLabel">Dashboard Partner</p></div>
   <div class="nav-group">
     <div class="nav-group-label">Overview</div>
     <a class="nav-item active" data-sec="executive" onclick="showSec('executive')"><span class="nav-icon">&#9632;</span>Executive Summary</a>
@@ -31,68 +45,50 @@
     <a class="nav-item" data-sec="corsi" onclick="showSec('corsi')"><span class="nav-icon">&#9654;</span>Corsi</a>
     <a class="nav-item" data-sec="responsabili" onclick="showSec('responsabili')"><span class="nav-icon">&#9881;</span>Responsabili</a>
     <a class="nav-item" data-sec="clienti" onclick="showSec('clienti')"><span class="nav-icon">&#9673;</span>Clienti / Enti</a>
-    <a class="nav-item" data-sec="sedi" onclick="showSec('sedi')"><span class="nav-icon">&#9660;</span>Sedi</a>
     <a class="nav-item" data-sec="analisiCliente" onclick="showSec('analisiCliente')"><span class="nav-icon">&#9776;</span>Analisi Cliente</a>
-    <a class="nav-item" data-sec="cessione" onclick="showSec('cessione')"><span class="nav-icon">&#8381;</span>Cessione Credito</a>
-    <a class="nav-item" data-sec="specEcon" onclick="showSec('specEcon')"><span class="nav-icon">&#9965;</span>Specifica Economica</a>
   </div>
   <div class="nav-group">
     <div class="nav-group-label">Stato</div>
     <a class="nav-item" data-sec="avanzamento" onclick="showSec('avanzamento')"><span class="nav-icon">&#9202;</span>Avanzamento</a>
     <a class="nav-item" data-sec="alert" onclick="showSec('alert')"><span class="nav-icon">&#9888;</span>Alert</a>
   </div>
-  <div class="nav-group">
-    <div class="nav-group-label">Admin</div>
-    <a class="nav-item" data-sec="linkPartner" onclick="showSec('linkPartner')"><span class="nav-icon">&#128279;</span>Link Partner</a>
-  </div>
 </nav>
 
 <!-- MAIN CONTENT -->
 <main class="main">
+  <div class="partner-banner">Vista Partner &middot; Solo i dati della tua sede &middot; Read-only</div>
   <div class="header">
     <div>
-      <h1>Dashboard Formazione Commesse</h1>
-      <div class="header-sub">Qualifica Group &middot; Agg. 6 Maggio 2026 &middot; 1.335 commesse</div>
+      <h1 id="partnerHeader">Dashboard Partner</h1>
+      <div class="header-sub" id="partnerHeaderSub">Caricamento&hellip;</div>
     </div>
   </div>
 
-  <!-- Global Filters -->
+  <!-- Filters (no Sede, no upload) -->
   <div class="filters">
     <div class="filter-group"><label>Status</label><div class="ms-wrap" id="fStatus"></div></div>
     <div class="filter-group"><label>Stato Corso</label><div class="ms-wrap" id="fCorso"></div></div>
     <div class="filter-group"><label>Cliente</label><div class="ms-wrap" id="fCliente"></div></div>
-    <div class="filter-group"><label>Societa</label><div class="ms-wrap" id="fSocieta"></div></div>
-    <div class="filter-group"><label>Sede</label><div class="ms-wrap" id="fSede"></div></div>
     <div class="filter-group"><label>Responsabile</label><div class="ms-wrap" id="fResp"></div></div>
     <div class="filter-group"><label>Corso</label><div class="ms-wrap" id="fTipoCorso"></div></div>
     <div class="filter-group"><label>Classe</label><div class="ms-wrap" id="fClasse"></div></div>
     <button class="filter-reset" onclick="resetFilters()">Reset</button>
-    <button class="filter-reset" style="background:rgba(16,185,129,.12);border-color:#10b981;color:#10b981" onclick="exportExcelCessione()" title="Esporta file Excel per cessione del credito">&#8681; Esporta Excel Cessione</button>
   </div>
 
-  <!-- Active Filter Chips -->
   <div id="activeFilters" class="active-filters"></div>
-
-  <!-- Filtered KPIs -->
   <div id="filteredKpis" class="kpi-grid"></div>
 
-  <!-- Sections -->
   <div id="sec-executive"></div>
   <div id="sec-ricavi" class="hidden"></div>
   <div id="sec-corsi" class="hidden"></div>
   <div id="sec-responsabili" class="hidden"></div>
   <div id="sec-clienti" class="hidden"></div>
-  <div id="sec-sedi" class="hidden"></div>
   <div id="sec-avanzamento" class="hidden"></div>
   <div id="sec-alert" class="hidden"></div>
   <div id="sec-analisiCliente" class="hidden"></div>
-  <div id="sec-cessione" class="hidden"></div>
   <div id="sec-econFin" class="hidden"></div>
-  <div id="sec-specEcon" class="hidden"></div>
-  <div id="sec-linkPartner" class="hidden"></div>
 </main>
 
-<!-- Drill-Down Modal -->
 <div class="modal-overlay" id="modal">
   <div class="modal">
     <div class="modal-header">
@@ -103,25 +99,45 @@
   </div>
 </div>
 
-<!-- Scripts (v2 cache-bust) -->
+<!-- Partner mode: filtri ridotti (senza fSede, senza fSocieta) -->
+<script>
+  // Override FILTER_DEFS prima del caricamento di filters.js
+  // (filters.js dichiara const FILTER_DEFS, quindi sovrascrivere non funziona; usiamo una flag che filters.js leggerà)
+  window.PARTNER_FILTERS = ['fStatus', 'fCorso', 'fCliente', 'fResp', 'fTipoCorso', 'fClasse'];
+</script>
+
 <script src="../shared/multiselect.js?v=1"></script>
-<script src="js/utils.js?v=4"></script>
-<script src="js/tables.js?v=3"></script>
-<script src="js/charts.js?v=3"></script>
-<script src="js/drilldown.js?v=4"></script>
-<script src="js/filters.js?v=5"></script>
-<script src="js/kpis.js?v=3"></script>
-<script src="js/sections-overview.js?v=3"></script>
-<script src="js/sections-corsi.js?v=3"></script>
-<script src="js/sections-finance.js?v=4"></script>
-<script src="js/export-cessione.js?v=4"></script>
-<script src="js/info-tooltip.js?v=1"></script>
-<script src="js/section-econfin.js?v=3"></script>
-<script src="js/section-spec-econ.js?v=2"></script>
-<script src="js/section-link-partner.js?v=1"></script>
-<script src="js/upload-config.js?v=2"></script>
-<script src="../shared/upload.js"></script>
-<script src="js/app.js?v=8"></script>
+<script src="../dashboard_FOR_CM/js/utils.js?v=4"></script>
+<script src="../dashboard_FOR_CM/js/tables.js?v=3"></script>
+<script src="../dashboard_FOR_CM/js/charts.js?v=3"></script>
+<script src="../dashboard_FOR_CM/js/drilldown.js?v=4"></script>
+<script src="../dashboard_FOR_CM/js/filters.js?v=4"></script>
+<script src="../dashboard_FOR_CM/js/kpis.js?v=3"></script>
+<script src="../dashboard_FOR_CM/js/sections-overview.js?v=3"></script>
+<script src="../dashboard_FOR_CM/js/sections-corsi.js?v=3"></script>
+<script src="../dashboard_FOR_CM/js/sections-finance.js?v=4"></script>
+<script src="../dashboard_FOR_CM/js/info-tooltip.js?v=1"></script>
+<script src="../dashboard_FOR_CM/js/section-econfin.js?v=3"></script>
+<script src="../dashboard_FOR_CM/js/app.js?v=7"></script>
+
+<script>
+  /* Carica meta.json per personalizzare header/sidebar */
+  if (window.META_URL) {
+    fetch(window.META_URL)
+      .then(r => r.json())
+      .then(meta => {
+        const sede = meta.sede || 'Sede sconosciuta';
+        const partner = meta.partner || '';
+        document.getElementById('partnerSedeLabel').textContent = 'Partner · ' + sede.split(' - ')[0];
+        document.getElementById('partnerHeader').textContent = 'Sede ' + (sede.split(' - ')[0] || sede);
+        document.getElementById('partnerHeaderSub').innerHTML =
+          (partner ? '<strong>' + partner + '</strong> &middot; ' : '') +
+          sede + ' &middot; ' + (meta.num || 0) + ' commesse';
+        document.title = 'Dashboard ' + (sede.split(' - ')[0] || 'Partner') + ' — Qualifica Group';
+      })
+      .catch(() => {});
+  }
+</script>
 
 </body>
 </html>

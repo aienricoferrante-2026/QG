@@ -1,0 +1,264 @@
+{
+  "partners": [
+    {
+      "sede": "-",
+      "token": "VL2ECRlWcaw0",
+      "partner": "",
+      "created": null,
+      "num": 1
+    },
+    {
+      "sede": "Arese - Via delle Industrie, 18 - Arese",
+      "token": "AyGGZJ4jPwQ6",
+      "partner": "",
+      "created": null,
+      "num": 14
+    },
+    {
+      "sede": "Avellino - Largo S. Scoca, 2 - Avellino",
+      "token": "qgBibNdIIKwd",
+      "partner": "",
+      "created": null,
+      "num": 16
+    },
+    {
+      "sede": "Aversa - Via Armando Diaz, 57 - Aversa",
+      "token": "FXxeQSt9_rV4",
+      "partner": "",
+      "created": null,
+      "num": 38
+    },
+    {
+      "sede": "Bergamo 1 - Via dei Partigiani, 4 - Bergamo 1",
+      "token": "CE3h5ddNo2gI",
+      "partner": "",
+      "created": null,
+      "num": 56
+    },
+    {
+      "sede": "Caltanissetta - Via Libertà,  136 - Caltanissetta",
+      "token": "DXy4j1wNLJP-",
+      "partner": "",
+      "created": null,
+      "num": 32
+    },
+    {
+      "sede": "Cardito - Madre Teresa di Calcutta 8 - Cardito",
+      "token": "BT_rs1YBChOM",
+      "partner": "",
+      "created": null,
+      "num": 63
+    },
+    {
+      "sede": "Casal di Principe - Via Milano, 52 - Casal di Principe",
+      "token": "7gQe5yxU4DH2",
+      "partner": "",
+      "created": null,
+      "num": 36
+    },
+    {
+      "sede": "Casalnuovo di Napoli - Via Padre Carmine Fico, 23 - Casalnuovo di Napoli",
+      "token": "z0l05CBFYbVX",
+      "partner": "",
+      "created": null,
+      "num": 108
+    },
+    {
+      "sede": "Caserta - Via Arena snc - Caserta",
+      "token": "HOInjK8ggJWS",
+      "partner": "",
+      "created": null,
+      "num": 72
+    },
+    {
+      "sede": "Cassino - Via Gabriele D’Annunzio, 69 - Cassino",
+      "token": "auc_M1aoMMgS",
+      "partner": "",
+      "created": null,
+      "num": 26
+    },
+    {
+      "sede": "Catanzaro - Viale Vincenzo De filippis, 38 - Catanzaro",
+      "token": "7D2p3TcIVglM",
+      "partner": "",
+      "created": null,
+      "num": 3
+    },
+    {
+      "sede": "Comiso 1 - Via Lagrange 2/A - Comiso 1",
+      "token": "RYPvkl41xWDs",
+      "partner": "",
+      "created": null,
+      "num": 2
+    },
+    {
+      "sede": "Fonte Nuova - Via II Giugno , SNC - Fonte Nuova",
+      "token": "Xb4mZcWHE_EE",
+      "partner": "",
+      "created": null,
+      "num": 20
+    },
+    {
+      "sede": "Frattamaggiore - -",
+      "token": "PkFYv31e31ON",
+      "partner": "",
+      "created": null,
+      "num": 1
+    },
+    {
+      "sede": "Frattamaggiore 1 (Hq) - Via Sepano, lotto 28 -  FRATTAMAGGIORE 1 (HQ)",
+      "token": "8ImhVTAg2p9e",
+      "partner": "",
+      "created": null,
+      "num": 177
+    },
+    {
+      "sede": "Frattamaggiore 2 - Via Venezia, 21 - Frattamaggiore 2",
+      "token": "wZgYQogtQx6C",
+      "partner": "",
+      "created": null,
+      "num": 77
+    },
+    {
+      "sede": "Grumello del Monte - Via Europa - Grumello del Monte",
+      "token": "zRqUycJYEle9",
+      "partner": "",
+      "created": null,
+      "num": 25
+    },
+    {
+      "sede": "Isernia - Corso Giuseppe Garibaldi, 303/A - Isernia",
+      "token": "rAJdCh0co2Iw",
+      "partner": "",
+      "created": null,
+      "num": 11
+    },
+    {
+      "sede": "Latina - Viale dello Statuto, 24 - Latina",
+      "token": "6lT2kVLG_Qzg",
+      "partner": "",
+      "created": null,
+      "num": 33
+    },
+    {
+      "sede": "Mazzarino - Via Antonio Meucci, 1 - Mazzarino",
+      "token": "vsYEZFgQH5FN",
+      "partner": "",
+      "created": null,
+      "num": 2
+    },
+    {
+      "sede": "Melfi - Contrada Vessinella, 5/A - Melfi",
+      "token": "mFqms3W3rO3i",
+      "partner": "",
+      "created": null,
+      "num": 42
+    },
+    {
+      "sede": "Mondragone - Via Caserta n. 50 - Mondragone",
+      "token": "DLdlbaLvjTZ4",
+      "partner": "",
+      "created": null,
+      "num": 46
+    },
+    {
+      "sede": "Mussomeli - Via santa Maria del monte , 14 - Mussomeli",
+      "token": "CynqW4uLtuxO",
+      "partner": "",
+      "created": null,
+      "num": 6
+    },
+    {
+      "sede": "Niscemi - Via V. Bellini, 2 - Niscemi",
+      "token": "6wpLDFDx_LgR",
+      "partner": "",
+      "created": null,
+      "num": 5
+    },
+    {
+      "sede": "Nola - Via On. Francesco Napolitano n° 25, 27 Piano 2 Scala Int. 21,22 - Nola",
+      "token": "U9nEL3mpRutz",
+      "partner": "",
+      "created": null,
+      "num": 82
+    },
+    {
+      "sede": "Pero - Via Figino, n. 22 - Pero",
+      "token": "Fu8NJQQjUOq1",
+      "partner": "",
+      "created": null,
+      "num": 28
+    },
+    {
+      "sede": "Pescara - Via del Santuario, 160 - Pescara",
+      "token": "tcadXblJhELc",
+      "partner": "",
+      "created": null,
+      "num": 28
+    },
+    {
+      "sede": "Riesi - Via Principe Umberto, 38 - Riesi",
+      "token": "bzE3yxKIgB2M",
+      "partner": "",
+      "created": null,
+      "num": 5
+    },
+    {
+      "sede": "Roma - Via Sepano, lotto 28 -  FRATTAMAGGIORE 1 (HQ)",
+      "token": "Q_B1pxND5_k-",
+      "partner": "",
+      "created": null,
+      "num": 2
+    },
+    {
+      "sede": "Roma 1 - Via Zoe Fontana , 220 - Roma 1",
+      "token": "Ugla8VX_EDtF",
+      "partner": "",
+      "created": null,
+      "num": 103
+    },
+    {
+      "sede": "Roma 2 - Via Casilina, 526 - Roma 2",
+      "token": "pvTPQLZ713l9",
+      "partner": "",
+      "created": null,
+      "num": 5
+    },
+    {
+      "sede": "Roma 3 - Via Casilina , 1665 - Roma 3",
+      "token": "3luHj63U0aem",
+      "partner": "",
+      "created": null,
+      "num": 4
+    },
+    {
+      "sede": "Teverola - Zona Industriale ASI SNC - Teverola",
+      "token": "jX2X4wrwiI9p",
+      "partner": "",
+      "created": null,
+      "num": 41
+    },
+    {
+      "sede": "Villa di Briano - Via Nikita Kruscev snc - Villa di Briano",
+      "token": "3gNwd5ckkOn5",
+      "partner": "",
+      "created": null,
+      "num": 48
+    },
+    {
+      "sede": "Villaricca - Via della Libertà, 1104 - Villaricca",
+      "token": "ZCpy4N5z84Ur",
+      "partner": "",
+      "created": null,
+      "num": 66
+    },
+    {
+      "sede": "Viterbo - Via Tarcone, 30 - Viterbo",
+      "token": "Q4ENVybO0Ryv",
+      "partner": "",
+      "created": null,
+      "num": 11
+    }
+  ],
+  "count": 37
+}
