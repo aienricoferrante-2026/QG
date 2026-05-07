@@ -218,50 +218,165 @@ function renderAlert() {
   const el = document.getElementById('sec-alert');
   const f = filtered;
 
-  const alerts = [];
+  // Helper: parse data "gg-mm-yyyy" o "gg/mm/yyyy" → Date (null se invalida)
+  function _parseDate(s) {
+    if (!s) return null;
+    const m = String(s).match(/^(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})$/);
+    if (!m) return null;
+    return new Date(parseInt(m[3]), parseInt(m[2]) - 1, parseInt(m[1]));
+  }
+  const today = new Date();
 
-  // 1. Commesse con costi > ricavi (MOL negativo)
-  const molNeg = f.filter(c => c.mol < 0 && c.consulenza > 0);
-  if (molNeg.length) alerts.push({ tipo: 'MOL Negativo', cnt: molNeg.length, desc: 'Commesse dove i costi superano i ricavi', items: molNeg });
-
-  // 2. Avanzamento 0% con stato non "Da pianificare"
+  // ── Calcolo set di alert ──
+  const molNeg = f.filter(c => c.mol < 0 && c.consulenza > 0)
+    .map(c => ({ ...c, _kpi: c.mol })).sort((a, b) => a._kpi - b._kpi);
+  const stalled = f.filter(c => {
+    if (c.avanzamento >= 50) return false;
+    const fine = _parseDate(c.dataFine);
+    return fine && fine < today;
+  }).map(c => {
+    const fine = _parseDate(c.dataFine);
+    const giorniRitardo = fine ? Math.floor((today - fine) / 86400000) : 0;
+    return { ...c, _kpi: giorniRitardo };
+  }).sort((a, b) => b._kpi - a._kpi);
+  const senzaIncasso = f.filter(c => (c.giaIncassato || 0) === 0 && (c.consulenza || 0) > 0)
+    .map(c => {
+      const inizio = _parseDate(c.dataInizio);
+      const eta = inizio ? Math.floor((today - inizio) / 86400000) : 0;
+      return { ...c, _kpi: eta };
+    }).sort((a, b) => b._kpi - a._kpi);
   const noAvz = f.filter(c => c.avanzamento === 0 && c.status !== 'Da pianificare' && c.statoCorso !== 'Concluso');
-  if (noAvz.length) alerts.push({ tipo: 'Avz. 0% non pianificati', cnt: noAvz.length, desc: 'Commesse a 0% che non sono in stato "Da pianificare"', items: noAvz });
-
-  // 3. Commesse concluse con MOL = 0
-  const zeroMol = f.filter(c => c.statoCorso === 'Concluso' && c.mol === 0 && c.consulenza === 0);
-  if (zeroMol.length) alerts.push({ tipo: 'Conclusi senza ricavi', cnt: zeroMol.length, desc: 'Commesse concluse con ricavi e MOL a zero', items: zeroMol });
-
-  // 4. Ore molto alte (outlier)
   const highOre = f.filter(c => c.ore > 500);
-  if (highOre.length) alerts.push({ tipo: 'Ore elevate (>500)', cnt: highOre.length, desc: 'Commesse con oltre 500 ore assegnate', items: highOre });
+
+  // Clienti a rischio: alta esposizione + bassa % incasso
+  const cliRisk = {};
+  f.forEach(c => {
+    const k = (c.cliente || 'N/D').replace(/_FOR/g, '').trim();
+    if (!cliRisk[k]) cliRisk[k] = { cnt: 0, ric: 0, inc: 0 };
+    cliRisk[k].cnt++;
+    cliRisk[k].ric += (c.consulenza || 0);
+    cliRisk[k].inc += (c.giaIncassato || 0);
+  });
+  const cliRiskList = Object.entries(cliRisk)
+    .map(([k, v]) => ({
+      cliente: k, cnt: v.cnt, ric: v.ric, inc: v.inc,
+      esposizione: v.ric - v.inc,
+      pctInc: v.ric ? (v.inc / v.ric * 100) : 0
+    }))
+    .filter(v => v.esposizione > 50000 && v.pctInc < 30)
+    .sort((a, b) => b.esposizione - a.esposizione)
+    .slice(0, 10);
 
   let h = '<div class="sec"><h3 class="sec-title">Alert & Anomalie</h3>';
-  if (alerts.length === 0) {
-    h += '<div class="card"><p style="color:var(--green);text-align:center;padding:20px">Nessun alert rilevato</p></div>';
-  } else {
-    h += '<div class="card"><div class="tbl-scroll"><table id="tblAlert"></table></div></div>';
+  h += '<p style="color:var(--text3);font-size:11px;margin-bottom:14px">Vista prioritizzata di problemi e situazioni a rischio: clicca sui blocchi per il drill-down completo.</p>';
+
+  // Riepilogo conteggi
+  h += '<div class="kpi-grid" style="padding:0 0 14px 0">';
+  h += '<div class="kpi pink"><div class="kpi-label">MOL Negativo</div><div class="kpi-value">' + fmt(molNeg.length) + '</div><div class="kpi-sub">Costi &gt; Ricavi</div></div>';
+  h += '<div class="kpi orange"><div class="kpi-label">Senza incasso</div><div class="kpi-value">' + fmt(senzaIncasso.length) + '</div><div class="kpi-sub">€ 0 incassati</div></div>';
+  h += '<div class="kpi purple"><div class="kpi-label">Stalled</div><div class="kpi-value">' + fmt(stalled.length) + '</div><div class="kpi-sub">avz. &lt; 50% e data passata</div></div>';
+  h += '<div class="kpi blue"><div class="kpi-label">Avanzamento 0%</div><div class="kpi-value">' + fmt(noAvz.length) + '</div><div class="kpi-sub">non in "Da pianificare"</div></div>';
+  h += '<div class="kpi cyan"><div class="kpi-label">Ore elevate</div><div class="kpi-value">' + fmt(highOre.length) + '</div><div class="kpi-sub">&gt; 500 ore</div></div>';
+  h += '<div class="kpi green"><div class="kpi-label">Clienti a rischio</div><div class="kpi-value">' + fmt(cliRiskList.length) + '</div><div class="kpi-sub">esposizione &gt; 50K, %inc &lt; 30%</div></div>';
+  h += '</div>';
+
+  // ═══ Tabella 1: Top 10 commesse MOL negativo ═══
+  if (molNeg.length) {
+    h += '<div class="card" style="margin-top:14px;border-left:3px solid #ef4444"><h4 style="color:#ef4444">⚠️ Top 10 commesse con MOL negativo (perdita)</h4>';
+    h += '<div class="tbl-scroll"><table id="tblAlertMolNeg"></table></div></div>';
   }
+
+  // ═══ Tabella 2: Top 10 stalled (più giorni di ritardo prima) ═══
+  if (stalled.length) {
+    h += '<div class="card" style="margin-top:14px;border-left:3px solid #8b5cf6"><h4 style="color:#8b5cf6">🐢 Top 10 commesse stalled (avz &lt; 50% e data fine passata)</h4>';
+    h += '<div class="tbl-scroll"><table id="tblAlertStalled"></table></div></div>';
+  }
+
+  // ═══ Tabella 3: Top 10 senza incasso (più vecchie prima) ═══
+  if (senzaIncasso.length) {
+    h += '<div class="card" style="margin-top:14px;border-left:3px solid #f59e0b"><h4 style="color:#f59e0b">💸 Top 10 commesse senza incasso (più vecchie prima)</h4>';
+    h += '<div class="tbl-scroll"><table id="tblAlertNoInc"></table></div></div>';
+  }
+
+  // ═══ Tabella 4: Clienti a rischio ═══
+  if (cliRiskList.length) {
+    h += '<div class="card" style="margin-top:14px;border-left:3px solid #10b981"><h4 style="color:#10b981">🎯 Clienti a rischio (alta esposizione + bassa % incasso)</h4>';
+    h += '<div class="tbl-scroll"><table id="tblAlertCli"></table></div></div>';
+  }
+
+  if (!molNeg.length && !stalled.length && !senzaIncasso.length && !cliRiskList.length) {
+    h += '<div class="card"><p style="color:var(--green);text-align:center;padding:20px">Nessun alert rilevato sui filtri attuali</p></div>';
+  }
+
   h += '</div>';
   el.innerHTML = h;
 
-  if (alerts.length > 0) {
-    buildTbl('tblAlert',
-      ['Tipo Alert', 'Commesse', 'Descrizione'],
-      alerts.map(a => [
-        { display: '<span class="tag tag-red">' + a.tipo + '</span>', val: a.tipo },
-        { display: '<strong>' + a.cnt + '</strong>', val: a.cnt },
-        { display: a.desc, val: a.desc }
-      ]),
-      ['str', 'num', 'str']
-    );
+  // ── Render tabelle ──
+  const cmCols = ['ID', 'Titolo / Corso', 'Cliente', 'Sede', 'Ricavi', 'Costi', 'MOL', 'Avz.', 'Qnet'];
+  const cmTypes = ['num', 'str', 'str', 'str', 'num', 'num', 'num', 'num', 'str'];
+  function _cmRow(c) {
+    return [
+      c.id,
+      { display: ((c.titolo || c.corso) || '').substring(0, 50), val: (c.titolo || c.corso) },
+      { display: (c.cliente || '').replace(/_FOR/g, '').substring(0, 30), val: c.cliente },
+      { display: ((c.sedeNorm || c.sedeOp || '').split(' - ')[0]).substring(0, 25), val: c.sedeNorm },
+      { display: fmtE(c.consulenza || 0), val: c.consulenza || 0 },
+      { display: fmtE(c.costi || 0), val: c.costi || 0 },
+      { display: fmtE(c.mol || 0), val: c.mol || 0 },
+      { display: (c.avanzamento || 0) + '%', val: c.avanzamento || 0 },
+      qnetBtn(c)
+    ];
+  }
 
-    // Make rows clickable
-    const tbl = document.getElementById('tblAlert');
-    const rows = tbl.querySelectorAll('tbody tr');
-    rows.forEach((row, i) => {
-      row.classList.add('clickable');
-      row.onclick = () => drillDownItems(alerts[i].tipo, alerts[i].items);
-    });
+  if (molNeg.length) {
+    buildTbl('tblAlertMolNeg', cmCols, molNeg.slice(0, 10).map(_cmRow), cmTypes);
+  }
+  if (stalled.length) {
+    buildTbl('tblAlertStalled',
+      ['ID', 'Titolo / Corso', 'Cliente', 'Sede', 'Avz.', 'Data Fine', 'Giorni ritardo', 'Ricavi', 'Qnet'],
+      stalled.slice(0, 10).map(c => [
+        c.id,
+        { display: ((c.titolo || c.corso) || '').substring(0, 45), val: (c.titolo || c.corso) },
+        { display: (c.cliente || '').replace(/_FOR/g, '').substring(0, 30), val: c.cliente },
+        { display: ((c.sedeNorm || c.sedeOp || '').split(' - ')[0]).substring(0, 25), val: c.sedeNorm },
+        { display: (c.avanzamento || 0) + '%', val: c.avanzamento || 0 },
+        c.dataFine || '-',
+        { display: '<strong style="color:#ef4444">' + fmt(c._kpi) + ' gg</strong>', val: c._kpi },
+        { display: fmtE(c.consulenza || 0), val: c.consulenza || 0 },
+        qnetBtn(c)
+      ]),
+      ['num', 'str', 'str', 'str', 'num', 'str', 'num', 'num', 'str']
+    );
+  }
+  if (senzaIncasso.length) {
+    buildTbl('tblAlertNoInc',
+      ['ID', 'Titolo / Corso', 'Cliente', 'Sede', 'Data Inizio', 'Età (gg)', 'Ricavi', 'Qnet'],
+      senzaIncasso.slice(0, 10).map(c => [
+        c.id,
+        { display: ((c.titolo || c.corso) || '').substring(0, 45), val: (c.titolo || c.corso) },
+        { display: (c.cliente || '').replace(/_FOR/g, '').substring(0, 30), val: c.cliente },
+        { display: ((c.sedeNorm || c.sedeOp || '').split(' - ')[0]).substring(0, 25), val: c.sedeNorm },
+        c.dataInizio || '-',
+        { display: '<strong>' + fmt(c._kpi) + '</strong>', val: c._kpi },
+        { display: fmtE(c.consulenza || 0), val: c.consulenza || 0 },
+        qnetBtn(c)
+      ]),
+      ['num', 'str', 'str', 'str', 'str', 'num', 'num', 'str']
+    );
+  }
+  if (cliRiskList.length) {
+    buildTbl('tblAlertCli',
+      ['Cliente', 'Comm.', 'Ricavi', 'Incassato', '% Inc.', 'Esposizione'],
+      cliRiskList.map(c => [
+        { display: c.cliente.length > 50 ? c.cliente.substring(0, 48) + '..' : c.cliente, val: c.cliente },
+        { display: fmt(c.cnt), val: c.cnt },
+        { display: fmtE(c.ric), val: c.ric },
+        { display: fmtE(c.inc), val: c.inc },
+        { display: '<strong style="color:#ef4444">' + c.pctInc.toFixed(1) + '%</strong>', val: c.pctInc },
+        { display: '<strong>' + fmtE(c.esposizione) + '</strong>', val: c.esposizione }
+      ]),
+      ['str', 'num', 'num', 'num', 'num', 'num'],
+      { clickField: 'cliente' }
+    );
   }
 }

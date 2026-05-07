@@ -1,3 +1,73 @@
+/* ── Quick Filters (preset cliccabili sopra la barra filtri) ── */
+
+let _quickFilter = null; // {name, label, predicate}
+
+const QUICK_FILTERS = [
+  {
+    name: 'open',
+    label: '🟢 Solo aperte',
+    title: 'Esclude commesse Annullate o con corso Concluso',
+    predicate: c => c.status !== 'Annullato' && c.statoCorso !== 'Concluso'
+  },
+  {
+    name: 'year',
+    label: '📅 ' + new Date().getFullYear(),
+    title: 'Solo commesse iniziate nell\'anno corrente',
+    predicate: c => {
+      const yy = String(new Date().getFullYear());
+      return (c.dataInizio || '').endsWith('-' + yy) || (c.dataInizio || '').endsWith('/' + yy);
+    }
+  },
+  {
+    name: 'noincasso',
+    label: '💸 Senza incasso',
+    title: 'Commesse con Già Incassato a 0 e ricavi > 0',
+    predicate: c => (c.giaIncassato || 0) === 0 && (c.consulenza || 0) > 0
+  },
+  {
+    name: 'risk',
+    label: '⚠️ Margine basso',
+    title: 'Commesse con margine MOL < 5% (rischio redditività)',
+    predicate: c => c.consulenza > 0 && (c.mol / c.consulenza * 100) < 5
+  },
+  {
+    name: 'stalled',
+    label: '🐢 Stalled',
+    title: 'Avanzamento < 50% e data fine già passata',
+    predicate: c => {
+      if (c.avanzamento >= 50 || !c.dataFine) return false;
+      const m = String(c.dataFine).match(/^(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})$/);
+      if (!m) return false;
+      const fine = new Date(parseInt(m[3]), parseInt(m[2]) - 1, parseInt(m[1]));
+      return fine < new Date();
+    }
+  }
+];
+
+function setQuickFilter(name) {
+  if (!name || (_quickFilter && _quickFilter.name === name)) {
+    _quickFilter = null;
+  } else {
+    _quickFilter = QUICK_FILTERS.find(q => q.name === name) || null;
+  }
+  applyFilters();
+  renderQuickFilters();
+}
+
+function renderQuickFilters() {
+  const el = document.getElementById('quickFilters');
+  if (!el) return;
+  let h = '<span class="qf-label">Vista rapida:</span>';
+  QUICK_FILTERS.forEach(q => {
+    const active = _quickFilter && _quickFilter.name === q.name ? ' active' : '';
+    h += '<button class="qf-btn' + active + '" title="' + q.title + '" onclick="setQuickFilter(\'' + q.name + '\')">' + q.label + '</button>';
+  });
+  if (_quickFilter) {
+    h += '<button class="qf-btn qf-clear" title="Rimuovi vista rapida" onclick="setQuickFilter(null)">✕</button>';
+  }
+  el.innerHTML = h;
+}
+
 /* ── Filter Logic with dynamic counts (Multi-Select) ── */
 
 const FILTER_DEFS = [
@@ -43,6 +113,7 @@ function applyFilters() {
     for (const f of FILTER_DEFS) {
       if (!MultiSelect.matches(f.id, _norm(c[f.key]))) return false;
     }
+    if (_quickFilter && !_quickFilter.predicate(c)) return false;
     return true;
   });
   rebuildFilterCounts();
@@ -53,7 +124,13 @@ function applyFilters() {
 
 function resetFilters() {
   MultiSelect.resetAll();
+  _quickFilter = null;
+  renderQuickFilters();
   applyFilters();
+}
+
+function initQuickFilters() {
+  renderQuickFilters();
 }
 
 function renderActiveFilters() {
