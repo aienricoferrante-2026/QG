@@ -37,12 +37,14 @@ function renderEconFin() {
   const docMol = f.reduce((s, c) => s + (c.molDocum || 0), 0);
 
   // ── Dati FINANZIARI ──
+  // "Da Incassare (Residuo)" per commessa = Ricavi - Già Incassato (mai negativo)
   const incassato = f.reduce((s, c) => s + (c.giaIncassato || 0), 0);
-  const daIncassare = f.reduce((s, c) => s + (c.daIncassare || 0), 0);
+  const daIncassare = f.reduce((s, c) => s + Math.max(0, (c.consulenza || 0) - (c.giaIncassato || 0)), 0);
   const totRicevutoRegione = f.reduce((s, c) => s + (c.totRicevutoRegione || 0), 0);
   const anticipi = f.reduce((s, c) => s + (c.anticipoImporto || 0), 0);
   const saldi = f.reduce((s, c) => s + (c.saldoImporto || 0), 0);
   const incassatoPct = ricavi ? (incassato / ricavi * 100) : 0;
+  const daIncassarePct = ricavi ? (daIncassare / ricavi * 100) : 0;
   // Budget Commessa: Finanziario (cassa reale)
   const finIn = f.reduce((s, c) => s + (c.finIncassiTot || 0), 0);
   const finOut = f.reduce((s, c) => s + (c.finUsciteTot || 0), 0);
@@ -90,7 +92,7 @@ function renderEconFin() {
   h += '<h4 style="font-size:13px;font-weight:700;color:var(--green);margin:20px 0 10px 0;padding:4px 8px;border-left:3px solid var(--green)">FINANZIARIO (Cassa)</h4>';
   h += '<div class="kpi-grid" style="padding:0 0 14px 0">';
   h += '<div class="kpi green"><div class="kpi-label">Già Incassato' + infoIcon('giaIncassato') + '</div><div class="kpi-value">' + fmtK(incassato) + '</div><div class="kpi-sub">' + incassatoPct.toFixed(1) + '% dei ricavi</div></div>';
-  h += '<div class="kpi orange"><div class="kpi-label">Da Incassare' + infoIcon('daIncassare') + '</div><div class="kpi-value">' + fmtK(daIncassare) + '</div><div class="kpi-sub">' + pct(daIncassare, ricavi) + ' dei ricavi</div></div>';
+  h += '<div class="kpi orange"><div class="kpi-label">Da Incassare (Residuo)' + infoIcon('daIncassare') + '</div><div class="kpi-value">' + fmtK(daIncassare) + '</div><div class="kpi-sub">' + daIncassarePct.toFixed(1) + '% · Ricavi − Incassato</div></div>';
   h += '<div class="kpi cyan"><div class="kpi-label">Anticipi Ricevuti' + infoIcon('anticipi') + '</div><div class="kpi-value">' + fmtK(anticipi) + '</div><div class="kpi-sub">' + pct(anticipi, ricavi) + '</div></div>';
   h += '<div class="kpi purple"><div class="kpi-label">Saldi da Ricevere' + infoIcon('saldi') + '</div><div class="kpi-value">' + fmtK(saldi) + '</div><div class="kpi-sub">' + pct(saldi, ricavi) + '</div></div>';
   h += '<div class="kpi blue"><div class="kpi-label">Ricevuto da Regione' + infoIcon('ricevutoRegione') + '</div><div class="kpi-value">' + fmtK(totRicevutoRegione) + '</div><div class="kpi-sub">contributi pubblici</div></div>';
@@ -126,7 +128,7 @@ function renderEconFin() {
     socG[k].mol += (c.mol || 0);
     socG[k].ore += (c.ore || 0);
     socG[k].inc += (c.giaIncassato || 0);
-    socG[k].dInc += (c.daIncassare || 0);
+    socG[k].dInc += Math.max(0, (c.consulenza || 0) - (c.giaIncassato || 0));
     socG[k].ant += (c.anticipoImporto || 0);
     socG[k].sal += (c.saldoImporto || 0);
   });
@@ -207,7 +209,7 @@ function renderEconFin() {
     cliFull[k].cos += (c.costi || 0);
     cliFull[k].mol += (c.mol || 0);
     cliFull[k].inc += (c.giaIncassato || 0);
-    cliFull[k].dInc += (c.daIncassare || 0);
+    cliFull[k].dInc += Math.max(0, (c.consulenza || 0) - (c.giaIncassato || 0));
   });
   const cliFullSorted = Object.entries(cliFull).sort((a, b) => b[1].ric - a[1].ric);
   buildTbl('tblEconCli',

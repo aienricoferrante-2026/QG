@@ -36,7 +36,7 @@ function _aggStats(arr) {
   const costi = arr.reduce((s, c) => s + (c.costi || 0), 0);
   const mol = arr.reduce((s, c) => s + (c.mol || 0), 0);
   const inc = arr.reduce((s, c) => s + (c.giaIncassato || 0), 0);
-  const daInc = arr.reduce((s, c) => s + (c.daIncassare || 0), 0);
+  const daInc = arr.reduce((s, c) => s + Math.max(0, (c.consulenza || 0) - (c.giaIncassato || 0)), 0);
   let avanzW = 0, pesoW = 0;
   arr.forEach(c => { const p = c.consulenza || 0; if (p > 0) { avanzW += p * (c.avanzamento || 0); pesoW += p; } });
   const avanzMedio = pesoW > 0 ? (avanzW / pesoW) : 0;
@@ -116,7 +116,7 @@ function _renderAggRows(data, levels, labelIcon, parentId, depth) {
         h += '<td class="text-right" style="color:var(--cyan)">' + (c.avanzamento || 0) + '%</td>';
         h += '<td class="text-right" style="color:var(--orange)">' + fmtE(resid) + '</td>';
         h += '<td class="text-right">' + fmtE(c.giaIncassato || 0) + '</td>';
-        h += '<td class="text-right">' + fmtE(c.daIncassare || 0) + '</td>';
+        h += '<td class="text-right">' + fmtE(Math.max(0, (c.consulenza || 0) - (c.giaIncassato || 0))) + '</td>';
         h += '<td>' + (c.dataInizio || '-') + '</td>';
         h += '<td>' + (c.dataFine || '-') + '</td>';
         h += '<td class="text-right">' + d.mesi + '</td>';

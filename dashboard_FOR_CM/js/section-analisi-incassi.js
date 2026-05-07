@@ -6,12 +6,15 @@ function renderAnalisiIncassi() {
   const f = filtered;
 
   // ── Aggregati base ──
+  // "Residuo da incassare" per commessa = Ricavi - Già Incassato (mai negativo)
   const totRicavi = f.reduce((s, c) => s + (c.consulenza || 0), 0);
   const totIncassato = f.reduce((s, c) => s + (c.giaIncassato || 0), 0);
-  const totDaIncassare = f.reduce((s, c) => s + (c.daIncassare || 0), 0);
   const totAnticipi = f.reduce((s, c) => s + (c.anticipoImporto || 0), 0);
-  const totResiduo = totRicavi - totIncassato;
+  const totResiduo = f.reduce((s, c) => s + Math.max(0, (c.consulenza || 0) - (c.giaIncassato || 0)), 0);
   const pctIncassoMedio = totRicavi ? (totIncassato / totRicavi * 100) : 0;
+  const pctResiduo = totRicavi ? (totResiduo / totRicavi * 100) : 0;
+  const cmConRicavi = f.filter(c => c.consulenza > 0).length;
+  const residuoMedio = cmConRicavi ? (totResiduo / cmConRicavi) : 0;
 
   // ── Bucket per ogni commessa ──
   // pct = giaIncassato / consulenza, escluse commesse senza ricavi
@@ -51,9 +54,9 @@ function renderAnalisiIncassi() {
   h += '<div class="kpi green"><div class="kpi-label">% Incasso medio</div><div class="kpi-value">' + pctIncassoMedio.toFixed(1) + '%</div><div class="kpi-sub">' + fmtK(totIncassato) + ' / ' + fmtK(totRicavi) + '</div></div>';
   h += '<div class="kpi blue"><div class="kpi-label">Commesse al 100%</div><div class="kpi-value">' + fmt(cm100) + '</div><div class="kpi-sub">' + (cmAttive ? (cm100 / cmAttive * 100).toFixed(1) : 0) + '% del totale</div></div>';
   h += '<div class="kpi orange"><div class="kpi-label">Commesse a 0%</div><div class="kpi-value">' + fmt(cm0) + '</div><div class="kpi-sub">' + (cmAttive ? (cm0 / cmAttive * 100).toFixed(1) : 0) + '% del totale</div></div>';
-  h += '<div class="kpi pink"><div class="kpi-label">Esposizione (Residuo)</div><div class="kpi-value">' + fmtK(totResiduo) + '</div><div class="kpi-sub">credito aperto totale</div></div>';
+  h += '<div class="kpi pink"><div class="kpi-label">Da Incassare (Residuo)</div><div class="kpi-value">' + fmtK(totResiduo) + '</div><div class="kpi-sub">' + pctResiduo.toFixed(1) + '% dei ricavi · Ricavi − Incassato</div></div>';
   h += '<div class="kpi cyan"><div class="kpi-label">Anticipi Ricevuti</div><div class="kpi-value">' + fmtK(totAnticipi) + '</div><div class="kpi-sub">' + pct(totAnticipi, totRicavi) + ' dei ricavi</div></div>';
-  h += '<div class="kpi purple"><div class="kpi-label">Da Incassare</div><div class="kpi-value">' + fmtK(totDaIncassare) + '</div><div class="kpi-sub">' + pct(totDaIncassare, totRicavi) + ' dei ricavi</div></div>';
+  h += '<div class="kpi purple"><div class="kpi-label">Residuo medio / commessa</div><div class="kpi-value">' + fmtK(residuoMedio) + '</div><div class="kpi-sub">su ' + fmt(cmConRicavi) + ' commesse con ricavi</div></div>';
   h += '</div>';
 
   // Charts row
@@ -118,30 +121,35 @@ function renderAnalisiIncassi() {
   );
 
   // ── Aggregato per Sede ──
+  // Residuo = Ricavi - Incassato (mai negativo per la singola commessa)
   const sedeG = {};
   f.forEach(c => {
     const k = c.sedeNorm || c.sedeOp || 'N/D';
-    if (!sedeG[k]) sedeG[k] = { cnt: 0, ric: 0, inc: 0, dInc: 0, ant: 0 };
+    if (!sedeG[k]) sedeG[k] = { cnt: 0, ric: 0, inc: 0, ant: 0, res: 0 };
     sedeG[k].cnt++;
     sedeG[k].ric += (c.consulenza || 0);
     sedeG[k].inc += (c.giaIncassato || 0);
-    sedeG[k].dInc += (c.daIncassare || 0);
     sedeG[k].ant += (c.anticipoImporto || 0);
+    sedeG[k].res += Math.max(0, (c.consulenza || 0) - (c.giaIncassato || 0));
   });
   const sediSorted = Object.entries(sedeG)
-    .map(([k, v]) => ({ k, ...v, residuo: v.ric - v.inc, pctInc: v.ric ? v.inc / v.ric * 100 : 0 }))
-    .sort((a, b) => b.residuo - a.residuo);
+    .map(([k, v]) => ({
+      k, ...v,
+      pctInc: v.ric ? v.inc / v.ric * 100 : 0,
+      pctRes: v.ric ? v.res / v.ric * 100 : 0
+    }))
+    .sort((a, b) => b.res - a.res);
   buildTbl('tblIncSede',
-    ['Sede', 'Comm.', 'Ricavi', 'Incassato', 'Residuo', '% Inc.', 'Anticipi', 'Da Inc.'],
+    ['Sede', 'Comm.', 'Ricavi', 'Incassato', '% Inc.', 'Residuo', '% Res.', 'Anticipi'],
     sediSorted.map(v => [
       { display: v.k.length > 50 ? v.k.substring(0, 48) + '..' : v.k, val: v.k },
       { display: fmt(v.cnt), val: v.cnt },
       { display: fmtE(v.ric), val: v.ric },
       { display: fmtE(v.inc), val: v.inc },
-      { display: fmtE(v.residuo), val: v.residuo },
       { display: v.pctInc.toFixed(1) + '%', val: v.pctInc },
-      { display: fmtE(v.ant), val: v.ant },
-      { display: fmtE(v.dInc), val: v.dInc }
+      { display: fmtE(v.res), val: v.res },
+      { display: v.pctRes.toFixed(1) + '%', val: v.pctRes },
+      { display: fmtE(v.ant), val: v.ant }
     ]),
     ['str', 'num', 'num', 'num', 'num', 'num', 'num', 'num'],
     { clickField: 'sedeNorm' }
@@ -151,27 +159,31 @@ function renderAnalisiIncassi() {
   const cliG = {};
   f.forEach(c => {
     const k = (c.cliente || 'N/D').replace(/_FOR/g, '').trim();
-    if (!cliG[k]) cliG[k] = { cnt: 0, ric: 0, inc: 0, dInc: 0, ant: 0 };
+    if (!cliG[k]) cliG[k] = { cnt: 0, ric: 0, inc: 0, ant: 0, res: 0 };
     cliG[k].cnt++;
     cliG[k].ric += (c.consulenza || 0);
     cliG[k].inc += (c.giaIncassato || 0);
-    cliG[k].dInc += (c.daIncassare || 0);
     cliG[k].ant += (c.anticipoImporto || 0);
+    cliG[k].res += Math.max(0, (c.consulenza || 0) - (c.giaIncassato || 0));
   });
   const cliSorted = Object.entries(cliG)
-    .map(([k, v]) => ({ k, ...v, residuo: v.ric - v.inc, pctInc: v.ric ? v.inc / v.ric * 100 : 0 }))
-    .sort((a, b) => b.residuo - a.residuo);
+    .map(([k, v]) => ({
+      k, ...v,
+      pctInc: v.ric ? v.inc / v.ric * 100 : 0,
+      pctRes: v.ric ? v.res / v.ric * 100 : 0
+    }))
+    .sort((a, b) => b.res - a.res);
   buildTbl('tblIncCli',
-    ['Cliente / Ente', 'Comm.', 'Ricavi', 'Incassato', 'Residuo', '% Inc.', 'Anticipi', 'Da Inc.'],
+    ['Cliente / Ente', 'Comm.', 'Ricavi', 'Incassato', '% Inc.', 'Residuo', '% Res.', 'Anticipi'],
     cliSorted.map(v => [
       { display: v.k.length > 45 ? v.k.substring(0, 43) + '..' : v.k, val: v.k },
       { display: fmt(v.cnt), val: v.cnt },
       { display: fmtE(v.ric), val: v.ric },
       { display: fmtE(v.inc), val: v.inc },
-      { display: fmtE(v.residuo), val: v.residuo },
       { display: v.pctInc.toFixed(1) + '%', val: v.pctInc },
-      { display: fmtE(v.ant), val: v.ant },
-      { display: fmtE(v.dInc), val: v.dInc }
+      { display: fmtE(v.res), val: v.res },
+      { display: v.pctRes.toFixed(1) + '%', val: v.pctRes },
+      { display: fmtE(v.ant), val: v.ant }
     ]),
     ['str', 'num', 'num', 'num', 'num', 'num', 'num', 'num'],
     { clickField: 'cliente' }
