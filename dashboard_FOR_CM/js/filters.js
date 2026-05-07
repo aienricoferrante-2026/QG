@@ -1,3 +1,133 @@
+/* ── Period Filter (range temporale globale) ──
+   Filtra le commesse per c.dataInizio (gg-mm-yyyy / gg/mm/yyyy).
+   Predefinito: 'all' (tutto). I preset coprono i casi più comuni;
+   'custom' apre due input date da-a. */
+
+let _periodFilter = { kind: 'all', from: null, to: null };
+
+function _parseDDMMYYYY(s) {
+  if (!s) return null;
+  const m = String(s).match(/^(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})$/);
+  if (!m) return null;
+  return new Date(parseInt(m[3]), parseInt(m[2]) - 1, parseInt(m[1]));
+}
+function _toIso(d) {
+  if (!d) return '';
+  const yy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return yy + '-' + mm + '-' + dd;
+}
+function _fromIso(iso) {
+  if (!iso) return null;
+  const m = String(iso).match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if (!m) return null;
+  return new Date(parseInt(m[1]), parseInt(m[2]) - 1, parseInt(m[3]));
+}
+
+function _periodRange() {
+  const today = new Date();
+  switch (_periodFilter.kind) {
+    case 'all':
+      return { from: null, to: null };
+    case 'last30': {
+      const f = new Date(today); f.setDate(f.getDate() - 30); return { from: f, to: today };
+    }
+    case 'last90': {
+      const f = new Date(today); f.setDate(f.getDate() - 90); return { from: f, to: today };
+    }
+    case 'last12m': {
+      const f = new Date(today); f.setMonth(f.getMonth() - 12); return { from: f, to: today };
+    }
+    case 'y2026':
+      return { from: new Date(2026, 0, 1), to: new Date(2026, 11, 31, 23, 59, 59) };
+    case 'y2025':
+      return { from: new Date(2025, 0, 1), to: new Date(2025, 11, 31, 23, 59, 59) };
+    case 'y2024':
+      return { from: new Date(2024, 0, 1), to: new Date(2024, 11, 31, 23, 59, 59) };
+    case 'y2023':
+      return { from: new Date(2023, 0, 1), to: new Date(2023, 11, 31, 23, 59, 59) };
+    case 'custom':
+      return { from: _periodFilter.from, to: _periodFilter.to };
+    default:
+      return { from: null, to: null };
+  }
+}
+
+function _periodPredicate(c) {
+  const r = _periodRange();
+  if (!r.from && !r.to) return true;
+  const d = _parseDDMMYYYY(c.dataInizio) || _parseDDMMYYYY(c.dataPianInizio);
+  if (!d) return false;
+  if (r.from && d < r.from) return false;
+  if (r.to && d > r.to) return false;
+  return true;
+}
+
+function setPeriodKind(kind) {
+  _periodFilter.kind = kind || 'all';
+  if (kind !== 'custom') {
+    _periodFilter.from = null;
+    _periodFilter.to = null;
+  }
+  renderPeriodFilter();
+  applyFilters();
+}
+
+function setPeriodCustom(fromIso, toIso) {
+  _periodFilter.kind = 'custom';
+  _periodFilter.from = _fromIso(fromIso);
+  _periodFilter.to = _fromIso(toIso);
+  if (_periodFilter.to) {
+    // Includo l'intera giornata "to"
+    const t = new Date(_periodFilter.to);
+    t.setHours(23, 59, 59, 999);
+    _periodFilter.to = t;
+  }
+  renderPeriodFilter();
+  applyFilters();
+}
+
+function renderPeriodFilter() {
+  const el = document.getElementById('periodFilter');
+  if (!el) return;
+  const opts = [
+    { v: 'all', label: 'Tutto' },
+    { v: 'last30', label: 'Ultimi 30 giorni' },
+    { v: 'last90', label: 'Ultimi 90 giorni' },
+    { v: 'last12m', label: 'Ultimi 12 mesi' },
+    { v: 'y2026', label: '2026' },
+    { v: 'y2025', label: '2025' },
+    { v: 'y2024', label: '2024' },
+    { v: 'y2023', label: '2023' },
+    { v: 'custom', label: 'Personalizza…' }
+  ];
+  let h = '<span class="qf-label">Periodo (data inizio):</span>';
+  h += '<select id="pf-select" onchange="setPeriodKind(this.value)" class="period-select">';
+  opts.forEach(o => {
+    h += '<option value="' + o.v + '"' + (_periodFilter.kind === o.v ? ' selected' : '') + '>' + o.label + '</option>';
+  });
+  h += '</select>';
+  if (_periodFilter.kind === 'custom') {
+    const fromIso = _toIso(_periodFilter.from);
+    const toIso = _toIso(_periodFilter.to);
+    h += '<input type="date" id="pf-from" value="' + fromIso + '" class="period-date" onchange="setPeriodCustom(this.value, document.getElementById(\'pf-to\').value)">';
+    h += '<span style="color:var(--text2);font-size:11px">→</span>';
+    h += '<input type="date" id="pf-to" value="' + toIso + '" class="period-date" onchange="setPeriodCustom(document.getElementById(\'pf-from\').value, this.value)">';
+  }
+  if (_periodFilter.kind !== 'all') {
+    h += '<span class="period-info" id="pf-info"></span>';
+  }
+  el.innerHTML = h;
+
+  // Aggiorno il counter
+  const info = document.getElementById('pf-info');
+  if (info && typeof D !== 'undefined' && D) {
+    const inRange = D.filter(_periodPredicate).length;
+    info.textContent = inRange + ' commesse nel periodo';
+  }
+}
+
 /* ── Quick Filters (preset cliccabili sopra la barra filtri) ── */
 
 let _quickFilter = null; // {name, label, predicate}
@@ -110,6 +240,7 @@ function rebuildFilterCounts() {
 
 function applyFilters() {
   filtered = D.filter(c => {
+    if (!_periodPredicate(c)) return false;
     for (const f of FILTER_DEFS) {
       if (!MultiSelect.matches(f.id, _norm(c[f.key]))) return false;
     }
@@ -119,18 +250,22 @@ function applyFilters() {
   rebuildFilterCounts();
   renderFilteredKpis();
   renderActiveFilters();
+  if (typeof renderPeriodFilter === 'function') renderPeriodFilter();
   renderCurrentSection();
 }
 
 function resetFilters() {
   MultiSelect.resetAll();
   _quickFilter = null;
+  _periodFilter = { kind: 'all', from: null, to: null };
   renderQuickFilters();
+  if (typeof renderPeriodFilter === 'function') renderPeriodFilter();
   applyFilters();
 }
 
 function initQuickFilters() {
   renderQuickFilters();
+  if (typeof renderPeriodFilter === 'function') renderPeriodFilter();
 }
 
 function renderActiveFilters() {
