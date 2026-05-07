@@ -29,7 +29,8 @@ body.theme-light {
   --text3: #94a3b8;
   --border: rgba(15, 23, 42, .12);
 }
-body.theme-light .sidebar { background: #ffffff; box-shadow: 1px 0 4px rgba(0,0,0,.04); }
+/* Nota: sidebar e header restano SEMPRE scuri per dare una "cornice" che
+   focalizza l'attenzione sul contenuto centrale chiaro. Vedi layout.css. */
 body.theme-light .card { background: #ffffff; box-shadow: 0 1px 3px rgba(15,23,42,.06); border: 1px solid var(--border); }
 body.theme-light .ms-wrap > .ms-trigger,
 body.theme-light .filter-reset,
