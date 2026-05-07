@@ -8,6 +8,49 @@ body {
   min-height: 100vh;
 }
 
+/* Quick Filters (chip preset sopra la barra filtri) */
+.quick-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  padding: 8px 24px 0;
+}
+.quick-filters .qf-label {
+  color: var(--text2);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .3px;
+  margin-right: 4px;
+}
+.qf-btn {
+  background: rgba(99, 102, 241, .10);
+  border: 1px solid rgba(99, 102, 241, .30);
+  color: var(--text);
+  padding: 5px 11px;
+  border-radius: 16px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all .15s;
+  white-space: nowrap;
+}
+.qf-btn:hover {
+  background: rgba(99, 102, 241, .25);
+  border-color: rgba(99, 102, 241, .60);
+}
+.qf-btn.active {
+  background: linear-gradient(90deg, #6366f1, #8b5cf6);
+  border-color: transparent;
+  color: white;
+  font-weight: 600;
+}
+.qf-btn.qf-clear {
+  background: rgba(239, 68, 68, .15);
+  border-color: rgba(239, 68, 68, .50);
+  color: #fca5a5;
+  margin-left: 4px;
+}
+
 /* Sidebar */
 .sidebar {
   width: var(--sidebar-w);

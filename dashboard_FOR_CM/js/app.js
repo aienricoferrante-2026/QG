@@ -53,6 +53,7 @@ fetch(window.DATA_URL || 'data/commesse_for.json')
     D = data;
     filtered = [...D];
     initFilters();
+    if (typeof initQuickFilters === 'function') initQuickFilters();
     renderFilteredKpis();
     showSec('executive');
   })
