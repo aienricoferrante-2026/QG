@@ -138,7 +138,7 @@
     btn.innerHTML = `
       <style>
         #qg-logout-btn {
-          position: fixed; top: 12px; right: 14px; z-index: 9999;
+          position: fixed; top: 12px; right: 130px; z-index: 9999;
           display: flex; align-items: center; gap: 8px;
           background: rgba(15,23,42,.75); backdrop-filter: blur(8px);
           border: 1px solid rgba(99,102,241,.3);
@@ -146,6 +146,7 @@
           font-family: 'Segoe UI', system-ui, sans-serif;
           font-size: 11px; color: #cbd5e1;
         }
+        body.theme-light #qg-logout-btn { background: rgba(255,255,255,.85); color: #475569; }
         #qg-logout-btn .qg-user-email { max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         #qg-logout-btn button {
           background: transparent; border: 1px solid #475569;

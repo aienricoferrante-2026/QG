@@ -1,5 +1,7 @@
 :root {
+  /* Tema scuro (default) */
   --bg: #0f172a;
+  --bg2: #1e293b;
   --card: #1e293b;
   --card2: #334155;
   --accent: #3b82f6;
@@ -15,3 +17,34 @@
   --border: rgba(30, 42, 66, .6);
   --sidebar-w: 230px;
 }
+
+/* Tema chiaro: override delle variabili tramite class su <body> */
+body.theme-light {
+  --bg: #f1f5f9;
+  --bg2: #ffffff;
+  --card: #ffffff;
+  --card2: #f8fafc;
+  --text: #0f172a;
+  --text2: #475569;
+  --text3: #94a3b8;
+  --border: rgba(15, 23, 42, .12);
+}
+body.theme-light .sidebar { background: #ffffff; box-shadow: 1px 0 4px rgba(0,0,0,.04); }
+body.theme-light .card { background: #ffffff; box-shadow: 0 1px 3px rgba(15,23,42,.06); border: 1px solid var(--border); }
+body.theme-light .ms-wrap > .ms-trigger,
+body.theme-light .filter-reset,
+body.theme-light .period-select,
+body.theme-light .period-date,
+body.theme-light .qf-btn:not(.active):not(.qf-clear) {
+  background: #ffffff;
+}
+body.theme-light table { background: #ffffff; }
+body.theme-light table thead { background: #f1f5f9; }
+body.theme-light table tbody tr:hover { background: #f8fafc !important; }
+body.theme-light .modal { background: #ffffff; color: var(--text); }
+body.theme-light .modal-overlay { background: rgba(15, 23, 42, .35); }
+body.theme-light .header h1 { color: var(--text); }
+body.theme-light .nav-item.active { background: rgba(99,102,241,.12); }
+body.theme-light .kpi { background: #ffffff; box-shadow: 0 1px 3px rgba(15,23,42,.06); }
+body.theme-light input,
+body.theme-light select { background: #ffffff; color: var(--text); }
