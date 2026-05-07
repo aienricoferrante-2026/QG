@@ -138,7 +138,7 @@
     btn.innerHTML = `
       <style>
         #qg-logout-btn {
-          position: fixed; top: 12px; right: 130px; z-index: 9999;
+          position: fixed; top: 12px; right: 56px; z-index: 9999;
           display: flex; align-items: center; gap: 8px;
           background: rgba(15,23,42,.75); backdrop-filter: blur(8px);
           border: 1px solid rgba(99,102,241,.3);

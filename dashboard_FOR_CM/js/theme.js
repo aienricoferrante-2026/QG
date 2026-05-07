@@ -12,9 +12,9 @@
     }
     const btn = document.getElementById('qg-theme-toggle');
     if (btn) {
-      btn.innerHTML = theme === 'light'
-        ? '<span title="Passa al tema scuro">🌙 Scuro</span>'
-        : '<span title="Passa al tema chiaro">☀️ Chiaro</span>';
+      // Mostro l'icona del tema OPPOSTO (cosa diventerà cliccando)
+      btn.textContent = theme === 'light' ? '🌙' : '☀️';
+      btn.title = theme === 'light' ? 'Passa al tema scuro' : 'Passa al tema chiaro';
     }
   }
 
