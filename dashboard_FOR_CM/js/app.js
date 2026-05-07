@@ -16,6 +16,7 @@ const SECTIONS = {
   analisiCliente: renderAnalisiCliente,
   cessione: renderCessione,
   econFin: renderEconFin,
+  analisiIncassi: typeof renderAnalisiIncassi === 'function' ? renderAnalisiIncassi : function(){},
   specEcon: renderSpecEcon,
   linkPartner: typeof renderLinkPartner === 'function' ? renderLinkPartner : function(){}
 };
