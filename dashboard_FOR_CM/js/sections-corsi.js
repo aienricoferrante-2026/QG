@@ -127,7 +127,7 @@ function renderClienti() {
     g[k].mol += c.mol;
     g[k].ore += c.ore;
     g[k].incassato += c.giaIncassato;
-    g[k].daIncassare += c.daIncassare;
+    g[k].daIncassare += Math.max(0, (c.consulenza || 0) - (c.giaIncassato || 0));
     if (c.statoCorso === 'Concluso') g[k].conclusi++;
   });
   const sorted = Object.entries(g).sort((a, b) => b[1].cons - a[1].cons);
