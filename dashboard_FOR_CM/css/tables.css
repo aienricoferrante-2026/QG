@@ -8,10 +8,18 @@ th {
 th:hover { color: var(--accent); }
 th.sorted-asc::after { content: ' \25B2'; font-size: 8px; }
 th.sorted-desc::after { content: ' \25BC'; font-size: 8px; }
-td { padding: 7px 10px; border-bottom: 1px solid rgba(30,42,66,.5); }
-tr:hover td { background: rgba(59,130,246,.04); }
+td { padding: 7px 10px; border-bottom: 1px solid var(--border); }
+tr:hover td { background: rgba(99,102,241,.06); }
 tr.clickable { cursor: pointer; }
-tr.clickable:hover td { background: rgba(59,130,246,.08); }
+tr.clickable:hover td { background: rgba(99,102,241,.10); }
+/* Tema chiaro: tag con testo più scuro per contrasto */
+body.theme-light .tag-green  { color: #047857; }
+body.theme-light .tag-blue   { color: #1d4ed8; }
+body.theme-light .tag-red    { color: #b91c1c; }
+body.theme-light .tag-yellow { color: #b45309; }
+body.theme-light .tag-purple { color: #6d28d9; }
+body.theme-light .tag-cyan   { color: #0e7490; }
+body.theme-light .tag-gray   { color: #334155; }
 .text-right { text-align: right; }
 .text-center { text-align: center; }
 .tbl-scroll { max-height: 420px; overflow-y: auto; }
@@ -35,13 +43,28 @@ tr.clickable:hover td { background: rgba(59,130,246,.08); }
   padding: 3px 6px; border-radius: 6px; font-size: 10px; cursor: pointer;
 }
 
-/* Tree table */
+/* Tree table — sfondi adattivi al tema (tinte di indaco con opacità basse) */
 .tree-row { cursor: pointer; }
-.tree-row:hover td { background: rgba(59,130,246,.04); }
+.tree-row:hover td { background: rgba(99,102,241,.10) !important; }
 .tree-l0 td { font-weight: 500; }
-.tree-l1 td { background: rgba(30,42,66,.3); }
-.tree-l2 td { background: rgba(30,42,66,.5); color: var(--text2); }
-.tree-l2:hover td { background: rgba(59,130,246,.06); }
+.tree-l1 td { background: rgba(99,102,241,.06); }
+.tree-l2 td { background: rgba(99,102,241,.10); color: var(--text); }
+.tree-l3 td { background: rgba(99,102,241,.14); color: var(--text); }
+.tree-l4 td { background: rgba(99,102,241,.18); color: var(--text); }
+.tree-l1:hover td,
+.tree-l2:hover td,
+.tree-l3:hover td,
+.tree-l4:hover td { background: rgba(99,102,241,.22) !important; }
+/* Tema chiaro: opacità ancora più leggere per non oscurare il testo */
+body.theme-light .tree-row:hover td { background: rgba(99,102,241,.07) !important; }
+body.theme-light .tree-l1 td { background: rgba(99,102,241,.04); }
+body.theme-light .tree-l2 td { background: rgba(99,102,241,.07); }
+body.theme-light .tree-l3 td { background: rgba(99,102,241,.10); }
+body.theme-light .tree-l4 td { background: rgba(99,102,241,.13); }
+body.theme-light .tree-l1:hover td,
+body.theme-light .tree-l2:hover td,
+body.theme-light .tree-l3:hover td,
+body.theme-light .tree-l4:hover td { background: rgba(99,102,241,.16) !important; }
 .tree-toggle {
   width: 24px; text-align: center; font-size: 9px; color: var(--text3);
   user-select: none; cursor: pointer;
