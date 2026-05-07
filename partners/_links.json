@@ -11,7 +11,7 @@
     {
       "sede": "Arese - Via delle Industrie, 18 - Arese",
       "token": "LOM_ARESE_GTST2_MKlaMW",
-      "partner": "",
+      "partner": "Marco Esposito",
       "created": null,
       "num": 14,
       "regione": "Lombardia"
@@ -19,7 +19,7 @@
     {
       "sede": "Avellino - Largo S. Scoca, 2 - Avellino",
       "token": "CAM_AVELLINO_JMakRBpsLFz5",
-      "partner": "",
+      "partner": "Giacomo Armerini",
       "created": null,
       "num": 16,
       "regione": "Campania"
@@ -35,7 +35,7 @@
     {
       "sede": "Bergamo 1 - Via dei Partigiani, 4 - Bergamo 1",
       "token": "LOM_BERGAMO_1_LLn2zVRn3jff",
-      "partner": "",
+      "partner": "Andrea Pitruzzella",
       "created": null,
       "num": 56,
       "regione": "Lombardia"
@@ -43,7 +43,7 @@
     {
       "sede": "Caltanissetta - Via Libertà,  136 - Caltanissetta",
       "token": "SIC_CALTANISSETTA_NNyBegyVSAly",
-      "partner": "",
+      "partner": "Di Natale",
       "created": null,
       "num": 32,
       "regione": "Sicilia"
@@ -59,7 +59,7 @@
     {
       "sede": "Casal di Principe - Via Milano, 52 - Casal di Principe",
       "token": "CAM_CASAL_DI_PRINCIPE_VA6inacw3JoL",
-      "partner": "",
+      "partner": "Angelo Ferraro",
       "created": null,
       "num": 36,
       "regione": "Campania"
@@ -67,7 +67,7 @@
     {
       "sede": "Casalnuovo di Napoli - Via Padre Carmine Fico, 23 - Casalnuovo di Napoli",
       "token": "CAM_CASALNUOVO_DI_NAPOLI_4TwvGL5wu6O7",
-      "partner": "",
+      "partner": "Fernando Annunziata",
       "created": null,
       "num": 108,
       "regione": "Campania"
@@ -107,7 +107,7 @@
     {
       "sede": "Fonte Nuova - Via II Giugno , SNC - Fonte Nuova",
       "token": "LAZ_FONTE_NUOVA_u3KPZYrrtuMp",
-      "partner": "",
+      "partner": "Dario Maggioli",
       "created": null,
       "num": 20,
       "regione": "Lazio"
@@ -139,7 +139,7 @@
     {
       "sede": "Grumello del Monte - Via Europa - Grumello del Monte",
       "token": "LOM_GRUMELLO_DEL_MONTE_pqy3lbt3Wwth",
-      "partner": "",
+      "partner": "Massimo Cecinati",
       "created": null,
       "num": 25,
       "regione": "Lombardia"
@@ -155,7 +155,7 @@
     {
       "sede": "Latina - Viale dello Statuto, 24 - Latina",
       "token": "LAZ_LATINA_ZBm7AAOiVsUL",
-      "partner": "",
+      "partner": "Fabrizio Colletti",
       "created": null,
       "num": 33,
       "regione": "Lazio"
@@ -163,7 +163,7 @@
     {
       "sede": "Mazzarino - Via Antonio Meucci, 1 - Mazzarino",
       "token": "SIC_MAZZARINO_YjIrfDQBzGZr",
-      "partner": "",
+      "partner": "Dario D'Aleo",
       "created": null,
       "num": 2,
       "regione": "Sicilia"
@@ -179,7 +179,7 @@
     {
       "sede": "Mondragone - Via Caserta n. 50 - Mondragone",
       "token": "CAM_MONDRAGONE_oF_h2oerLLt4",
-      "partner": "",
+      "partner": "Paolo + Francesco Tessitore",
       "created": null,
       "num": 46,
       "regione": "Campania"
@@ -211,7 +211,7 @@
     {
       "sede": "Pero - Via Figino, n. 22 - Pero",
       "token": "LOM_PERO_NrYebs0inQbC",
-      "partner": "",
+      "partner": "Vincenzo D'Amato",
       "created": null,
       "num": 28,
       "regione": "Lombardia"
@@ -219,7 +219,7 @@
     {
       "sede": "Pescara - Via del Santuario, 160 - Pescara",
       "token": "ABR_PESCARA_azilP41Fk-B3",
-      "partner": "",
+      "partner": "Simone D'Angelo",
       "created": null,
       "num": 28,
       "regione": "Abruzzo"
@@ -227,7 +227,7 @@
     {
       "sede": "Riesi - Via Principe Umberto, 38 - Riesi",
       "token": "SIC_RIESI_VPCAW59bAPTk",
-      "partner": "",
+      "partner": "Dario D'Aleo",
       "created": null,
       "num": 5,
       "regione": "Sicilia"
@@ -275,7 +275,7 @@
     {
       "sede": "Villa di Briano - Via Nikita Kruscev snc - Villa di Briano",
       "token": "CAM_VILLA_DI_BRIANO_Sju_1PofAs2t",
-      "partner": "",
+      "partner": "Francesco Tessitore",
       "created": null,
       "num": 48,
       "regione": "Campania"
@@ -283,7 +283,7 @@
     {
       "sede": "Villaricca - Via della Libertà, 1104 - Villaricca",
       "token": "CAM_VILLARICCA_3kksSYm5S8EX",
-      "partner": "",
+      "partner": "Raffaele Ferraro",
       "created": null,
       "num": 66,
       "regione": "Campania"
