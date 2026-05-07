@@ -146,7 +146,7 @@
           font-family: 'Segoe UI', system-ui, sans-serif;
           font-size: 11px; color: #cbd5e1;
         }
-        body.theme-light #qg-logout-btn { background: rgba(255,255,255,.85); color: #475569; }
+        /* Bottone Esci uguale in dark e light: l'header è sempre scuro */
         #qg-logout-btn .qg-user-email { max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         #qg-logout-btn button {
           background: transparent; border: 1px solid #475569;
