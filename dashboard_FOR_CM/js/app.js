@@ -18,6 +18,7 @@ const SECTIONS = {
   econFin: renderEconFin,
   /* analisiIncassi è ora un blocco embeddato dentro Econ.&Finanziario */
   specEcon: renderSpecEcon,
+  wiki: typeof renderWiki === 'function' ? renderWiki : function(){},
   linkPartner: typeof renderLinkPartner === 'function' ? renderLinkPartner : function(){}
 };
 
