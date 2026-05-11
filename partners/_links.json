@@ -85,7 +85,7 @@
       "token": "LAZ_CASSINO_KRVXH0NJSX0c",
       "partner": "",
       "created": null,
-      "num": 26,
+      "num": 27,
       "regione": "Lazio"
     },
     {
@@ -109,7 +109,7 @@
       "token": "LAZ_FONTE_NUOVA_u3KPZYrrtuMp",
       "partner": "Dario Maggioli",
       "created": null,
-      "num": 20,
+      "num": 22,
       "regione": "Lazio"
     },
     {
@@ -157,7 +157,7 @@
       "token": "LAZ_LATINA_ZBm7AAOiVsUL",
       "partner": "Fabrizio Colletti",
       "created": null,
-      "num": 33,
+      "num": 36,
       "regione": "Lazio"
     },
     {
@@ -175,6 +175,14 @@
       "created": null,
       "num": 42,
       "regione": "Basilicata"
+    },
+    {
+      "sede": "Milano - Via Vittor Pisani, 10 - Milano",
+      "regione": "Lombardia",
+      "token": "LOM_MILANO_UqFkckc8HNBD",
+      "partner": "",
+      "created": null,
+      "num": 1
     },
     {
       "sede": "Mondragone - Via Caserta n. 50 - Mondragone",
@@ -261,7 +269,7 @@
       "token": "LAZ_ROMA_3_z1R_hcPCnapr",
       "partner": "",
       "created": null,
-      "num": 4,
+      "num": 6,
       "regione": "Lazio"
     },
     {
@@ -293,9 +301,9 @@
       "token": "LAZ_VITERBO_HmAUrtB4DNdu",
       "partner": "",
       "created": null,
-      "num": 11,
+      "num": 13,
       "regione": "Lazio"
     }
   ],
-  "count": 37
+  "count": 38
 }
