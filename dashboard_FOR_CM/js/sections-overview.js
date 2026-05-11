@@ -270,63 +270,11 @@ function renderRicavi() {
   });
   const socSorted = Object.entries(socG).sort((a, b) => b[1].cons - a[1].cons);
 
-  // Trend mensile Ricavi/Costi/MOL su 12 mesi rolling
-  const trendRic = _buildMonthlyTrend(f);
-  const byMonthCM = new Map();
-  f.forEach(c => {
-    const m = String(c.dataInizio || '').match(/^(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})$/);
-    if (!m) return;
-    const key = parseInt(m[3]) * 100 + parseInt(m[2]);
-    if (!byMonthCM.has(key)) byMonthCM.set(key, { cos: 0, mol: 0 });
-    const o = byMonthCM.get(key);
-    o.cos += (c.costi || 0);
-    o.mol += (c.mol || 0);
-  });
-  const trendCos = trendRic.labels.map((_, i) => {
-    const ts = [...byMonthCM.keys()].sort();
-    const last12 = ts.slice(-12);
-    const k = last12[i];
-    return byMonthCM.get(k)?.cos || 0;
-  });
-  const trendMol = trendRic.labels.map((_, i) => {
-    const ts = [...byMonthCM.keys()].sort();
-    const last12 = ts.slice(-12);
-    const k = last12[i];
-    return byMonthCM.get(k)?.mol || 0;
-  });
-
-  let h = '<div class="sec"><h3 class="sec-title">Ricavi & MOL per Societa</h3>';
-  h += '<div class="card"><h4>Trend mensile Ricavi · Costi · MOL (ultimi ' + trendRic.labels.length + ' mesi)</h4>';
-  h += '<div class="chart-wrap"><canvas id="chRicTrend"></canvas></div></div>';
-  h += '<div class="card" style="margin-top:14px"><div class="tbl-scroll"><table id="tblRicSoc"></table></div></div>';
+  let h = '<div class="sec"><h3 class="sec-title">Ricavi & MOL per Società</h3>';
+  h += '<p style="color:var(--text3);font-size:11px;margin-bottom:14px">Dettaglio per Società. Per il trend nel tempo guarda <strong>Executive Summary</strong>.</p>';
+  h += '<div class="card"><div class="tbl-scroll"><table id="tblRicSoc"></table></div></div>';
   h += '</div>';
   el.innerHTML = h;
-
-  // Render trend stacked bar (Ricavi / Costi sovrapposti, MOL come linea sopra)
-  if (typeof Chart !== 'undefined' && trendRic.labels.length) {
-    if (_charts['chRicTrend']) _charts['chRicTrend'].destroy();
-    _charts['chRicTrend'] = new Chart(document.getElementById('chRicTrend'), {
-      data: {
-        labels: trendRic.labels,
-        datasets: [
-          { type: 'bar', label: 'Ricavi', data: trendRic.values, backgroundColor: '#3b82f6cc', borderRadius: 4, order: 2 },
-          { type: 'bar', label: 'Costi', data: trendCos, backgroundColor: '#ef4444cc', borderRadius: 4, order: 2 },
-          { type: 'line', label: 'MOL', data: trendMol, borderColor: '#10b981', backgroundColor: '#10b98133', borderWidth: 2, tension: .3, order: 1, pointRadius: 3, pointBackgroundColor: '#10b981' }
-        ]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: {
-          legend: { display: true, position: 'top', labels: { color: '#94a3b8', font: { size: 10 } } },
-          tooltip: { backgroundColor: '#1e293b', titleColor: '#f1f5f9', bodyColor: '#94a3b8', borderColor: '#475569', borderWidth: 1, padding: 10, callbacks: { label: ctx => ctx.dataset.label + ': ' + fmtE(ctx.raw) } }
-        },
-        scales: {
-          x: { ticks: { color: '#94a3b8', font: { size: 9 } }, grid: { color: 'rgba(71,85,105,.2)' } },
-          y: { ticks: { color: '#64748b', font: { size: 9 }, callback: v => fmtK(v) }, grid: { color: 'rgba(71,85,105,.2)' } }
-        }
-      }
-    });
-  }
 
   buildTbl('tblRicSoc',
     ['Societa', 'Comm.', 'Ricavi', 'Costi', 'MOL', 'Margine %'],

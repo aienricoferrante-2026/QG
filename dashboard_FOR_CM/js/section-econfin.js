@@ -95,8 +95,6 @@ function renderEconFin() {
   h += '<div class="kpi orange"><div class="kpi-label">Da Incassare (Residuo)' + infoIcon('daIncassare') + '</div><div class="kpi-value">' + fmtK(daIncassare) + '</div><div class="kpi-sub">' + daIncassarePct.toFixed(1) + '% · Ricavi − Incassato</div></div>';
   h += '<div class="kpi cyan"><div class="kpi-label">Anticipi Ricevuti' + infoIcon('anticipi') + '</div><div class="kpi-value">' + fmtK(anticipi) + '</div><div class="kpi-sub">' + pct(anticipi, ricavi) + '</div></div>';
   h += '<div class="kpi purple"><div class="kpi-label">Saldi da Ricevere' + infoIcon('saldi') + '</div><div class="kpi-value">' + fmtK(saldi) + '</div><div class="kpi-sub">' + pct(saldi, ricavi) + '</div></div>';
-  h += '<div class="kpi blue"><div class="kpi-label">Ricevuto da Regione' + infoIcon('ricevutoRegione') + '</div><div class="kpi-value">' + fmtK(totRicevutoRegione) + '</div><div class="kpi-sub">contributi pubblici</div></div>';
-  h += '<div class="kpi pink"><div class="kpi-label">Esposizione' + infoIcon('esposizione') + '</div><div class="kpi-value">' + fmtK(ricavi - incassato) + '</div><div class="kpi-sub">credito aperto</div></div>';
   h += '</div>';
 
   // Grafico Incassato vs Da Incassare per Società
@@ -110,10 +108,7 @@ function renderEconFin() {
   h += '<p style="color:var(--text3);font-size:11px;margin-bottom:8px">Clicca su una riga per il drill-down della società.</p>';
   h += '<div class="tbl-scroll"><table id="tblEconFin"></table></div></div>';
 
-  // ═══ TABELLA CLIENTI ═══
-  h += '<div class="card" style="margin-top:14px"><h4>Riepilogo per Cliente / Ente Finanziatore</h4>';
-  h += '<div class="tbl-scroll"><table id="tblEconCli"></table></div></div>';
-
+  h += '<p style="color:var(--text3);font-size:11px;margin-top:14px">💡 Per il dettaglio per Cliente/Ente vai in <strong>Analisi Incassi</strong>.</p>';
   h += '</div>';
   el.innerHTML = h;
 
@@ -199,32 +194,5 @@ function renderEconFin() {
     { clickField: 'societa' }
   );
 
-  // Tabella Clienti
-  const cliFull = {};
-  f.forEach(c => {
-    const k = (c.cliente || 'N/D').replace(/_FOR/g, '').trim();
-    if (!cliFull[k]) cliFull[k] = { cnt: 0, ric: 0, cos: 0, mol: 0, inc: 0, dInc: 0 };
-    cliFull[k].cnt++;
-    cliFull[k].ric += (c.consulenza || 0);
-    cliFull[k].cos += (c.costi || 0);
-    cliFull[k].mol += (c.mol || 0);
-    cliFull[k].inc += (c.giaIncassato || 0);
-    cliFull[k].dInc += Math.max(0, (c.consulenza || 0) - (c.giaIncassato || 0));
-  });
-  const cliFullSorted = Object.entries(cliFull).sort((a, b) => b[1].ric - a[1].ric);
-  buildTbl('tblEconCli',
-    ['Cliente / Ente', 'Comm.', 'Ricavi', 'MOL', 'Margine %', 'Incassato', 'Da Incassare', 'Credito Aperto'],
-    cliFullSorted.map(([k, v]) => [
-      { display: k.length > 40 ? k.substring(0, 38) + '..' : k, val: k },
-      { display: fmt(v.cnt), val: v.cnt },
-      { display: fmtE(v.ric), val: v.ric },
-      { display: fmtE(v.mol), val: v.mol },
-      { display: v.ric ? (v.mol / v.ric * 100).toFixed(1) + '%' : '-', val: v.ric ? v.mol / v.ric * 100 : 0 },
-      { display: fmtE(v.inc), val: v.inc },
-      { display: fmtE(v.dInc), val: v.dInc },
-      { display: fmtE(v.ric - v.inc), val: v.ric - v.inc }
-    ]),
-    ['str', 'num', 'num', 'num', 'num', 'num', 'num', 'num'],
-    { clickField: 'cliente' }
-  );
+  // (Tabella per Cliente rimossa: ora si trova in "Analisi Incassi")
 }
