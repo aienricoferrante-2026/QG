@@ -16,7 +16,7 @@ const SECTIONS = {
   analisiCliente: renderAnalisiCliente,
   cessione: renderCessione,
   econFin: renderEconFin,
-  analisiIncassi: typeof renderAnalisiIncassi === 'function' ? renderAnalisiIncassi : function(){},
+  /* analisiIncassi è ora un blocco embeddato dentro Econ.&Finanziario */
   specEcon: renderSpecEcon,
   linkPartner: typeof renderLinkPartner === 'function' ? renderLinkPartner : function(){}
 };

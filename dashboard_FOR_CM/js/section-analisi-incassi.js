@@ -1,9 +1,14 @@
-/* ── Sezione: Analisi Incassi ── */
+/* ── Sezione: Analisi Incassi ──
+ * Può essere renderizzata in due modi:
+ *   1. come sezione autonoma (id = 'sec-analisiIncassi')
+ *   2. come BLOCCO dentro un'altra sezione (passare un targetId)
+ */
 
-function renderAnalisiIncassi() {
-  const el = document.getElementById('sec-analisiIncassi');
+function renderAnalisiIncassi(targetId) {
+  const el = document.getElementById(targetId || 'sec-analisiIncassi');
   if (!el) return;
   const f = filtered;
+  const asBlock = !!targetId;  // se incorporato, non disegnare il wrapper .sec/title
 
   // ── Aggregati base ──
   // "Residuo da incassare" per commessa = Ricavi - Già Incassato (mai negativo)
@@ -46,7 +51,10 @@ function renderAnalisiIncassi() {
   };
 
   // ── Render HTML ──
-  let h = '<div class="sec"><h3 class="sec-title">Analisi Incassi & Crediti</h3>';
+  let h = asBlock ? '' : '<div class="sec"><h3 class="sec-title">Analisi Incassi & Crediti</h3>';
+  if (asBlock) {
+    h += '<h4 style="font-size:13px;font-weight:700;color:#ec4899;margin:20px 0 10px 0;padding:4px 8px;border-left:3px solid #ec4899">ANALISI INCASSI &amp; CREDITI</h4>';
+  }
   h += '<p style="color:var(--text3);font-size:11px;margin-bottom:14px">Monitoraggio incassi, residuo da incassare, distribuzione delle commesse per stato di pagamento.</p>';
 
   // KPI grid
@@ -78,8 +86,12 @@ function renderAnalisiIncassi() {
   h += '<div class="card" style="margin-top:14px"><h4>Riepilogo Incassi per Cliente / Ente</h4>';
   h += '<div class="tbl-scroll"><table id="tblIncCli"></table></div></div>';
 
-  h += '</div>';
-  el.innerHTML = h;
+  if (!asBlock) h += '</div>';
+  if (asBlock) {
+    el.innerHTML = h;  // sovrascrive il blocco riservato
+  } else {
+    el.innerHTML = h;
+  }
 
   // ── Charts ──
   makeDonut('chPagPie',
