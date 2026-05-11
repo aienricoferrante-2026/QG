@@ -108,7 +108,8 @@ function renderEconFin() {
   h += '<p style="color:var(--text3);font-size:11px;margin-bottom:8px">Clicca su una riga per il drill-down della società.</p>';
   h += '<div class="tbl-scroll"><table id="tblEconFin"></table></div></div>';
 
-  h += '<p style="color:var(--text3);font-size:11px;margin-top:14px">💡 Per il dettaglio per Cliente/Ente vai in <strong>Analisi Incassi</strong>.</p>';
+  // Placeholder per il blocco "Analisi Incassi & Crediti" (popolato sotto)
+  h += '<div id="econFin-incassi"></div>';
   h += '</div>';
   el.innerHTML = h;
 
@@ -194,5 +195,8 @@ function renderEconFin() {
     { clickField: 'societa' }
   );
 
-  // (Tabella per Cliente rimossa: ora si trova in "Analisi Incassi")
+  // Blocco "Analisi Incassi & Crediti" embeddato in fondo alla sezione
+  if (typeof renderAnalisiIncassi === 'function') {
+    renderAnalisiIncassi('econFin-incassi');
+  }
 }
