@@ -60,6 +60,10 @@
     <a class="nav-item" data-sec="avanzamento" onclick="showSec('avanzamento')"><span class="nav-icon">&#9202;</span>Avanzamento</a>
     <a class="nav-item" data-sec="alert" onclick="showSec('alert')"><span class="nav-icon">&#9888;</span>Alert</a>
   </div>
+  <div class="nav-group">
+    <div class="nav-group-label">❓ Aiuto</div>
+    <a class="nav-item" data-sec="wiki" onclick="showSec('wiki')"><span class="nav-icon">?</span>Wiki / Guida</a>
+  </div>
 </nav>
 
 <!-- MAIN CONTENT -->
@@ -107,6 +111,7 @@
   <div id="sec-cessione" class="hidden"></div>
   <div id="sec-econFin" class="hidden"></div>
   <div id="sec-specEcon" class="hidden"></div>
+  <div id="sec-wiki" class="hidden"></div>
 </main>
 
 <!-- Drill-Down Modal -->
@@ -136,12 +141,13 @@
 <script src="../dashboard_FOR_CM/js/sections-finance.js?v=5"></script>
 <script src="../dashboard_FOR_CM/js/export-cessione.js?v=4"></script>
 <script src="../dashboard_FOR_CM/js/info-tooltip.js?v=1"></script>
+<script src="../dashboard_FOR_CM/js/section-wiki.js?v=1"></script>
 <script src="../dashboard_FOR_CM/js/section-analisi-incassi.js?v=3"></script>
 <script src="../dashboard_FOR_CM/js/section-econfin.js?v=6"></script>
 <script src="../dashboard_FOR_CM/js/section-spec-econ.js?v=3"></script>
 <script src="../dashboard_FOR_CM/js/upload-config.js?v=2"></script>
 <script src="../shared/upload.js"></script>
-<script src="../dashboard_FOR_CM/js/app.js?v=10"></script>
+<script src="../dashboard_FOR_CM/js/app.js?v=11"></script>
 
 <script>
   /* Carica meta.json per personalizzare l'header con il nome della sede */
