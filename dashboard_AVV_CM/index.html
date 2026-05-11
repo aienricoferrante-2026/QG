@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Avvocati / Legale ⚖️ — Qualifica Group</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="../shared/dashboard-core/css/variables.css">
+  <link rel="stylesheet" href="../shared/dashboard-core/css/layout.css">
+  <link rel="stylesheet" href="../shared/dashboard-core/css/tables.css">
+  <link rel="stylesheet" href="../shared/dashboard-core/css/modal.css">
+</head>
+<body>
+
+<!-- SIDEBAR TOGGLE -->
+<button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()" title="Nascondi/Mostra menu">&#9776;</button>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-brand">
+    <h2>Qualifica Group</h2>
+    <p>Dashboard Avvocati / Legale v1</p>
+    <p style="margin-top:6px"><a href="../index.html" style="color:#94a3b8;font-size:10px;text-decoration:none">&larr; Torna all'Hub</a></p>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-label">Overview</div>
+    <a class="nav-item active" data-sec="executive" onclick="showSec('executive')"><span class="nav-icon">&#9632;</span>Executive Summary</a>
+    <a class="nav-item" data-sec="ricavi" onclick="showSec('ricavi')"><span class="nav-icon">&#8364;</span>Ricavi & MOL</a>
+    <a class="nav-item" data-sec="econFin" onclick="showSec('econFin')"><span class="nav-icon">&#128202;</span>Econ. &amp; Finanziario</a>
+    <a class="nav-item" data-sec="analisiIncassi" onclick="showSec('analisiIncassi')"><span class="nav-icon">&#128181;</span>Analisi Incassi</a>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-label">Anagrafiche</div>
+    <a class="nav-item" data-sec="responsabili" onclick="showSec('responsabili')"><span class="nav-icon">&#9881;</span>Responsabili</a>
+    <a class="nav-item" data-sec="clienti" onclick="showSec('clienti')"><span class="nav-icon">&#9673;</span>Clienti</a>
+    <a class="nav-item" data-sec="sedi" onclick="showSec('sedi')"><span class="nav-icon">&#9660;</span>Sedi</a>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-label">Stato</div>
+    <a class="nav-item" data-sec="avanzamento" onclick="showSec('avanzamento')"><span class="nav-icon">&#9202;</span>Avanzamento</a>
+    <a class="nav-item" data-sec="alert" onclick="showSec('alert')"><span class="nav-icon">&#9888;</span>Alert</a>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-label">Admin</div>
+    <a class="nav-item" data-sec="linkPartner" onclick="showSec('linkPartner')"><span class="nav-icon">&#128279;</span>Link Partner</a>
+  </div>
+</nav>
+
+<!-- MAIN CONTENT -->
+<main class="main">
+  <div class="header">
+    <div>
+      <h1>Dashboard Avvocati / Legale ⚖️</h1>
+      <div class="header-sub">Qualifica Group &middot; 328 commesse</div>
+    </div>
+  </div>
+
+  <div id="periodFilter" class="period-filter"></div>
+  <div id="quickFilters" class="quick-filters"></div>
+
+  <div class="filters">
+    <div class="filter-group"><label>Status</label><div class="ms-wrap" id="fStatus"></div></div>
+    <div class="filter-group"><label>Stato Lav.</label><div class="ms-wrap" id="fStatoLav"></div></div>
+    <div class="filter-group"><label>Cliente</label><div class="ms-wrap" id="fCliente"></div></div>
+    <div class="filter-group"><label>Societa</label><div class="ms-wrap" id="fSocieta"></div></div>
+    <div class="filter-group"><label>Sede</label><div class="ms-wrap" id="fSede"></div></div>
+    <div class="filter-group"><label>Regione</label><div class="ms-wrap" id="fRegione"></div></div>
+    <div class="filter-group"><label>Responsabile</label><div class="ms-wrap" id="fResp"></div></div>
+    <div class="filter-group"><label>Funzione</label><div class="ms-wrap" id="fFunzione"></div></div>
+    <button class="filter-reset" onclick="resetFilters()">Reset</button>
+  </div>
+
+  <div id="activeFilters" class="active-filters"></div>
+  <div id="filteredKpis" class="kpi-grid"></div>
+
+  <div id="sec-executive"></div>
+  <div id="sec-ricavi" class="hidden"></div>
+  <div id="sec-econFin" class="hidden"></div>
+  <div id="sec-analisiIncassi" class="hidden"></div>
+  <div id="sec-responsabili" class="hidden"></div>
+  <div id="sec-clienti" class="hidden"></div>
+  <div id="sec-sedi" class="hidden"></div>
+  <div id="sec-avanzamento" class="hidden"></div>
+  <div id="sec-alert" class="hidden"></div>
+  <div id="sec-linkPartner" class="hidden"></div>
+</main>
+
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modalTitle">Dettaglio</h3>
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<!-- Config settore (carica per primo) -->
+<script src="config.js"></script>
+
+<!-- Core scripts -->
+<script src="../shared/dashboard-core/js/theme.js?v=1"></script>
+<script src="../shared/dashboard-core/js/auth.js?v=1"></script>
+<script src="../shared/multiselect.js?v=1"></script>
+<script src="../shared/dashboard-core/js/utils.js?v=1"></script>
+<script src="../shared/dashboard-core/js/tables.js?v=1"></script>
+<script src="../shared/dashboard-core/js/charts.js?v=1"></script>
+<script src="../shared/dashboard-core/js/drilldown.js?v=1"></script>
+<script src="../shared/dashboard-core/js/filters.js?v=1"></script>
+<script src="../shared/dashboard-core/js/kpis.js?v=1"></script>
+<script src="../shared/dashboard-core/js/sections-overview.js?v=1"></script>
+<script src="../shared/dashboard-core/js/sections-finance.js?v=1"></script>
+<script src="../shared/dashboard-core/js/section-econfin.js?v=1"></script>
+<script src="../shared/dashboard-core/js/section-analisi-incassi.js?v=1"></script>
+<script src="../shared/dashboard-core/js/section-link-partner.js?v=1"></script>
+<script src="../shared/dashboard-core/js/info-tooltip.js?v=1"></script>
+<script src="../shared/dashboard-core/js/app.js?v=1"></script>
+
+</body>
+</html>

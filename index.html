@@ -3,61 +3,226 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Qualifica Group - Dashboard Hub</title>
+<title>Qualifica Group · Hub Dashboard</title>
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
-  body{background:#0f172a;color:#f1f5f9;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center}
-  .hub{max-width:720px;width:100%;padding:40px 24px}
-  h1{font-size:28px;margin-bottom:6px}
-  .sub{color:#94a3b8;font-size:13px;margin-bottom:32px}
-  .cards{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-  a.card{display:block;background:#1e293b;border:1px solid #334155;border-radius:12px;padding:24px;text-decoration:none;color:#f1f5f9;transition:border-color .2s,transform .2s}
-  a.card:hover{border-color:#3b82f6;transform:translateY(-2px)}
-  .card h2{font-size:17px;margin-bottom:6px}
-  .card p{color:#94a3b8;font-size:12px;line-height:1.5}
-  .card .tag{display:inline-block;font-size:10px;padding:2px 8px;border-radius:4px;margin-top:10px;font-weight:600}
-  .tag-iso{background:#3b82f620;color:#60a5fa}
-  .tag-for{background:#10b98120;color:#34d399}
-  .tag-soa{background:#f59e0b20;color:#fbbf24}
-  .tag-off{background:#8b5cf620;color:#a78bfa}
+  :root{
+    --bg:#0f172a; --card:#1e293b; --border:#334155; --text:#f1f5f9; --text2:#94a3b8; --text3:#64748b;
+    --accent:#6366f1; --green:#10b981; --orange:#f59e0b; --pink:#ec4899; --cyan:#06b6d4;
+  }
+  body.theme-light{
+    --bg:#f8fafc; --card:#ffffff; --border:#e2e8f0; --text:#0f172a; --text2:#475569; --text3:#94a3b8;
+  }
+  body{
+    background:var(--bg); color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    min-height:100vh;
+  }
+  .topbar{
+    position:sticky; top:0; z-index:10;
+    background:#0f172a; border-bottom:1px solid #1e293b;
+    padding:14px 28px; display:flex; align-items:center; justify-content:space-between;
+    color:#f1f5f9;
+  }
+  .topbar h1{font-size:18px;font-weight:700}
+  .topbar .meta{color:#94a3b8;font-size:11px;margin-top:2px}
+  .topbar-actions{display:flex;gap:10px;align-items:center}
+  .theme-btn{
+    width:32px;height:32px;border-radius:50%;
+    background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1);
+    color:#f1f5f9; cursor:pointer; font-size:14px;
+  }
+  .hub{max-width:1280px;margin:0 auto;padding:32px 28px 60px}
+  h2.section{font-size:14px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px;margin:24px 0 14px;font-weight:600}
+
+  .kpi-band{ display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin-bottom:20px; }
+  @media (max-width:980px){ .kpi-band{grid-template-columns:repeat(3,1fr)} }
+  @media (max-width:580px){ .kpi-band{grid-template-columns:repeat(2,1fr)} }
+  .kpi{ background:var(--card); border:1px solid var(--border); border-radius:10px; padding:14px 16px; }
+  .kpi .lbl{color:var(--text2);font-size:10px;text-transform:uppercase;letter-spacing:.4px;font-weight:600}
+  .kpi .val{font-size:22px;font-weight:700;margin-top:6px;line-height:1.1}
+  .kpi .sub{color:var(--text3);font-size:11px;margin-top:4px}
+  .kpi.blue .val{color:#3b82f6}
+  .kpi.green .val{color:#10b981}
+  .kpi.orange .val{color:#f59e0b}
+  .kpi.cyan .val{color:#06b6d4}
+  .kpi.pink .val{color:#ec4899}
+  .kpi.purple .val{color:#a78bfa}
+
+  .cards{ display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px; }
+  a.card, div.card{
+    display:block; background:var(--card); border:1px solid var(--border);
+    border-radius:12px; padding:18px 20px; text-decoration:none; color:var(--text);
+    transition:border-color .15s,transform .15s; position:relative;
+  }
+  a.card:hover{border-color:var(--accent); transform:translateY(-2px)}
+  .card .icon{font-size:24px;display:block;margin-bottom:8px}
+  .card h3{font-size:15px;margin-bottom:4px;font-weight:700}
+  .card .desc{color:var(--text2);font-size:12px;line-height:1.5;min-height:34px}
+  .card-stats{display:flex;gap:10px;margin-top:10px;color:var(--text3);font-size:11px}
+  .card-stats span strong{color:var(--text);font-weight:700}
+  .card .tag{ position:absolute;top:14px;right:14px;font-size:9px;font-weight:700; padding:2px 7px;border-radius:4px;letter-spacing:.4px; }
+  .tag-active{background:rgba(16,185,129,.16);color:#10b981}
+  .tag-soon{background:rgba(148,163,184,.16);color:#94a3b8}
+  .card.disabled{opacity:.55; cursor:not-allowed}
+  .card.disabled:hover{border-color:var(--border); transform:none}
+  .footer{margin-top:34px;color:var(--text3);font-size:11px;text-align:center}
+  .footer a{color:var(--text2);text-decoration:none;margin:0 6px}
+  .legacy{margin-top:30px;padding-top:20px;border-top:1px solid var(--border)}
 </style>
 </head>
 <body>
-<div class="hub">
-  <h1>Qualifica Group</h1>
-  <p class="sub">Seleziona una dashboard</p>
-  <div class="cards">
-    <a class="card" href="dashboard/">
-      <h2>Commesse ISO</h2>
-      <p>Analisi commesse settore certificazioni ISO, ricavi, MOL, sedi, responsabili.</p>
-      <span class="tag tag-iso">ISO</span>
-    </a>
-    <a class="card" href="dashboard_FOR_CM/">
-      <h2>Commesse Formazione</h2>
-      <p>Corsi, stato avanzamento, clienti, enti finanziatori, responsabili.</p>
-      <span class="tag tag-for">FORMAZIONE</span>
-    </a>
-    <a class="card" href="dashboard_SOA_CM/">
-      <h2>Commesse SOA</h2>
-      <p>Analisi commesse settore attestazioni SOA.</p>
-      <span class="tag tag-soa">SOA</span>
-    </a>
-    <a class="card" href="dashboard_offerte/">
-      <h2>Offerte</h2>
-      <p>Pipeline offerte, conversioni, analisi commerciale.</p>
-      <span class="tag tag-off">OFFERTE</span>
-    </a>
-    <a class="card" href="dashboard_FOR_OPP/">
-      <h2>Opportunità Formazione GOL</h2>
-      <p>Pipeline opportunità GOL, corsi, CPI, operatori.</p>
-      <span class="tag tag-for">FOR GOL</span>
-    </a>
-    <a class="card" href="webapp_formazione/" style="border-color:#10b98140">
-      <h2>Gestione Corsi FOR</h2>
-      <p>Offerte, commesse, discenti, ODA, notule. Flusso completo formazione.</p>
-      <span class="tag tag-for">WEBAPP FOR</span>
-    </a>
+
+<div class="topbar">
+  <div>
+    <h1>Qualifica Group · Hub Dashboard</h1>
+    <div class="meta">Analisi commesse multi-settore · agg. <span id="hub-date">…</span></div>
+  </div>
+  <div class="topbar-actions">
+    <button class="theme-btn" id="themeBtn" title="Cambia tema" onclick="qgToggleTheme()">🌙</button>
   </div>
 </div>
+
+<div class="hub">
+
+  <h2 class="section">Panoramica consolidata · settori attivi</h2>
+  <div class="kpi-band" id="globalKpis">
+    <div class="kpi blue"><div class="lbl">Settori attivi</div><div class="val" id="kSec">…</div><div class="sub">su 11 totali</div></div>
+    <div class="kpi cyan"><div class="lbl">Commesse</div><div class="val" id="kCnt">…</div><div class="sub">consolidate</div></div>
+    <div class="kpi green"><div class="lbl">Ricavi totali</div><div class="val" id="kRic">…</div><div class="sub">Importo Consulenza</div></div>
+    <div class="kpi orange"><div class="lbl">MOL</div><div class="val" id="kMol">…</div><div class="sub" id="kMolPct">margine</div></div>
+    <div class="kpi pink"><div class="lbl">Esposizione</div><div class="val" id="kEsp">…</div><div class="sub">Ricavi − Incassato</div></div>
+    <div class="kpi purple"><div class="lbl">% Incasso</div><div class="val" id="kInc">…</div><div class="sub">media pesata</div></div>
+  </div>
+
+  <h2 class="section">Settori — Commesse</h2>
+  <div class="cards" id="sectorCards"></div>
+
+  <div class="legacy">
+    <h2 class="section">Altri strumenti</h2>
+    <div class="cards">
+      <a class="card" href="dashboard_FOR_OPP/">
+        <span class="icon">🎯</span>
+        <h3>Opportunità Formazione GOL</h3>
+        <p class="desc">Pipeline opportunità GOL, corsi, CPI, operatori.</p>
+      </a>
+      <a class="card" href="dashboard_offerte/">
+        <span class="icon">📋</span>
+        <h3>Offerte</h3>
+        <p class="desc">Pipeline offerte, conversioni, analisi commerciale.</p>
+      </a>
+      <a class="card" href="webapp_formazione/">
+        <span class="icon">🎓</span>
+        <h3>Gestione Corsi FOR</h3>
+        <p class="desc">Offerte, commesse, discenti, ODA, notule.</p>
+      </a>
+    </div>
+  </div>
+
+  <p class="footer">
+    Solo lettura — i dati arrivano da Qnet via Excel.
+    <a href="https://github.com/aienricoferrante-2026/QG" target="_blank">Repo</a>
+  </p>
+</div>
+
+<script>
+const SECTORS = [
+  { code:'FOR',    label:'Formazione',          icon:'🎓', color:'#10b981', count:1335,  url:'dashboard_FOR_CM/',  active:true,  desc:'Corsi finanziati, Stato Corso, classi, discenti, cessione credito.' },
+  { code:'ISO',    label:'Certificazioni ISO',  icon:'📜', color:'#3b82f6', count:6185,  url:'dashboard/',         active:true,  desc:'Audit, ente, scopo, verifiche, stato pagamento.', legacy:true },
+  { code:'SIC',    label:'Sicurezza Lavoro',    icon:'🛡️', color:'#06b6d4', count:2613,  url:'dashboard_SIC_CM/',  active:true,  desc:'Commesse sicurezza, RSPP, formazione obbligatoria.' },
+  { code:'APL_PAL',label:'Politiche Attive',    icon:'💼', color:'#a78bfa', count:1415,  url:null,                 active:false, desc:'Visure, GOL, CV, accompagnamento.' },
+  { code:'GDPR',   label:'Privacy / GDPR',      icon:'🔒', color:'#ec4899', count:695,   url:null,                 active:false, desc:'Consulenze privacy, audit, accordo pagamenti.' },
+  { code:'SOA',    label:'Attestazioni SOA',    icon:'🏗️', color:'#f59e0b', count:613,   url:'dashboard_SOA_CM/',  active:true,  desc:'Qualificazione lavori, consorzio, firme contratto.', legacy:true },
+  { code:'AVV',    label:'Avvocati / Legale',   icon:'⚖️', color:'#a78bfa', count:328,   url:'dashboard_AVV_CM/',  active:true,  desc:'Pratiche legali e contenzioso.' },
+  { code:'GAR',    label:"Gare d'appalto",      icon:'🎯', color:'#06b6d4', count:325,   url:null,                 active:false, desc:'Protocollo, CIG, importi, scadenze.' },
+  { code:'FIA',    label:'Finanza Agevolata',   icon:'💰', color:'#fbbf24', count:276,   url:'dashboard_FIA_CM/',  active:true,  desc:'Bandi, contributi, finanziamenti agevolati.' },
+  { code:'APL_RES',label:'PAL Risorse',         icon:'👥', color:'#10b981', count:154,   url:null,                 active:false, desc:'Profili, requisiti, variazione ricerca.' },
+  { code:'IST',    label:'Istituti',            icon:'🏛️', color:'#34d399', count:52,    url:'dashboard_IST_CM/',  active:true,  desc:'Gestione commesse istituti.' }
+];
+
+const SECTOR_DATA_URLS = {
+  FOR:'dashboard_FOR_CM/data/commesse_for.json',
+  SIC:'dashboard_SIC_CM/data/commesse_sic.json',
+  AVV:'dashboard_AVV_CM/data/commesse_avv.json',
+  FIA:'dashboard_FIA_CM/data/commesse_fia.json',
+  IST:'dashboard_IST_CM/data/commesse_ist.json'
+};
+
+function qgToggleTheme(){
+  const isLight = document.body.classList.toggle('theme-light');
+  localStorage.setItem('qg_theme', isLight ? 'light' : 'dark');
+  document.getElementById('themeBtn').textContent = isLight ? '☀️' : '🌙';
+}
+(function initTheme(){
+  if (localStorage.getItem('qg_theme') === 'light') {
+    document.body.classList.add('theme-light');
+    document.getElementById('themeBtn').textContent = '☀️';
+  }
+})();
+
+function fmt(n){return Number(n||0).toLocaleString('it-IT')}
+function fmtK(n){
+  n = Number(n||0);
+  if (Math.abs(n) >= 1e6) return '€ '+(n/1e6).toFixed(1)+'M';
+  if (Math.abs(n) >= 1e3) return '€ '+(n/1e3).toFixed(1)+'K';
+  return '€ '+n.toFixed(0);
+}
+
+function renderCards(){
+  const cont = document.getElementById('sectorCards');
+  let h = '';
+  SECTORS.forEach(s => {
+    const tag = s.active ? '<span class="tag tag-active">ATTIVO</span>' : '<span class="tag tag-soon">IN ARRIVO</span>';
+    const stats = '<div class="card-stats"><span><strong>'+fmt(s.count)+'</strong> commesse</span>'
+      + (s.legacy ? '<span style="color:#94a3b8">· legacy</span>' : '') + '</div>';
+    if (s.active) {
+      h += '<a class="card" href="'+s.url+'" style="border-left:3px solid '+s.color+'">'
+        + tag
+        + '<span class="icon">'+s.icon+'</span>'
+        + '<h3>'+s.label+'</h3>'
+        + '<p class="desc">'+s.desc+'</p>'
+        + stats + '</a>';
+    } else {
+      h += '<div class="card disabled" style="border-left:3px solid '+s.color+'" title="Dashboard in arrivo">'
+        + tag
+        + '<span class="icon">'+s.icon+'</span>'
+        + '<h3>'+s.label+'</h3>'
+        + '<p class="desc">'+s.desc+'</p>'
+        + stats + '</div>';
+    }
+  });
+  cont.innerHTML = h;
+}
+renderCards();
+
+async function loadGlobalKpis(){
+  const active = SECTORS.filter(s => s.active);
+  document.getElementById('kSec').textContent = active.length;
+
+  let cnt = 0, ric = 0, mol = 0, inc = 0, esp = 0;
+  const promises = Object.values(SECTOR_DATA_URLS).map(url =>
+    fetch(url).then(r => r.ok ? r.json() : []).catch(() => [])
+  );
+  const results = await Promise.all(promises);
+  results.forEach(items => {
+    (items || []).forEach(c => {
+      cnt++;
+      ric += (c.consulenza || 0);
+      mol += (c.mol || 0);
+      inc += (c.giaIncassato || 0);
+      esp += Math.max(0, (c.consulenza || 0) - (c.giaIncassato || 0));
+    });
+  });
+
+  document.getElementById('kCnt').textContent = fmt(cnt);
+  document.getElementById('kRic').textContent = fmtK(ric);
+  document.getElementById('kMol').textContent = fmtK(mol);
+  document.getElementById('kMolPct').textContent = ric ? ('margine ' + (mol/ric*100).toFixed(1) + '%') : 'margine —';
+  document.getElementById('kEsp').textContent = fmtK(esp);
+  document.getElementById('kInc').textContent = ric ? ((inc/ric*100).toFixed(1) + '%') : '—';
+  document.getElementById('hub-date').textContent = new Date().toLocaleDateString('it-IT', {day:'2-digit', month:'long', year:'numeric'});
+}
+loadGlobalKpis().catch(()=>{});
+</script>
 </body>
 </html>
