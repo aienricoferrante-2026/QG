@@ -1,0 +1,38 @@
+name: Auto-update dati partner
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'dashboard_FOR_CM/data/commesse_for.json'
+
+jobs:
+  rigenera-partners:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Rigenera dati partner (filtra JSON per Sede)
+        run: python3 partners/_generate.py
+
+      - name: Committa eventuali aggiornamenti
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if [ -n "$(git status --porcelain partners/)" ]; then
+            git add partners/
+            git commit -m "🤖 Auto-update dati partner (filtrati dal nuovo JSON admin)"
+            git push
+            echo "✅ Dati partner aggiornati e pushati."
+          else
+            echo "ℹ️ Nessuna modifica ai dati partner."
+          fi
