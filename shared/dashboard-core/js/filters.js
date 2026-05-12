@@ -108,6 +108,8 @@ function renderPeriodFilter() {
 let _quickFilter = null;
 
 const QUICK_FILTERS_DEFAULT = [
+  { name: 'inLav', label: '⚙️ Solo in lavorazione', title: 'Stato Lavorazione contiene "Lavorazione" (case-insensitive)',
+    predicate: c => /lavorazione/i.test(c.statoLav || '') },
   { name: 'open', label: '🟢 Solo aperte', title: 'Esclude commesse Annullate o Chiuse',
     predicate: c => typeof isOpen === 'function' ? isOpen(c) : (c.status !== 'Annullato' && c.status !== 'Concluso' && c.status !== 'Chiusa') },
   { name: 'year', label: '📅 ' + new Date().getFullYear(), title: 'Solo commesse iniziate nell\'anno corrente',
@@ -134,6 +136,11 @@ function _quickFilters() {
   return (window.SECTOR_CONFIG && window.SECTOR_CONFIG.quickFilters) || QUICK_FILTERS_DEFAULT;
 }
 
+function _quickFilterStorageKey() {
+  const code = (typeof sectorCode === 'function') ? sectorCode() : 'GEN';
+  return 'qg_quickfilter_' + code;
+}
+
 function setQuickFilter(name) {
   const list = _quickFilters();
   if (!name || (_quickFilter && _quickFilter.name === name)) {
@@ -141,6 +148,7 @@ function setQuickFilter(name) {
   } else {
     _quickFilter = list.find(q => q.name === name) || null;
   }
+  try { localStorage.setItem(_quickFilterStorageKey(), _quickFilter ? _quickFilter.name : ''); } catch (e) {}
   applyFilters();
   renderQuickFilters();
 }
@@ -251,6 +259,18 @@ function resetFilters() {
 }
 
 function initQuickFilters() {
+  // Sticky: ripristina la scelta dell'utente da localStorage.
+  // Default al primo accesso (chiave assente): "Solo in lavorazione" ON.
+  let stored = null;
+  try { stored = localStorage.getItem(_quickFilterStorageKey()); } catch (e) {}
+  if (stored === null) {
+    _quickFilter = _quickFilters().find(q => q.name === 'inLav') || null;
+  } else if (stored === '') {
+    _quickFilter = null;
+  } else {
+    _quickFilter = _quickFilters().find(q => q.name === stored) || null;
+  }
+  if (_quickFilter) applyFilters();
   renderQuickFilters();
   if (typeof renderPeriodFilter === 'function') renderPeriodFilter();
 }
