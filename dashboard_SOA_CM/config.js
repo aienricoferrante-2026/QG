@@ -20,6 +20,7 @@ window.SECTOR_CONFIG = {
   defaultSection: 'executive',
   partnersJsonUrl: 'partners_soa/_links.json',
   partnersBaseUrl: 'partners_soa/view.html',
+  targetsFile: 'data/targets.json',
 
   /* Drill-down: oltre ai default aggiungiamo i campi SOA. */
   drillFields: [
@@ -37,8 +38,11 @@ window.SECTOR_CONFIG = {
     { key: 'agente',        label: 'Commerciale' }
   ],
 
-  /* Quick filters: default + uno SOA-specifico per la firma pendente. */
+  /* Quick filters: default + uno SOA-specifico per la firma pendente.
+     "inLav" è il filtro sticky introdotto in Tappa 1 Performance. */
   quickFilters: [
+    { name: 'inLav', label: '⚙️ Solo in lavorazione', title: 'Stato Lavorazione contiene "Lavorazione" (case-insensitive)',
+      predicate: c => /lavorazione/i.test(c.statoLav || '') },
     { name: 'open',  label: '🟢 Solo aperte', title: 'Esclude commesse Annullate o Chiuse',
       predicate: c => typeof isOpen === 'function' ? isOpen(c) : (c.status !== 'Annullato' && c.status !== 'Concluso' && c.status !== 'Chiusa') },
     { name: 'year',  label: '📅 ' + new Date().getFullYear(), title: 'Solo commesse iniziate nell\'anno corrente',
@@ -73,6 +77,7 @@ window.SECTOR_CONFIG = {
     avanzamento:    () => typeof renderAvanzamento     === 'function' && renderAvanzamento(),
     alert:          () => typeof renderAlert           === 'function' && renderAlert(),
     linkPartner:    () => typeof renderLinkPartner     === 'function' && renderLinkPartner(),
+    performance:    () => typeof renderPerformance     === 'function' && renderPerformance(),
     soaAttestanti:  () => typeof renderSoaAttestanti   === 'function' && renderSoaAttestanti(),
     entiCert9001:   () => typeof renderEntiCert9001    === 'function' && renderEntiCert9001(),
     consorzio:      () => typeof renderConsorzio       === 'function' && renderConsorzio(),

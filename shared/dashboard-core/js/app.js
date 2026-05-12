@@ -14,7 +14,8 @@ const SECTIONS_DEFAULT = {
   sedi: () => typeof renderSedi === 'function' && renderSedi(),
   avanzamento: () => typeof renderAvanzamento === 'function' && renderAvanzamento(),
   alert: () => typeof renderAlert === 'function' && renderAlert(),
-  linkPartner: () => typeof renderLinkPartner === 'function' && renderLinkPartner()
+  linkPartner: () => typeof renderLinkPartner === 'function' && renderLinkPartner(),
+  performance: () => typeof renderPerformance === 'function' && renderPerformance()
 };
 
 function _sections() {

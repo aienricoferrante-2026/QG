@@ -13,6 +13,7 @@ window.SECTOR_CONFIG = {
   "defaultSection": "executive",
   "partnersJsonUrl": "partners_avv/_links.json",
   "partnersBaseUrl": "partners_avv/view.html",
+  "targetsFile": "data/targets.json",
   "filters": [
     {
       "id": "fStatus",
