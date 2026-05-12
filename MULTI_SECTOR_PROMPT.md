@@ -125,11 +125,14 @@ tools/
 L'utente la usa attivamente su https://aienricoferrante-2026.github.io/QG/dashboard_FOR_CM/
 
 REGOLE:
-1. ❌ NON modificare nessun file dentro `dashboard_FOR_CM/`
-2. ❌ NON modificare nessun file dentro `partners/` né `partners/_generate.py`
-3. ❌ NON modificare i file in `shared/` usati da FOR (`multiselect.js`, `upload.js`, `upload.css`)
-4. ❌ NON eseguire `partners/_generate.py` (genererebbe nuovi token, l'utente ha già mandato i link)
-5. ❌ NON modificare `.nojekyll` o `index.html` della root SE rompe la dashboard FOR
+1. ⚠️ `dashboard_FOR_CM/js/auth.js` può essere modificato SOLO per allineare le
+   credenziali allo schema Master+Sector delle altre dashboard. Per tutto il resto
+   (UI, sezioni, dati) FOR resta intoccato (vedi sotto).
+2. ❌ NON modificare gli altri file dentro `dashboard_FOR_CM/`
+3. ❌ NON modificare nessun file dentro `partners/` né `partners/_generate.py`
+4. ❌ NON modificare i file in `shared/` usati da FOR (`multiselect.js`, `upload.js`, `upload.css`)
+5. ❌ NON eseguire `partners/_generate.py` (genererebbe nuovi token, l'utente ha già mandato i link)
+6. ❌ NON modificare `.nojekyll` o `index.html` della root SE rompe la dashboard FOR
 
 **Se rompi FOR, l'utente perde il tool che usa quotidianamente. Sii cauto.**
 

@@ -14,7 +14,8 @@ TEMPLATE = ROOT / "shared" / "dashboard-core" / "index-template.html"
 
 # Credenziali per settore (email + SHA-256 password). Master sempre valido:
 # direzione@qualificagroup.it / Qualifica!26  — vedi auth.js.
-# (FOR autonomo continua ad accettare formazione@/qualifica2026!.)
+# (FOR autonomo ha lo stesso schema in dashboard_FOR_CM/js/auth.js;
+# le sue credenziali settoriali sono for@qualificagroup.it / 256FOR913.)
 SECTOR_CREDS = {
     "ISO":     ("iso@qualificagroup.it", "82613189a48bbd580f43cda212078e94f328c8970b63bf9d766ff713dc2b6c51"),
     "SIC":     ("sic@qualificagroup.it", "9512ceba12579123a8a2c6dbd0adc70efa01df6316426c1c416f874c716cc183"),
