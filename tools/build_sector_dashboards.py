@@ -35,9 +35,22 @@ SECTORS = {
     "GAR": {"label": "Gare d'appalto", "icon": "🎯", "color": "#06b6d4"},
     "APL_PAL": {"label": "Politiche Attive", "icon": "💼", "color": "#a78bfa"},
     "APL_RES": {"label": "PAL Risorse", "icon": "👥", "color": "#10b981"},
-    "GDPR": {"label": "Privacy / GDPR", "icon": "🔒", "color": "#ec4899"},
-    # NB: per GDPR i filtri custom Stato Pagamento / Insoluti vanno aggiunti
-    # in una chat Caso 2 dedicata (richiedono index.html custom come ISO).
+    "GDPR": {"label": "Privacy / GDPR", "icon": "🔒", "color": "#ec4899",
+             "custom_index": True,
+             "extra_config": {
+                 "filters": [
+                     {"id": "fStatus",          "key": "status",       "label": "Status",            "ph": "Tutti"},
+                     {"id": "fStatoLav",        "key": "statoLav",     "label": "Stato Lavorazione", "ph": "Tutti"},
+                     {"id": "fGdprStatoPag",    "key": "gdprStatoPag", "label": "Stato Pagamento",   "ph": "Tutti"},
+                     {"id": "fCliente",         "key": "cliente",      "label": "Cliente",           "ph": "Tutti"},
+                     {"id": "fSocieta",         "key": "societa",      "label": "Societa",           "ph": "Tutte"},
+                     {"id": "fSede",            "key": "sedeNorm",     "label": "Sede",              "ph": "Tutte"},
+                     {"id": "fRegione",         "key": "regione",      "label": "Regione",           "ph": "Tutte"},
+                     {"id": "fResp",            "key": "responsabile", "label": "Responsabile",      "ph": "Tutti"},
+                     {"id": "fFunzione",        "key": "funzione",     "label": "Funzione",          "ph": "Tutte"},
+                 ],
+                 "extraSections": ["pagamentiGdpr"],
+             }},
     # ISO usa il kit per i file JS comuni ma ha un proprio index.html
     # scritto a mano (Caso 2 della governance) con filtri Standard / Tipo Audit /
     # Ente e sezioni custom in dashboard_ISO_CM/js/. Per ISO il build genera
