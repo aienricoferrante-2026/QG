@@ -12,10 +12,8 @@
 </head>
 <body>
 
-<!-- SIDEBAR TOGGLE -->
 <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()" title="Nascondi/Mostra menu">&#9776;</button>
 
-<!-- SIDEBAR -->
 <nav class="sidebar">
   <div class="sidebar-brand">
     <h2>Qualifica Group</h2>
@@ -25,9 +23,13 @@
   <div class="nav-group">
     <div class="nav-group-label">Overview</div>
     <a class="nav-item active" data-sec="executive" onclick="showSec('executive')"><span class="nav-icon">&#9632;</span>Executive Summary</a>
-    <a class="nav-item" data-sec="ricavi" onclick="showSec('ricavi')"><span class="nav-icon">&#8364;</span>Ricavi & MOL</a>
+    <a class="nav-item" data-sec="ricavi" onclick="showSec('ricavi')"><span class="nav-icon">&#8364;</span>Ricavi &amp; MOL</a>
     <a class="nav-item" data-sec="econFin" onclick="showSec('econFin')"><span class="nav-icon">&#128202;</span>Econ. &amp; Finanziario</a>
     <a class="nav-item" data-sec="analisiIncassi" onclick="showSec('analisiIncassi')"><span class="nav-icon">&#128181;</span>Analisi Incassi</a>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-label">AVV Specifico</div>
+    <a class="nav-item" data-sec="avvalimenti" onclick="showSec('avvalimenti')"><span class="nav-icon">&#129309;</span>Avvalimenti</a>
   </div>
   <div class="nav-group">
     <div class="nav-group-label">Anagrafiche</div>
@@ -46,7 +48,6 @@
   </div>
 </nav>
 
-<!-- MAIN CONTENT -->
 <main class="main">
   <div class="header">
     <div>
@@ -61,12 +62,13 @@
   <div class="filters">
     <div class="filter-group"><label>Status</label><div class="ms-wrap" id="fStatus"></div></div>
     <div class="filter-group"><label>Stato Lav.</label><div class="ms-wrap" id="fStatoLav"></div></div>
+    <div class="filter-group"><label>Categoria SOA</label><div class="ms-wrap" id="fAvvCategoria"></div></div>
+    <div class="filter-group"><label>Tipo Avvalimento</label><div class="ms-wrap" id="fAvvTipo"></div></div>
+    <div class="filter-group"><label>Anno</label><div class="ms-wrap" id="fAvvAnno"></div></div>
     <div class="filter-group"><label>Cliente</label><div class="ms-wrap" id="fCliente"></div></div>
     <div class="filter-group"><label>Societa</label><div class="ms-wrap" id="fSocieta"></div></div>
-    <div class="filter-group"><label>Sede</label><div class="ms-wrap" id="fSede"></div></div>
     <div class="filter-group"><label>Regione</label><div class="ms-wrap" id="fRegione"></div></div>
     <div class="filter-group"><label>Responsabile</label><div class="ms-wrap" id="fResp"></div></div>
-    <div class="filter-group"><label>Funzione</label><div class="ms-wrap" id="fFunzione"></div></div>
     <button class="filter-reset" onclick="resetFilters()">Reset</button>
   </div>
 
@@ -77,6 +79,7 @@
   <div id="sec-ricavi" class="hidden"></div>
   <div id="sec-econFin" class="hidden"></div>
   <div id="sec-analisiIncassi" class="hidden"></div>
+  <div id="sec-avvalimenti" class="hidden"></div>
   <div id="sec-responsabili" class="hidden"></div>
   <div id="sec-clienti" class="hidden"></div>
   <div id="sec-sedi" class="hidden"></div>
@@ -95,10 +98,7 @@
   </div>
 </div>
 
-<!-- Config settore (carica per primo) -->
 <script src="config.js"></script>
-
-<!-- Core scripts -->
 <script src="../shared/dashboard-core/js/theme.js?v=1"></script>
 <script src="../shared/dashboard-core/js/auth.js?v=1"></script>
 <script src="../shared/multiselect.js?v=1"></script>
@@ -114,6 +114,10 @@
 <script src="../shared/dashboard-core/js/section-analisi-incassi.js?v=1"></script>
 <script src="../shared/dashboard-core/js/section-link-partner.js?v=1"></script>
 <script src="../shared/dashboard-core/js/info-tooltip.js?v=1"></script>
+
+<!-- Sezione AVV-specifica (Caso 2 governance) -->
+<script src="js/section-avvalimenti.js?v=1"></script>
+
 <script src="../shared/dashboard-core/js/app.js?v=1"></script>
 
 </body>

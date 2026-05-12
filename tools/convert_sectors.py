@@ -26,6 +26,7 @@ from iso_parser import parse_titolo as parse_titolo_iso, \
     FIELD_MAP_EXTRA as ISO_FIELD_MAP_EXTRA, DATE_KEYS as ISO_DATE_KEYS
 from extra_fields import ALL as EXTRA_FIELD_MAP, \
     DATE_KEYS as EXTRA_DATE_KEYS, NUMERIC_KEYS as EXTRA_NUMERIC_KEYS
+from avv_parser import parse_titolo as parse_titolo_avv
 
 ROOT = Path(__file__).resolve().parent.parent
 EXCEL_DIR = Path("/Users/enricoferrante/Desktop/STW")
@@ -237,14 +238,22 @@ def parse_row(headers, row, sector):
     rec.setdefault("statoClasse", "")
     rec.setdefault("corso", "")
 
-    # Campi derivati ISO (parser del Titolo)
+    # Campi derivati dal Titolo per BU "Caso 2"
     if sector == "ISO":
         standards, audits = parse_titolo_iso(rec.get("titolo", ""))
-        rec["isoStandards"]      = standards
-        rec["isoTipoAuditList"]  = audits
-        # Valori "primary" per filtri MultiSelect (stringa singola)
-        rec["isoStandard"]       = " + ".join(standards) if standards else ""
-        rec["isoTipoAudit"]      = " + ".join(audits)    if audits    else ""
+        rec["isoStandards"]     = standards
+        rec["isoTipoAuditList"] = audits
+        rec["isoStandard"]      = " + ".join(standards) if standards else ""
+        rec["isoTipoAudit"]     = " + ".join(audits) if audits else ""
+    elif sector == "AVV":
+        avv = parse_titolo_avv(rec.get("titolo", ""))
+        rec["avvCategorie"]   = avv["avvCategoria"]
+        rec["avvClassifiche"] = avv["avvClassifica"]
+        rec["avvCategoria"]   = " + ".join(avv["avvCategoria"])
+        rec["avvClassifica"]  = " + ".join(avv["avvClassifica"])
+        rec["avvCIG"]         = avv["avvCIG"]
+        rec["avvTipo"]        = avv["avvTipo"]
+        rec["avvAnno"]        = avv["avvAnno"]
 
     rec["sector"] = sector
     return rec
