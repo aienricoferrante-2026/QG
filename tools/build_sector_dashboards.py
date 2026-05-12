@@ -12,6 +12,22 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 TEMPLATE = ROOT / "shared" / "dashboard-core" / "index-template.html"
 
+# Credenziali per settore (email + SHA-256 password). Master sempre valido:
+# direzione@qualificagroup.it / Qualifica!26  — vedi auth.js.
+# (FOR autonomo continua ad accettare formazione@/qualifica2026!.)
+SECTOR_CREDS = {
+    "ISO":     ("iso@qualificagroup.it", "82613189a48bbd580f43cda212078e94f328c8970b63bf9d766ff713dc2b6c51"),
+    "SIC":     ("sic@qualificagroup.it", "9512ceba12579123a8a2c6dbd0adc70efa01df6316426c1c416f874c716cc183"),
+    "AVV":     ("avv@qualificagroup.it", "ef8b41fbadc535e58755bee0db8857c3b35ef898a784065540a0822d906e06a5"),
+    "FIA":     ("fia@qualificagroup.it", "082c0e1b841029d4ef449f25e03f719e952368ac422703b3e151aa57df527f26"),
+    "IST":     ("ist@qualificagroup.it", "e3b89a8203d60048c394223fad050b0368510d7198c10671b17b249a4369e263"),
+    "SOA":     ("soa@qualificagroup.it", "d28673a3e666f6fc7d128e35a08e3395a639e7c7d3263cf7fed1f653850efa91"),
+    "GAR":     ("gar@qualificagroup.it", "e900f1030962c2859b291864047c18a77096791e4071685abbac907870417d41"),
+    "GDPR":    ("gdp@qualificagroup.it", "f7aea5e2742cf7d20f8065e4b6ddf71fc63903121c2c97dab7fc166b10d52c53"),
+    "APL_PAL": ("pal@qualificagroup.it", "6e51265e644d9ed6ee109c245e63db67094312403f0a39ee4402656ec865e043"),
+    "APL_RES": ("res@qualificagroup.it", "92deb5cbccacea3c8d61a2bb6cdcdb7d65bca2738f1dc7c4df8e72f3ca008b2f"),
+}
+
 SECTORS = {
     "SIC": {"label": "Sicurezza Lavoro", "icon": "🛡️", "color": "#06b6d4"},
     "AVV": {"label": "Avvalimenti", "icon": "🤝", "color": "#a78bfa",
@@ -86,13 +102,17 @@ window.SECTOR_CONFIG = """
 
 def build_config(sector, info):
     """Costruisce il dizionario JS-friendly che SECTOR_CONFIG deve contenere."""
+    # Fallback al Master nuovo per eventuali settori non in SECTOR_CREDS.
+    creds = SECTOR_CREDS.get(sector, ("direzione@qualificagroup.it",
+        "5bb40be187baff36150a637bacf46f1b6c75eb1e51efebf6f71d6ad5c92af43a"))
     cfg = {
         "code": sector,
         "label": info["label"],
         "icon": info["icon"],
         "color": info["color"],
         "dataFile": f"data/commesse_{sector.lower()}.json",
-        "adminEmail": "formazione@qualificagroup.it",
+        "adminEmail": creds[0],
+        "adminPassHash": creds[1],
         "defaultSection": "executive",
         "partnersJsonUrl": f"partners_{sector.lower()}/_links.json",
         "partnersBaseUrl": f"partners_{sector.lower()}/view.html",
