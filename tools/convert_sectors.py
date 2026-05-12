@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
-"""Converte gli Excel dei settori "base" (SIC, AVV, FIA, IST) in JSON
-nello stesso schema della dashboard FOR_CM, mappando solo i 45 campi comuni.
+"""Converte gli Excel dei settori "base" (SIC, AVV, FIA, IST, ISO) in JSON
+nello stesso schema della dashboard FOR_CM, mappando i 45 campi comuni.
+
+Per ISO il mapping è esteso con 22 campi specifici (Ente, Scopi, Date Audit,
+Stato Certificato, Insoluti, ecc.) + parser del Titolo per estrarre Standard
+(9001/14001/45001/...) e Tipo di Audit (IA/RC/1SA/2SA/3SA).
 
 Input: /Users/enricoferrante/Desktop/STW/commesse_<SECTOR>_06-05-26.xlsx
 Output: dashboard_<SECTOR>_CM/data/commesse_<sec>.json
@@ -18,6 +22,12 @@ except ImportError:
     print("openpyxl non disponibile. Installa con: pip3 install openpyxl", file=sys.stderr)
     sys.exit(1)
 
+from iso_parser import parse_titolo as parse_titolo_iso, \
+    FIELD_MAP_EXTRA as ISO_FIELD_MAP_EXTRA, DATE_KEYS as ISO_DATE_KEYS
+from extra_fields import ALL as EXTRA_FIELD_MAP, \
+    DATE_KEYS as EXTRA_DATE_KEYS, NUMERIC_KEYS as EXTRA_NUMERIC_KEYS
+from avv_parser import parse_titolo as parse_titolo_avv
+
 ROOT = Path(__file__).resolve().parent.parent
 EXCEL_DIR = Path("/Users/enricoferrante/Desktop/STW")
 
@@ -27,25 +37,15 @@ SECTORS = {
     "FIA": "commesse_FIA_06-05-26.xlsx",
     "IST": "commesse_IST_06-05-26.xlsx",
     "SOA": "commesse_SOA_06-05-26.xlsx",
+    "ISO": "commesse_ISO_06-05-26.xlsx",
+    "GAR": "commesse_GAR_05-06-26.xlsx",
+    "APL_PAL": "commesse_APL_PAL.xlsx",
+    "APL_RES": "commesse_APL_RES.xlsx",
+    "GDPR": "commesse_GDPR_06-05-26.xlsx",
 }
 
-# Campi specifici aggiuntivi per BU complesse (es. SOA).
-# Vengono mappati solo se presenti nell'Excel di origine, quindi sicuri
-# da estendere anche per altre BU senza impatto retrocompatibile.
-EXTRA_FIELD_MAP = {
-    "Soa Attestante": "soaAttestante",
-    "SOA Attestante": "soaAttestante",
-    "Nome dell'Ente di Certiifcazione 9001": "enteCert9001",
-    "Nome dell'Ente di Certificazione 9001": "enteCert9001",
-    "Scadenza Ente di Certiifcazione 9001": "scadenzaCert",
-    "Scadenza Ente di Certificazione 9001": "scadenzaCert",
-    "Aggiornamento Settimanale": "aggSettimanale",
-    "Data Firma Contratto": "dataFirmaContratto",
-    "Appartenenza Consorzio": "consorzioFlag",
-    "Nome del Consorzio": "consorzio",
-    "Ultima Chiamata": "ultimaChiamata",
-    "Invio Contratto": "invioContratto",
-}
+# EXTRA_FIELD_MAP (SOA + GAR + APL_RES + GDPR) vive in tools/extra_fields.py.
+# ISO in tools/iso_parser.py.
 
 FIELD_MAP = {
     "ID": "id",
@@ -106,7 +106,9 @@ NUMERIC_KEYS = {
     "finIncassiTot", "finUsciteTot", "finDeltaTot",
     "giaIncassato", "daIncassare", "anticipoImporto", "saldoImporto",
     "totRicevutoRegione", "ore", "discenti", "avanzamento",
-}
+    "isoOreLav", "isoInsoluti",
+} | EXTRA_NUMERIC_KEYS
+
 
 
 def normalize_sede(sede_op, citta):
@@ -138,34 +140,60 @@ def to_num(v):
         return 0
 
 
+_ZERO_DATE_RE = re.compile(r"^0{1,4}[-/]0{1,2}[-/]0{1,4}$")
+_ISO_DATE_RE = re.compile(r"^(\d{4})-(\d{1,2})-(\d{1,2})(?:[T\s].*)?$")
+_DDMMYYYY_RE = re.compile(r"^(\d{1,2})[-/](\d{1,2})[-/](\d{4})$")
+
+
 def to_date_str(v):
-    """Excel returns datetime; we want gg-mm-yyyy as the FOR JSON does."""
+    """Normalizza qualunque data (Excel datetime, ISO yyyy-mm-dd, gg/mm/yyyy,
+    placeholder 00-00-0000) al formato canonico 'gg-mm-yyyy'."""
     if v is None or v == "":
         return ""
     if hasattr(v, "strftime"):
         return v.strftime("%d-%m-%Y")
     s = str(v).strip()
+    if not s or _ZERO_DATE_RE.match(s):
+        return ""
+    m = _ISO_DATE_RE.match(s)
+    if m:
+        y, mo, d = m.group(1), m.group(2), m.group(3)
+        return f"{int(d):02d}-{int(mo):02d}-{int(y):04d}"
+    m = _DDMMYYYY_RE.match(s)
+    if m:
+        d, mo, y = m.group(1), m.group(2), m.group(3)
+        return f"{int(d):02d}-{int(mo):02d}-{int(y):04d}"
     return s
+
+
+BASE_DATE_KEYS = {
+    "dataInizio", "dataFine", "dataPianInizio",
+    "dataAssegnazione", "dataUltimaNota",
+} | EXTRA_DATE_KEYS
 
 
 def parse_row(headers, row, sector):
     rec = {}
-    seen_ultima = False
+    seen_keys = set()  # gestisce header duplicati (ISO ha "Note" e "Ultima Nota" x2)
+    # Field map a cascata: comune → EXTRA (SOA) → ISO_FIELD_MAP_EXTRA (solo ISO).
+    field_map = dict(FIELD_MAP)
+    field_map.update(EXTRA_FIELD_MAP)
+    if sector == "ISO":
+        field_map.update(ISO_FIELD_MAP_EXTRA)
+
     for i, h in enumerate(headers):
         if h is None:
             continue
-        h_str = str(h).strip()
-        key = FIELD_MAP.get(h_str) or EXTRA_FIELD_MAP.get(h_str)
+        key = field_map.get(str(h).strip())
         if not key:
             continue
         val = row[i] if i < len(row) else None
-        if key == "ultimaNota":
-            if seen_ultima:
+        # Per chiavi che possono apparire due volte (ultimaNota, note) tengo la prima
+        if key in {"ultimaNota", "note"}:
+            if key in seen_keys:
                 continue
-            seen_ultima = True
-        if key in {"dataInizio", "dataFine", "dataPianInizio", "dataAssegnazione",
-                   "dataUltimaNota", "dataFirmaContratto", "scadenzaCert",
-                   "ultimaChiamata", "invioContratto", "aggSettimanale"}:
+            seen_keys.add(key)
+        if key in BASE_DATE_KEYS or key in ISO_DATE_KEYS:
             rec[key] = to_date_str(val)
         elif key in NUMERIC_KEYS:
             rec[key] = to_num(val)
@@ -217,6 +245,23 @@ def parse_row(headers, row, sector):
     rec.setdefault("statoCorso", "")
     rec.setdefault("statoClasse", "")
     rec.setdefault("corso", "")
+
+    # Campi derivati dal Titolo per BU "Caso 2"
+    if sector == "ISO":
+        standards, audits = parse_titolo_iso(rec.get("titolo", ""))
+        rec["isoStandards"]     = standards
+        rec["isoTipoAuditList"] = audits
+        rec["isoStandard"]      = " + ".join(standards) if standards else ""
+        rec["isoTipoAudit"]     = " + ".join(audits) if audits else ""
+    elif sector == "AVV":
+        avv = parse_titolo_avv(rec.get("titolo", ""))
+        rec["avvCategorie"]   = avv["avvCategoria"]
+        rec["avvClassifiche"] = avv["avvClassifica"]
+        rec["avvCategoria"]   = " + ".join(avv["avvCategoria"])
+        rec["avvClassifica"]  = " + ".join(avv["avvClassifica"])
+        rec["avvCIG"]         = avv["avvCIG"]
+        rec["avvTipo"]        = avv["avvTipo"]
+        rec["avvAnno"]        = avv["avvAnno"]
 
     rec["sector"] = sector
     return rec

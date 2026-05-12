@@ -4,12 +4,21 @@
  * Su sito statico GitHub Pages non c'è server, quindi chi sa leggere il
  * codice JavaScript può aggirare il login. Resta utile per impedire
  * accessi casuali a chi capita sull'URL senza essere autorizzato.
+ *
+ * Schema allineato alle altre dashboard sul kit (vedi shared/dashboard-core/js/auth.js):
+ *  1. MASTER  direzione@qualificagroup.it / Qualifica!26  (Enrico, accesso ovunque)
+ *  2. SETTORE for@qualificagroup.it / 256FOR913           (responsabile Formazione)
  */
 
 (function () {
-  const ADMIN_USER = 'formazione@qualificagroup.it';
-  // SHA-256("qualifica2026!")
-  const ADMIN_PASS_HASH = '7ec091a1468dd7c2e54e7d042f24a5588f5fdecd8751502878fd15f53112f82e';
+  // MASTER (sempre valido, override globale — uguale alle altre dashboard)
+  const MASTER_USER = 'direzione@qualificagroup.it';
+  // SHA-256("Qualifica!26")
+  const MASTER_PASS_HASH = '5bb40be187baff36150a637bacf46f1b6c75eb1e51efebf6f71d6ad5c92af43a';
+  // SETTORE Formazione (specifica per il responsabile FOR)
+  const ADMIN_USER = 'for@qualificagroup.it';
+  // SHA-256("256FOR913")
+  const ADMIN_PASS_HASH = '1e94eb76776c0043a37e75b03b45ea814437a5084c6a6d6ddeca18f70e2b554a';
   const STORAGE_KEY = 'qg_admin_authed_v1';
   const STORAGE_USER = 'qg_admin_user_v1';
 
@@ -108,7 +117,9 @@
       const u = (document.getElementById('qg-user').value || '').trim().toLowerCase();
       const p = document.getElementById('qg-pass').value || '';
       const hash = await sha256(p);
-      if (u === ADMIN_USER && hash === ADMIN_PASS_HASH) {
+      const isMaster = (u === MASTER_USER && hash === MASTER_PASS_HASH);
+      const isSector = (u === ADMIN_USER && hash === ADMIN_PASS_HASH);
+      if (isMaster || isSector) {
         setAuthed(u);
         ov.style.transition = 'opacity .25s';
         ov.style.opacity = '0';

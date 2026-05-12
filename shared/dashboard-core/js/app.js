@@ -18,7 +18,18 @@ const SECTIONS_DEFAULT = {
 };
 
 function _sections() {
-  if (window.SECTOR_CONFIG && window.SECTOR_CONFIG.sections) return window.SECTOR_CONFIG.sections;
+  const cfg = window.SECTOR_CONFIG || {};
+  if (cfg.sections) return cfg.sections;
+  // extraSections: lista di nomi sezione (es. ["enti", "audit"]).
+  // Per ognuno, il kit cerca window['render' + Capitalized] definito dalla BU.
+  if (Array.isArray(cfg.extraSections) && cfg.extraSections.length) {
+    const merged = Object.assign({}, SECTIONS_DEFAULT);
+    cfg.extraSections.forEach(name => {
+      const fnName = 'render' + name.charAt(0).toUpperCase() + name.slice(1);
+      merged[name] = () => typeof window[fnName] === 'function' && window[fnName]();
+    });
+    return merged;
+  }
   return SECTIONS_DEFAULT;
 }
 

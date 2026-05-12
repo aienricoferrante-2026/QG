@@ -124,6 +124,7 @@
   <p class="footer">
     Solo lettura — i dati arrivano da Qnet via Excel.
     <a href="https://github.com/aienricoferrante-2026/QG" target="_blank">Repo</a>
+    · <a href="passwords.html" title="Password settori (accesso Master)">🔑 Password</a>
   </p>
 </div>
 
@@ -135,30 +136,35 @@
 const SECTORS = [
   { code:'FOR',    label:'Formazione',          icon:'🎓', color:'#10b981', count:1335,  url:'dashboard_FOR_CM/',     active:true,  desc:'Corsi finanziati, Stato Corso, classi, discenti, cessione credito.' },
 
-  { code:'ISO',    label:'Certificazioni ISO',  icon:'📜', color:'#3b82f6', count:6185,  url:'dashboard/',            active:true,  desc:'Audit, ente, scopo, verifiche, stato pagamento.', variant:'legacy' },
-  { code:'ISO',    label:'Certificazioni ISO',  icon:'📜', color:'#3b82f6', count:6185,  url:null,                    active:false, desc:'Migrazione sul kit condiviso con sezioni Caso 2 (audit, ente, scopo). In arrivo.', variant:'cm' },
+  { code:'ISO',    label:'Certificazioni ISO',  icon:'📜', color:'#3b82f6', count:6185,  url:'dashboard_ISO_CM/',     active:true,  desc:'Audit, ente, scopo, verifiche, stato pagamento.', variant:'cm' },
+  { code:'ISO',    label:'Certificazioni ISO',  icon:'📜', color:'#3b82f6', count:6185,  url:'dashboard/',            active:true,  desc:'Versione storica autonoma (pre-kit). Mantenuta per consultazione.', variant:'legacy' },
 
   { code:'SIC',    label:'Sicurezza Lavoro',    icon:'🛡️', color:'#06b6d4', count:2613,  url:'dashboard_SIC_CM/',     active:true,  desc:'Commesse sicurezza, RSPP, formazione obbligatoria.' },
-  { code:'APL_PAL',label:'Politiche Attive',    icon:'💼', color:'#a78bfa', count:1415,  url:null,                    active:false, desc:'Visure, GOL, CV, accompagnamento.' },
-  { code:'GDPR',   label:'Privacy / GDPR',      icon:'🔒', color:'#ec4899', count:695,   url:null,                    active:false, desc:'Consulenze privacy, audit, accordo pagamenti.' },
+  { code:'APL_PAL',label:'Politiche Attive',    icon:'💼', color:'#a78bfa', count:1415,  url:'dashboard_APL_PAL_CM/', active:true,  desc:'Visure, GOL, CV, accompagnamento.' },
+  { code:'GDPR',   label:'Privacy / GDPR',      icon:'🔒', color:'#ec4899', count:695,   url:'dashboard_GDPR_CM/',    active:true,  desc:'Consulenze privacy, audit, accordo pagamenti.' },
 
   { code:'SOA',    label:'Attestazioni SOA',    icon:'🏗️', color:'#f59e0b', count:613,   url:'dashboard_SOA_CM/',     active:true,  desc:'Qualificazione lavori, attestanti, enti 9001, consorzio, firme contratto.', variant:'cm' },
   { code:'SOA',    label:'Attestazioni SOA',    icon:'🏗️', color:'#f59e0b', count:605,   url:'dashboard_SOA_LEGACY/', active:true,  desc:'Versione storica autonoma (agg. 14-04-26). KPI su Importo Ente, sezioni Commerciali/Città.', variant:'legacy' },
 
-  { code:'AVV',    label:'Avvalimenti',         icon:'⚖️', color:'#a78bfa', count:328,   url:'dashboard_AVV_CM/',     active:true,  desc:'Avvalimenti per gare e qualificazioni: impresa ausiliaria, requisiti, contratti.' },
-  { code:'GAR',    label:"Gare d'appalto",      icon:'🎯', color:'#06b6d4', count:325,   url:null,                    active:false, desc:'Protocollo, CIG, importi, scadenze.' },
+  { code:'AVV',    label:'Avvalimenti',         icon:'🤝', color:'#a78bfa', count:328,   url:'dashboard_AVV_CM/',     active:true,  desc:'Avvalimenti per gare d\'appalto (capacità tecnico-economiche).' },
+  { code:'GAR',    label:"Gare d'appalto",      icon:'🎯', color:'#06b6d4', count:325,   url:'dashboard_GAR_CM/',     active:true,  desc:'Protocollo, CIG, importi, scadenze.' },
   { code:'FIA',    label:'Finanza Agevolata',   icon:'💰', color:'#fbbf24', count:276,   url:'dashboard_FIA_CM/',     active:true,  desc:'Bandi, contributi, finanziamenti agevolati.' },
-  { code:'APL_RES',label:'PAL Risorse',         icon:'👥', color:'#10b981', count:154,   url:null,                    active:false, desc:'Profili, requisiti, variazione ricerca.' },
+  { code:'APL_RES',label:'PAL Risorse',         icon:'👥', color:'#10b981', count:154,   url:'dashboard_APL_RES_CM/', active:true,  desc:'Profili, requisiti, variazione ricerca.' },
   { code:'IST',    label:'Istituti',            icon:'🏛️', color:'#34d399', count:52,    url:'dashboard_IST_CM/',     active:true,  desc:'Gestione commesse istituti.' }
 ];
 
 const SECTOR_DATA_URLS = {
   FOR:'dashboard_FOR_CM/data/commesse_for.json',
+  ISO:'dashboard_ISO_CM/data/commesse_iso.json',
   SIC:'dashboard_SIC_CM/data/commesse_sic.json',
   AVV:'dashboard_AVV_CM/data/commesse_avv.json',
   FIA:'dashboard_FIA_CM/data/commesse_fia.json',
   IST:'dashboard_IST_CM/data/commesse_ist.json',
-  SOA:'dashboard_SOA_CM/data/commesse_soa.json'
+  SOA:'dashboard_SOA_CM/data/commesse_soa.json',
+  GAR:'dashboard_GAR_CM/data/commesse_gar.json',
+  APL_PAL:'dashboard_APL_PAL_CM/data/commesse_apl_pal.json',
+  APL_RES:'dashboard_APL_RES_CM/data/commesse_apl_res.json',
+  GDPR:'dashboard_GDPR_CM/data/commesse_gdpr.json'
 };
 
 function qgToggleTheme(){

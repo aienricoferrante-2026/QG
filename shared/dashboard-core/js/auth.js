@@ -4,15 +4,25 @@
  * non c'è server, quindi chi sa leggere il JS può aggirarla. Resta utile
  * contro accessi casuali.
  *
- * Email admin di default: formazione@qualificagroup.it
- * Override: window.SECTOR_CONFIG.adminEmail.
- * Password unificata: qualifica2026!
+ * Credenziali accettate (entrambe valide su qualunque dashboard sul kit):
+ *  1. MASTER: direzione@qualificagroup.it / Qualifica!26
+ *     Sempre valida, indipendente dal settore. È l'account di Enrico
+ *     (Direzione) che lo fa entrare ovunque, FOR incluso (vedi
+ *     dashboard_FOR_CM/js/auth.js che ha lo stesso schema).
+ *  2. SETTORE: <sigla>@qualificagroup.it / <password specifica>
+ *     Letta da SECTOR_CONFIG.adminEmail + SECTOR_CONFIG.adminPassHash.
+ *     Pensata per i responsabili che usano solo "la loro" dashboard.
+ *     L'elenco completo vive in passwords.html (accesso Master).
  */
 
 (function () {
-  const ADMIN_USER = (window.SECTOR_CONFIG && window.SECTOR_CONFIG.adminEmail) || 'formazione@qualificagroup.it';
-  // SHA-256("qualifica2026!")
-  const ADMIN_PASS_HASH = '7ec091a1468dd7c2e54e7d042f24a5588f5fdecd8751502878fd15f53112f82e';
+  // MASTER (sempre valido, override globale)
+  const MASTER_USER = 'direzione@qualificagroup.it';
+  // SHA-256("Qualifica!26")
+  const MASTER_PASS_HASH = '5bb40be187baff36150a637bacf46f1b6c75eb1e51efebf6f71d6ad5c92af43a';
+  // SETTORE (specifico, fallback al master se la BU non ha config dedicata)
+  const ADMIN_USER = (window.SECTOR_CONFIG && window.SECTOR_CONFIG.adminEmail) || MASTER_USER;
+  const ADMIN_PASS_HASH = (window.SECTOR_CONFIG && window.SECTOR_CONFIG.adminPassHash) || MASTER_PASS_HASH;
   const STORAGE_KEY = 'qg_admin_authed_v1';
   const STORAGE_USER = 'qg_admin_user_v1';
 
@@ -102,7 +112,9 @@
       const u = (document.getElementById('qg-user').value || '').trim().toLowerCase();
       const p = document.getElementById('qg-pass').value || '';
       const hash = await sha256(p);
-      if (u === ADMIN_USER && hash === ADMIN_PASS_HASH) {
+      const isMaster = (u === MASTER_USER && hash === MASTER_PASS_HASH);
+      const isSector = (u === ADMIN_USER && hash === ADMIN_PASS_HASH);
+      if (isMaster || isSector) {
         setAuthed(u);
         ov.style.transition = 'opacity .25s';
         ov.style.opacity = '0';

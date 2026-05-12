@@ -178,12 +178,30 @@ function _filterDefs() {
 
 function _norm(v) { return (v && String(v).trim()) ? v : 'N/D'; }
 
+/* Per filtri "multi-valore" (es. ISO Standard "9001 + 14001"): se la def
+   ha `splitBy`, il valore del record viene esploso in parti, e il filtro
+   matcha se almeno una parte è selezionata. Senza splitBy il comportamento
+   è invariato (match esatto). */
+function _splitVal(val, splitBy) {
+  if (!splitBy) return [val];
+  const s = String(val);
+  if (s === 'N/D' || !s) return ['N/D'];
+  return s.split(splitBy).map(x => x.trim()).filter(Boolean);
+}
+
+function _matchFilter(f, c) {
+  const parts = _splitVal(_norm(c[f.key]), f.splitBy);
+  return parts.some(p => MultiSelect.matches(f.id, p));
+}
+
 function initFilters() {
   _filterDefs().forEach(f => {
-    const vals = [...new Set(D.map(c => _norm(c[f.key])))].sort();
+    const all = new Set();
+    D.forEach(c => _splitVal(_norm(c[f.key]), f.splitBy).forEach(p => all.add(p)));
+    const vals = [...all].sort();
     MultiSelect.create(f.id, vals, f.ph, {
       onChange: applyFilters,
-      countFn: v => D.filter(c => _norm(c[f.key]) === v).length
+      countFn: v => D.filter(c => _splitVal(_norm(c[f.key]), f.splitBy).includes(v)).length
     });
   });
 }
@@ -194,12 +212,15 @@ function rebuildFilterCounts() {
     const otherFilters = defs.filter(f => f.id !== fd.id);
     const baseItems = D.filter(c => {
       for (const of2 of otherFilters) {
-        if (!MultiSelect.matches(of2.id, _norm(c[of2.key]))) return false;
+        if (!_matchFilter(of2, c)) return false;
       }
       return true;
     });
-    const vals = [...new Set(baseItems.map(c => _norm(c[fd.key])))].sort();
-    MultiSelect.updateOptions(fd.id, vals, v => baseItems.filter(c => _norm(c[fd.key]) === v).length);
+    const all = new Set();
+    baseItems.forEach(c => _splitVal(_norm(c[fd.key]), fd.splitBy).forEach(p => all.add(p)));
+    const vals = [...all].sort();
+    MultiSelect.updateOptions(fd.id, vals,
+      v => baseItems.filter(c => _splitVal(_norm(c[fd.key]), fd.splitBy).includes(v)).length);
   });
 }
 
@@ -208,7 +229,7 @@ function applyFilters() {
   filtered = D.filter(c => {
     if (!_periodPredicate(c)) return false;
     for (const f of defs) {
-      if (!MultiSelect.matches(f.id, _norm(c[f.key]))) return false;
+      if (!_matchFilter(f, c)) return false;
     }
     if (_quickFilter && !_quickFilter.predicate(c)) return false;
     return true;

@@ -44,7 +44,9 @@ body.theme-light table thead { background: #f1f5f9; }
 body.theme-light table tbody tr:hover { background: #f8fafc !important; }
 body.theme-light .modal { background: #ffffff; color: var(--text); }
 body.theme-light .modal-overlay { background: rgba(15, 23, 42, .35); }
-body.theme-light .header h1 { color: var(--text); }
+/* L'header resta SEMPRE scuro (decisione di design), quindi il titolo H1
+   resta chiaro #f8fafc — niente override in light mode, altrimenti il
+   testo del titolo diventerebbe nero su sfondo blu navy e non si legge. */
 body.theme-light .nav-item.active { background: rgba(99,102,241,.12); }
 body.theme-light .kpi { background: #ffffff; box-shadow: 0 1px 3px rgba(15,23,42,.06); }
 body.theme-light input,
