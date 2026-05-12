@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
-"""Converte gli Excel dei settori "base" (SIC, AVV, FIA, IST) in JSON
-nello stesso schema della dashboard FOR_CM, mappando solo i 45 campi comuni.
+"""Converte gli Excel dei settori "base" (SIC, AVV, FIA, IST, ISO) in JSON
+nello stesso schema della dashboard FOR_CM, mappando i 45 campi comuni.
+
+Per ISO il mapping è esteso con 22 campi specifici (Ente, Scopi, Date Audit,
+Stato Certificato, Insoluti, ecc.) + parser del Titolo per estrarre Standard
+(9001/14001/45001/...) e Tipo di Audit (IA/RC/1SA/2SA/3SA).
 
 Input: /Users/enricoferrante/Desktop/STW/commesse_<SECTOR>_06-05-26.xlsx
 Output: dashboard_<SECTOR>_CM/data/commesse_<sec>.json
@@ -18,6 +22,11 @@ except ImportError:
     print("openpyxl non disponibile. Installa con: pip3 install openpyxl", file=sys.stderr)
     sys.exit(1)
 
+import iso_parser as _iso
+from iso_parser import parse_titolo as parse_titolo_iso
+ISO_FIELD_MAP_EXTRA = _iso.FIELD_MAP_EXTRA
+ISO_DATE_KEYS = _iso.DATE_KEYS
+
 ROOT = Path(__file__).resolve().parent.parent
 EXCEL_DIR = Path("/Users/enricoferrante/Desktop/STW")
 
@@ -26,6 +35,7 @@ SECTORS = {
     "AVV": "commesse_AVV_06-05-26.xlsx",
     "FIA": "commesse_FIA_06-05-26.xlsx",
     "IST": "commesse_IST_06-05-26.xlsx",
+    "ISO": "commesse_ISO_06-05-26.xlsx",
 }
 
 FIELD_MAP = {
@@ -87,7 +97,11 @@ NUMERIC_KEYS = {
     "finIncassiTot", "finUsciteTot", "finDeltaTot",
     "giaIncassato", "daIncassare", "anticipoImporto", "saldoImporto",
     "totRicevutoRegione", "ore", "discenti", "avanzamento",
+    "isoOreLav", "isoInsoluti",
 }
+
+# Mapping ISO-specifico (FIELD_MAP_EXTRA, DATE_KEYS) e parser Standard/Audit
+# vivono in tools/iso_parser.py (importati come ISO_FIELD_MAP_EXTRA / ISO_DATE_KEYS sopra).
 
 
 def normalize_sede(sede_op, citta):
@@ -119,32 +133,54 @@ def to_num(v):
         return 0
 
 
+_ZERO_DATE_RE = re.compile(r"^0{1,4}[-/]0{1,2}[-/]0{1,4}$")
+_ISO_DATE_RE = re.compile(r"^(\d{4})-(\d{1,2})-(\d{1,2})(?:[T\s].*)?$")
+_DDMMYYYY_RE = re.compile(r"^(\d{1,2})[-/](\d{1,2})[-/](\d{4})$")
+
+
 def to_date_str(v):
-    """Excel returns datetime; we want gg-mm-yyyy as the FOR JSON does."""
+    """Normalizza qualunque data (Excel datetime, ISO yyyy-mm-dd, gg/mm/yyyy,
+    placeholder 00-00-0000) al formato canonico 'gg-mm-yyyy'."""
     if v is None or v == "":
         return ""
     if hasattr(v, "strftime"):
         return v.strftime("%d-%m-%Y")
     s = str(v).strip()
+    if not s or _ZERO_DATE_RE.match(s):
+        return ""
+    m = _ISO_DATE_RE.match(s)
+    if m:
+        y, mo, d = m.group(1), m.group(2), m.group(3)
+        return f"{int(d):02d}-{int(mo):02d}-{int(y):04d}"
+    m = _DDMMYYYY_RE.match(s)
+    if m:
+        d, mo, y = m.group(1), m.group(2), m.group(3)
+        return f"{int(d):02d}-{int(mo):02d}-{int(y):04d}"
     return s
 
 
 def parse_row(headers, row, sector):
     rec = {}
-    seen_ultima = False
+    seen_keys = set()  # gestisce header duplicati (ISO ha "Note" e "Ultima Nota" x2)
+    field_map = dict(FIELD_MAP)
+    if sector == "ISO":
+        field_map.update(ISO_FIELD_MAP_EXTRA)
+    date_keys_common = {"dataInizio", "dataFine", "dataPianInizio",
+                        "dataAssegnazione", "dataUltimaNota"}
+
     for i, h in enumerate(headers):
         if h is None:
             continue
-        key = FIELD_MAP.get(str(h).strip())
+        key = field_map.get(str(h).strip())
         if not key:
             continue
         val = row[i] if i < len(row) else None
-        if key == "ultimaNota":
-            if seen_ultima:
+        # Per chiavi che possono apparire due volte (ultimaNota, note) tengo la prima
+        if key in {"ultimaNota", "note"}:
+            if key in seen_keys:
                 continue
-            seen_ultima = True
-        if key in {"dataInizio", "dataFine", "dataPianInizio", "dataAssegnazione",
-                   "dataUltimaNota"}:
+            seen_keys.add(key)
+        if key in date_keys_common or key in ISO_DATE_KEYS:
             rec[key] = to_date_str(val)
         elif key in NUMERIC_KEYS:
             rec[key] = to_num(val)
@@ -188,6 +224,15 @@ def parse_row(headers, row, sector):
     rec.setdefault("statoCorso", "")
     rec.setdefault("statoClasse", "")
     rec.setdefault("corso", "")
+
+    # Campi derivati ISO (parser del Titolo)
+    if sector == "ISO":
+        standards, audits = parse_titolo_iso(rec.get("titolo", ""))
+        rec["isoStandards"]      = standards
+        rec["isoTipoAuditList"]  = audits
+        # Valori "primary" per filtri MultiSelect (stringa singola)
+        rec["isoStandard"]       = " + ".join(standards) if standards else ""
+        rec["isoTipoAudit"]      = " + ".join(audits)    if audits    else ""
 
     rec["sector"] = sector
     return rec
