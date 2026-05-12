@@ -208,6 +208,14 @@ def parse_row(headers, row, sector):
 
     rec["sedeNorm"] = normalize_sede(rec.get("sedeOp"), rec.get("citta"))
 
+    # Fix semantico per SOA: il revenue reale è "Importo Ente" + eventuale
+    # "Importo Consulenza" (campo ecRicaviCons li somma già). Per le altre BU
+    # il revenue è "Importo Consulenza" e non va toccato.
+    # Senza questo fix il kit (che usa il campo `consulenza` per "Ricavi")
+    # mostrerebbe solo i 35K di consulenza pura invece dei 3.7M reali.
+    if sector == "SOA" and rec.get("ecRicaviCons"):
+        rec["consulenza"] = rec["ecRicaviCons"]
+
     if "ricavi" not in rec:
         rec["ricavi"] = rec.get("ecRicaviCons") or rec.get("consulenza", 0)
     if "costi" not in rec:
