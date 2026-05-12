@@ -22,10 +22,8 @@ except ImportError:
     print("openpyxl non disponibile. Installa con: pip3 install openpyxl", file=sys.stderr)
     sys.exit(1)
 
-import iso_parser as _iso
-from iso_parser import parse_titolo as parse_titolo_iso
-ISO_FIELD_MAP_EXTRA = _iso.FIELD_MAP_EXTRA
-ISO_DATE_KEYS = _iso.DATE_KEYS
+from iso_parser import parse_titolo as parse_titolo_iso, \
+    FIELD_MAP_EXTRA as ISO_FIELD_MAP_EXTRA, DATE_KEYS as ISO_DATE_KEYS
 
 ROOT = Path(__file__).resolve().parent.parent
 EXCEL_DIR = Path("/Users/enricoferrante/Desktop/STW")
@@ -35,7 +33,24 @@ SECTORS = {
     "AVV": "commesse_AVV_06-05-26.xlsx",
     "FIA": "commesse_FIA_06-05-26.xlsx",
     "IST": "commesse_IST_06-05-26.xlsx",
+    "SOA": "commesse_SOA_06-05-26.xlsx",
     "ISO": "commesse_ISO_06-05-26.xlsx",
+}
+
+# Campi specifici BU complesse: SOA qui, ISO in tools/iso_parser.py.
+EXTRA_FIELD_MAP = {
+    "Soa Attestante": "soaAttestante",
+    "SOA Attestante": "soaAttestante",
+    "Nome dell'Ente di Certiifcazione 9001": "enteCert9001",
+    "Nome dell'Ente di Certificazione 9001": "enteCert9001",
+    "Scadenza Ente di Certiifcazione 9001": "scadenzaCert",
+    "Scadenza Ente di Certificazione 9001": "scadenzaCert",
+    "Aggiornamento Settimanale": "aggSettimanale",
+    "Data Firma Contratto": "dataFirmaContratto",
+    "Appartenenza Consorzio": "consorzioFlag",
+    "Nome del Consorzio": "consorzio",
+    "Ultima Chiamata": "ultimaChiamata",
+    "Invio Contratto": "invioContratto",
 }
 
 FIELD_MAP = {
@@ -100,8 +115,6 @@ NUMERIC_KEYS = {
     "isoOreLav", "isoInsoluti",
 }
 
-# Mapping ISO-specifico (FIELD_MAP_EXTRA, DATE_KEYS) e parser Standard/Audit
-# vivono in tools/iso_parser.py (importati come ISO_FIELD_MAP_EXTRA / ISO_DATE_KEYS sopra).
 
 
 def normalize_sede(sede_op, citta):
@@ -159,14 +172,21 @@ def to_date_str(v):
     return s
 
 
+BASE_DATE_KEYS = {
+    "dataInizio", "dataFine", "dataPianInizio", "dataAssegnazione",
+    "dataUltimaNota", "dataFirmaContratto", "scadenzaCert",
+    "ultimaChiamata", "invioContratto", "aggSettimanale",
+}
+
+
 def parse_row(headers, row, sector):
     rec = {}
     seen_keys = set()  # gestisce header duplicati (ISO ha "Note" e "Ultima Nota" x2)
+    # Field map a cascata: comune → EXTRA (SOA) → ISO_FIELD_MAP_EXTRA (solo ISO).
     field_map = dict(FIELD_MAP)
+    field_map.update(EXTRA_FIELD_MAP)
     if sector == "ISO":
         field_map.update(ISO_FIELD_MAP_EXTRA)
-    date_keys_common = {"dataInizio", "dataFine", "dataPianInizio",
-                        "dataAssegnazione", "dataUltimaNota"}
 
     for i, h in enumerate(headers):
         if h is None:
@@ -180,7 +200,7 @@ def parse_row(headers, row, sector):
             if key in seen_keys:
                 continue
             seen_keys.add(key)
-        if key in date_keys_common or key in ISO_DATE_KEYS:
+        if key in BASE_DATE_KEYS or key in ISO_DATE_KEYS:
             rec[key] = to_date_str(val)
         elif key in NUMERIC_KEYS:
             rec[key] = to_num(val)

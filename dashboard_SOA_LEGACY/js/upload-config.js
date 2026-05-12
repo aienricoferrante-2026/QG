@@ -2,7 +2,7 @@
 window.UPLOAD_CONFIG = {
   label: 'Commesse SOA',
   dataKey: null,
-  githubDataPath: 'dashboard_SOA_CM/data/commesse_soa.json',
+  githubDataPath: 'dashboard_SOA_LEGACY/data/commesse_soa.json',
   numericFields: ['importoEnte', 'consulenza', 'avanzamento'],
   fieldMap: {
     'ID': 'id',
