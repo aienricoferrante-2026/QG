@@ -1,10 +1,10 @@
-/* SECTOR_CONFIG — Settore AVV — Avvocati / Legale
+/* SECTOR_CONFIG — Settore AVV — Avvalimenti
  * Dashboard "base" generata dal template multi-settore.
  * Modifiche manuali fatte qui sopravvivono finché non si rigenera.
  */
 window.SECTOR_CONFIG = {
   code: 'AVV',
-  label: 'Avvocati / Legale',
+  label: 'Avvalimenti',
   icon: '⚖️',
   color: '#a78bfa',
   dataFile: 'data/commesse_avv.json',

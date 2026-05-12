@@ -24,7 +24,7 @@ Cartella locale: `/Users/enricoferrante/Desktop/STW/`
 | Settore | Commesse | Cartella |
 |---|---:|---|
 | SIC Sicurezza Lavoro | 2.613 | `dashboard_SIC_CM/` |
-| AVV Avvocati / Legale | 328 | `dashboard_AVV_CM/` |
+| AVV Avvalimenti | 328 | `dashboard_AVV_CM/` |
 | FIA Finanza Agevolata | 276 | `dashboard_FIA_CM/` |
 | IST Istituti | 52 | `dashboard_IST_CM/` |
 
