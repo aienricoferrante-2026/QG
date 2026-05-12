@@ -29,7 +29,8 @@ window.SECTOR_CONFIG = {
       "id": "fAvvCategoria",
       "key": "avvCategoria",
       "label": "Categoria SOA",
-      "ph": "Tutte"
+      "ph": "Tutte",
+      "splitBy": " + "
     },
     {
       "id": "fAvvTipo",

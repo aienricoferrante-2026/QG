@@ -20,7 +20,7 @@ SECTORS = {
                 "filters": [
                     {"id": "fStatus",        "key": "status",        "label": "Status",            "ph": "Tutti"},
                     {"id": "fStatoLav",      "key": "statoLav",      "label": "Stato Lavorazione", "ph": "Tutti"},
-                    {"id": "fAvvCategoria",  "key": "avvCategoria",  "label": "Categoria SOA",     "ph": "Tutte"},
+                    {"id": "fAvvCategoria",  "key": "avvCategoria",  "label": "Categoria SOA",     "ph": "Tutte", "splitBy": " + "},
                     {"id": "fAvvTipo",       "key": "avvTipo",       "label": "Tipo Avvalimento",  "ph": "Tutti"},
                     {"id": "fAvvAnno",       "key": "avvAnno",       "label": "Anno",              "ph": "Tutti"},
                     {"id": "fCliente",       "key": "cliente",       "label": "Cliente",           "ph": "Tutti"},
@@ -48,17 +48,19 @@ SECTORS = {
                 "filters": [
                     {"id": "fStatus",       "key": "status",       "label": "Status",            "ph": "Tutti"},
                     {"id": "fStatoLav",     "key": "statoLav",     "label": "Stato Lavorazione", "ph": "Tutti"},
-                    {"id": "fIsoStandard",  "key": "isoStandard",  "label": "Standard",          "ph": "Tutti"},
-                    {"id": "fIsoTipoAudit", "key": "isoTipoAudit", "label": "Tipo Audit",        "ph": "Tutti"},
-                    {"id": "fIsoEnte",      "key": "isoEnte",      "label": "Ente",              "ph": "Tutti"},
-                    {"id": "fCliente",      "key": "cliente",      "label": "Cliente",           "ph": "Tutti"},
+                    {"id": "fIsoStandard",  "key": "isoStandard",  "label": "Standard",          "ph": "Tutti", "splitBy": " + "},
+                    {"id": "fIsoTipoAudit", "key": "isoTipoAudit", "label": "Tipo Audit",        "ph": "Tutti", "splitBy": " + "},
+                    {"id": "fIsoEnte",       "key": "isoEnte",             "label": "Ente",              "ph": "Tutti"},
+                    {"id": "fIsoStatoCert",  "key": "isoStatoCert",        "label": "Stato Certificato", "ph": "Tutti"},
+                    {"id": "fIsoStatoPag",   "key": "isoStatoPagamentoTxt","label": "Stato Pagamento",   "ph": "Tutti"},
+                    {"id": "fCliente",       "key": "cliente",             "label": "Cliente",           "ph": "Tutti"},
                     {"id": "fSocieta",      "key": "societa",      "label": "Societa",           "ph": "Tutte"},
                     {"id": "fSede",         "key": "sedeNorm",     "label": "Sede",              "ph": "Tutte"},
                     {"id": "fRegione",      "key": "regione",      "label": "Regione",           "ph": "Tutte"},
                     {"id": "fResp",         "key": "responsabile", "label": "Responsabile",      "ph": "Tutti"},
                     {"id": "fFunzione",     "key": "funzione",     "label": "Funzione",          "ph": "Tutte"},
                 ],
-                "extraSections": ["enti", "audit"],
+                "extraSections": ["enti", "audit", "certificati", "pagamenti", "scopo"],
             }},
 }
 

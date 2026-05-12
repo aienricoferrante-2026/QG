@@ -33,6 +33,9 @@
     <div class="nav-group-label">ISO Specifico</div>
     <a class="nav-item" data-sec="enti" onclick="showSec('enti')"><span class="nav-icon">&#127942;</span>Enti di Riferimento</a>
     <a class="nav-item" data-sec="audit" onclick="showSec('audit')"><span class="nav-icon">&#128269;</span>Audit &amp; Verifiche</a>
+    <a class="nav-item" data-sec="certificati" onclick="showSec('certificati')"><span class="nav-icon">&#128221;</span>Stato Certificato</a>
+    <a class="nav-item" data-sec="pagamenti" onclick="showSec('pagamenti')"><span class="nav-icon">&#128176;</span>Pagamenti &amp; Accordi</a>
+    <a class="nav-item" data-sec="scopo" onclick="showSec('scopo')"><span class="nav-icon">&#128206;</span>Scopo proposto vs uscita</a>
   </div>
   <div class="nav-group">
     <div class="nav-group-label">Anagrafiche</div>
@@ -69,6 +72,8 @@
     <div class="filter-group"><label>Standard</label><div class="ms-wrap" id="fIsoStandard"></div></div>
     <div class="filter-group"><label>Tipo Audit</label><div class="ms-wrap" id="fIsoTipoAudit"></div></div>
     <div class="filter-group"><label>Ente di Riferimento</label><div class="ms-wrap" id="fIsoEnte"></div></div>
+    <div class="filter-group"><label>Stato Certificato</label><div class="ms-wrap" id="fIsoStatoCert"></div></div>
+    <div class="filter-group"><label>Stato Pagamento</label><div class="ms-wrap" id="fIsoStatoPag"></div></div>
     <div class="filter-group"><label>Cliente</label><div class="ms-wrap" id="fCliente"></div></div>
     <div class="filter-group"><label>Societa</label><div class="ms-wrap" id="fSocieta"></div></div>
     <div class="filter-group"><label>Sede</label><div class="ms-wrap" id="fSede"></div></div>
@@ -87,6 +92,9 @@
   <div id="sec-analisiIncassi" class="hidden"></div>
   <div id="sec-enti" class="hidden"></div>
   <div id="sec-audit" class="hidden"></div>
+  <div id="sec-certificati" class="hidden"></div>
+  <div id="sec-pagamenti" class="hidden"></div>
+  <div id="sec-scopo" class="hidden"></div>
   <div id="sec-responsabili" class="hidden"></div>
   <div id="sec-clienti" class="hidden"></div>
   <div id="sec-sedi" class="hidden"></div>
@@ -126,10 +134,13 @@
 <script src="../shared/dashboard-core/js/info-tooltip.js?v=1"></script>
 
 <!-- Sezioni ISO-specifiche (Caso 2 governance: fork interno alla BU).
-     I filtri Standard/Tipo Audit/Ente sono dichiarati in config.js (campo
-     `filters`), letti dal kit. Qui solo i renderer delle sezioni custom. -->
+     I filtri Standard/Tipo Audit/Ente/Stato Cert/Stato Pag sono dichiarati
+     in config.js (campo `filters`), letti dal kit. Qui solo i renderer. -->
 <script src="js/section-enti.js?v=1"></script>
 <script src="js/section-audit.js?v=1"></script>
+<script src="js/section-certificati.js?v=1"></script>
+<script src="js/section-pagamenti.js?v=1"></script>
+<script src="js/section-scopo.js?v=1"></script>
 
 <!-- App entry-point del kit (chiama init dell'app) -->
 <script src="../shared/dashboard-core/js/app.js?v=1"></script>

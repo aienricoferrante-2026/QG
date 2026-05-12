@@ -29,18 +29,32 @@ window.SECTOR_CONFIG = {
       "id": "fIsoStandard",
       "key": "isoStandard",
       "label": "Standard",
-      "ph": "Tutti"
+      "ph": "Tutti",
+      "splitBy": " + "
     },
     {
       "id": "fIsoTipoAudit",
       "key": "isoTipoAudit",
       "label": "Tipo Audit",
-      "ph": "Tutti"
+      "ph": "Tutti",
+      "splitBy": " + "
     },
     {
       "id": "fIsoEnte",
       "key": "isoEnte",
       "label": "Ente",
+      "ph": "Tutti"
+    },
+    {
+      "id": "fIsoStatoCert",
+      "key": "isoStatoCert",
+      "label": "Stato Certificato",
+      "ph": "Tutti"
+    },
+    {
+      "id": "fIsoStatoPag",
+      "key": "isoStatoPagamentoTxt",
+      "label": "Stato Pagamento",
       "ph": "Tutti"
     },
     {
@@ -82,6 +96,9 @@ window.SECTOR_CONFIG = {
   ],
   "extraSections": [
     "enti",
-    "audit"
+    "audit",
+    "certificati",
+    "pagamenti",
+    "scopo"
   ]
 };
