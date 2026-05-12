@@ -14,7 +14,7 @@ TEMPLATE = ROOT / "shared" / "dashboard-core" / "index-template.html"
 
 SECTORS = {
     "SIC": {"label": "Sicurezza Lavoro", "icon": "🛡️", "color": "#06b6d4"},
-    "AVV": {"label": "Avvocati / Legale", "icon": "⚖️", "color": "#a78bfa"},
+    "AVV": {"label": "Avvalimenti", "icon": "🤝", "color": "#a78bfa"},
     "FIA": {"label": "Finanza Agevolata", "icon": "💼", "color": "#fbbf24"},
     "IST": {"label": "Istituti", "icon": "🏛️", "color": "#34d399"},
     "GAR": {"label": "Gare d'appalto", "icon": "🎯", "color": "#06b6d4"},
