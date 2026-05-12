@@ -13,7 +13,8 @@ ROOT = Path(__file__).resolve().parent.parent
 TEMPLATE = ROOT / "shared" / "dashboard-core" / "index-template.html"
 
 # Credenziali per settore (email + SHA-256 password). Master sempre valido:
-# formazione@qualificagroup.it / qualifica2026!  — vedi auth.js.
+# direzione@qualificagroup.it / Qualifica!26  — vedi auth.js.
+# (FOR autonomo continua ad accettare formazione@/qualifica2026!.)
 SECTOR_CREDS = {
     "ISO":     ("iso@qualificagroup.it", "82613189a48bbd580f43cda212078e94f328c8970b63bf9d766ff713dc2b6c51"),
     "SIC":     ("sic@qualificagroup.it", "9512ceba12579123a8a2c6dbd0adc70efa01df6316426c1c416f874c716cc183"),
@@ -101,8 +102,9 @@ window.SECTOR_CONFIG = """
 
 def build_config(sector, info):
     """Costruisce il dizionario JS-friendly che SECTOR_CONFIG deve contenere."""
-    creds = SECTOR_CREDS.get(sector, ("formazione@qualificagroup.it",
-        "7ec091a1468dd7c2e54e7d042f24a5588f5fdecd8751502878fd15f53112f82e"))
+    # Fallback al Master nuovo per eventuali settori non in SECTOR_CREDS.
+    creds = SECTOR_CREDS.get(sector, ("direzione@qualificagroup.it",
+        "5bb40be187baff36150a637bacf46f1b6c75eb1e51efebf6f71d6ad5c92af43a"))
     cfg = {
         "code": sector,
         "label": info["label"],

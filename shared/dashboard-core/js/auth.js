@@ -4,10 +4,13 @@
  * non c'è server, quindi chi sa leggere il JS può aggirarla. Resta utile
  * contro accessi casuali.
  *
- * Credenziali accettate (entrambe valide su qualunque dashboard):
- *  1. MASTER: formazione@qualificagroup.it / qualifica2026!
+ * Credenziali accettate (entrambe valide su qualunque dashboard sul kit):
+ *  1. MASTER: direzione@qualificagroup.it / Qualifica!26
  *     Sempre valida, indipendente dal settore. È l'account di Enrico
- *     che lo fa entrare ovunque.
+ *     (Direzione) che lo fa entrare ovunque.
+ *     NB: dashboard_FOR_CM/ ha auth autonomo con vecchie credenziali
+ *     (formazione@qualificagroup.it / qualifica2026!) — non tocchiamo
+ *     quel file perché FOR è in produzione.
  *  2. SETTORE: <sigla>@qualificagroup.it / <password specifica>
  *     Letta da SECTOR_CONFIG.adminEmail + SECTOR_CONFIG.adminPassHash.
  *     Pensata per i responsabili che usano solo "la loro" dashboard.
@@ -16,9 +19,9 @@
 
 (function () {
   // MASTER (sempre valido, override globale)
-  const MASTER_USER = 'formazione@qualificagroup.it';
-  // SHA-256("qualifica2026!")
-  const MASTER_PASS_HASH = '7ec091a1468dd7c2e54e7d042f24a5588f5fdecd8751502878fd15f53112f82e';
+  const MASTER_USER = 'direzione@qualificagroup.it';
+  // SHA-256("Qualifica!26")
+  const MASTER_PASS_HASH = '5bb40be187baff36150a637bacf46f1b6c75eb1e51efebf6f71d6ad5c92af43a';
   // SETTORE (specifico, fallback al master se la BU non ha config dedicata)
   const ADMIN_USER = (window.SECTOR_CONFIG && window.SECTOR_CONFIG.adminEmail) || MASTER_USER;
   const ADMIN_PASS_HASH = (window.SECTOR_CONFIG && window.SECTOR_CONFIG.adminPassHash) || MASTER_PASS_HASH;
