@@ -132,7 +132,7 @@ const SECTORS = [
   { code:'SIC',    label:'Sicurezza Lavoro',    icon:'🛡️', color:'#06b6d4', count:2613,  url:'dashboard_SIC_CM/',  active:true,  desc:'Commesse sicurezza, RSPP, formazione obbligatoria.' },
   { code:'APL_PAL',label:'Politiche Attive',    icon:'💼', color:'#a78bfa', count:1415,  url:null,                 active:false, desc:'Visure, GOL, CV, accompagnamento.' },
   { code:'GDPR',   label:'Privacy / GDPR',      icon:'🔒', color:'#ec4899', count:695,   url:null,                 active:false, desc:'Consulenze privacy, audit, accordo pagamenti.' },
-  { code:'SOA',    label:'Attestazioni SOA',    icon:'🏗️', color:'#f59e0b', count:613,   url:'dashboard_SOA_CM/',  active:true,  desc:'Qualificazione lavori, consorzio, firme contratto.', legacy:true },
+  { code:'SOA',    label:'Attestazioni SOA',    icon:'🏗️', color:'#f59e0b', count:613,   url:'dashboard_SOA_CM/',  active:true,  desc:'Qualificazione lavori, attestanti, enti 9001, consorzio, firme contratto.' },
   { code:'AVV',    label:'Avvocati / Legale',   icon:'⚖️', color:'#a78bfa', count:328,   url:'dashboard_AVV_CM/',  active:true,  desc:'Pratiche legali e contenzioso.' },
   { code:'GAR',    label:"Gare d'appalto",      icon:'🎯', color:'#06b6d4', count:325,   url:null,                 active:false, desc:'Protocollo, CIG, importi, scadenze.' },
   { code:'FIA',    label:'Finanza Agevolata',   icon:'💰', color:'#fbbf24', count:276,   url:'dashboard_FIA_CM/',  active:true,  desc:'Bandi, contributi, finanziamenti agevolati.' },
@@ -145,7 +145,8 @@ const SECTOR_DATA_URLS = {
   SIC:'dashboard_SIC_CM/data/commesse_sic.json',
   AVV:'dashboard_AVV_CM/data/commesse_avv.json',
   FIA:'dashboard_FIA_CM/data/commesse_fia.json',
-  IST:'dashboard_IST_CM/data/commesse_ist.json'
+  IST:'dashboard_IST_CM/data/commesse_ist.json',
+  SOA:'dashboard_SOA_CM/data/commesse_soa.json'
 };
 
 function qgToggleTheme(){
