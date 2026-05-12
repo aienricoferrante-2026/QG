@@ -7,10 +7,8 @@
  * Credenziali accettate (entrambe valide su qualunque dashboard sul kit):
  *  1. MASTER: direzione@qualificagroup.it / Qualifica!26
  *     Sempre valida, indipendente dal settore. È l'account di Enrico
- *     (Direzione) che lo fa entrare ovunque.
- *     NB: dashboard_FOR_CM/ ha auth autonomo con vecchie credenziali
- *     (formazione@qualificagroup.it / qualifica2026!) — non tocchiamo
- *     quel file perché FOR è in produzione.
+ *     (Direzione) che lo fa entrare ovunque, FOR incluso (vedi
+ *     dashboard_FOR_CM/js/auth.js che ha lo stesso schema).
  *  2. SETTORE: <sigla>@qualificagroup.it / <password specifica>
  *     Letta da SECTOR_CONFIG.adminEmail + SECTOR_CONFIG.adminPassHash.
  *     Pensata per i responsabili che usano solo "la loro" dashboard.
