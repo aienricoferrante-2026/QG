@@ -8,7 +8,8 @@ window.SECTOR_CONFIG = {
   "icon": "🏛️",
   "color": "#34d399",
   "dataFile": "data/commesse_ist.json",
-  "adminEmail": "formazione@qualificagroup.it",
+  "adminEmail": "ist@qualificagroup.it",
+  "adminPassHash": "e3b89a8203d60048c394223fad050b0368510d7198c10671b17b249a4369e263",
   "defaultSection": "executive",
   "partnersJsonUrl": "partners_ist/_links.json",
   "partnersBaseUrl": "partners_ist/view.html"

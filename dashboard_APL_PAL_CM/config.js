@@ -8,7 +8,8 @@ window.SECTOR_CONFIG = {
   "icon": "💼",
   "color": "#a78bfa",
   "dataFile": "data/commesse_apl_pal.json",
-  "adminEmail": "formazione@qualificagroup.it",
+  "adminEmail": "pal@qualificagroup.it",
+  "adminPassHash": "6e51265e644d9ed6ee109c245e63db67094312403f0a39ee4402656ec865e043",
   "defaultSection": "executive",
   "partnersJsonUrl": "partners_apl_pal/_links.json",
   "partnersBaseUrl": "partners_apl_pal/view.html"

@@ -8,7 +8,8 @@ window.SECTOR_CONFIG = {
   "icon": "🎯",
   "color": "#06b6d4",
   "dataFile": "data/commesse_gar.json",
-  "adminEmail": "formazione@qualificagroup.it",
+  "adminEmail": "gar@qualificagroup.it",
+  "adminPassHash": "e900f1030962c2859b291864047c18a77096791e4071685abbac907870417d41",
   "defaultSection": "executive",
   "partnersJsonUrl": "partners_gar/_links.json",
   "partnersBaseUrl": "partners_gar/view.html"
