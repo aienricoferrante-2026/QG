@@ -26,6 +26,25 @@ SECTORS = {
     "AVV": "commesse_AVV_06-05-26.xlsx",
     "FIA": "commesse_FIA_06-05-26.xlsx",
     "IST": "commesse_IST_06-05-26.xlsx",
+    "SOA": "commesse_SOA_06-05-26.xlsx",
+}
+
+# Campi specifici aggiuntivi per BU complesse (es. SOA).
+# Vengono mappati solo se presenti nell'Excel di origine, quindi sicuri
+# da estendere anche per altre BU senza impatto retrocompatibile.
+EXTRA_FIELD_MAP = {
+    "Soa Attestante": "soaAttestante",
+    "SOA Attestante": "soaAttestante",
+    "Nome dell'Ente di Certiifcazione 9001": "enteCert9001",
+    "Nome dell'Ente di Certificazione 9001": "enteCert9001",
+    "Scadenza Ente di Certiifcazione 9001": "scadenzaCert",
+    "Scadenza Ente di Certificazione 9001": "scadenzaCert",
+    "Aggiornamento Settimanale": "aggSettimanale",
+    "Data Firma Contratto": "dataFirmaContratto",
+    "Appartenenza Consorzio": "consorzioFlag",
+    "Nome del Consorzio": "consorzio",
+    "Ultima Chiamata": "ultimaChiamata",
+    "Invio Contratto": "invioContratto",
 }
 
 FIELD_MAP = {
@@ -135,7 +154,8 @@ def parse_row(headers, row, sector):
     for i, h in enumerate(headers):
         if h is None:
             continue
-        key = FIELD_MAP.get(str(h).strip())
+        h_str = str(h).strip()
+        key = FIELD_MAP.get(h_str) or EXTRA_FIELD_MAP.get(h_str)
         if not key:
             continue
         val = row[i] if i < len(row) else None
@@ -144,7 +164,8 @@ def parse_row(headers, row, sector):
                 continue
             seen_ultima = True
         if key in {"dataInizio", "dataFine", "dataPianInizio", "dataAssegnazione",
-                   "dataUltimaNota"}:
+                   "dataUltimaNota", "dataFirmaContratto", "scadenzaCert",
+                   "ultimaChiamata", "invioContratto", "aggSettimanale"}:
             rec[key] = to_date_str(val)
         elif key in NUMERIC_KEYS:
             rec[key] = to_num(val)

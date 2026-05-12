@@ -46,5 +46,5 @@ fetch('data/commesse_soa.json')
       '<div style="text-align:center;padding:60px">' +
       '<h2 style="color:var(--danger)">Errore caricamento dati</h2>' +
       '<p style="color:var(--text2);margin-top:8px">Avvia con un server locale:<br>' +
-      '<code style="color:var(--accent)">cd dashboard_SOA_CM && python3 -m http.server 8003</code></p></div>';
+      '<code style="color:var(--accent)">cd dashboard_SOA_LEGACY && python3 -m http.server 8003</code></p></div>';
   });
