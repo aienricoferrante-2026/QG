@@ -24,6 +24,8 @@ except ImportError:
 
 from iso_parser import parse_titolo as parse_titolo_iso, \
     FIELD_MAP_EXTRA as ISO_FIELD_MAP_EXTRA, DATE_KEYS as ISO_DATE_KEYS
+from extra_fields import ALL as EXTRA_FIELD_MAP, \
+    DATE_KEYS as EXTRA_DATE_KEYS, NUMERIC_KEYS as EXTRA_NUMERIC_KEYS
 
 ROOT = Path(__file__).resolve().parent.parent
 EXCEL_DIR = Path("/Users/enricoferrante/Desktop/STW")
@@ -35,23 +37,14 @@ SECTORS = {
     "IST": "commesse_IST_06-05-26.xlsx",
     "SOA": "commesse_SOA_06-05-26.xlsx",
     "ISO": "commesse_ISO_06-05-26.xlsx",
+    "GAR": "commesse_GAR_05-06-26.xlsx",
+    "APL_PAL": "commesse_APL_PAL.xlsx",
+    "APL_RES": "commesse_APL_RES.xlsx",
+    "GDPR": "commesse_GDPR_06-05-26.xlsx",
 }
 
-# Campi specifici BU complesse: SOA qui, ISO in tools/iso_parser.py.
-EXTRA_FIELD_MAP = {
-    "Soa Attestante": "soaAttestante",
-    "SOA Attestante": "soaAttestante",
-    "Nome dell'Ente di Certiifcazione 9001": "enteCert9001",
-    "Nome dell'Ente di Certificazione 9001": "enteCert9001",
-    "Scadenza Ente di Certiifcazione 9001": "scadenzaCert",
-    "Scadenza Ente di Certificazione 9001": "scadenzaCert",
-    "Aggiornamento Settimanale": "aggSettimanale",
-    "Data Firma Contratto": "dataFirmaContratto",
-    "Appartenenza Consorzio": "consorzioFlag",
-    "Nome del Consorzio": "consorzio",
-    "Ultima Chiamata": "ultimaChiamata",
-    "Invio Contratto": "invioContratto",
-}
+# EXTRA_FIELD_MAP (SOA + GAR + APL_RES + GDPR) vive in tools/extra_fields.py.
+# ISO in tools/iso_parser.py.
 
 FIELD_MAP = {
     "ID": "id",
@@ -113,7 +106,7 @@ NUMERIC_KEYS = {
     "giaIncassato", "daIncassare", "anticipoImporto", "saldoImporto",
     "totRicevutoRegione", "ore", "discenti", "avanzamento",
     "isoOreLav", "isoInsoluti",
-}
+} | EXTRA_NUMERIC_KEYS
 
 
 
@@ -173,10 +166,9 @@ def to_date_str(v):
 
 
 BASE_DATE_KEYS = {
-    "dataInizio", "dataFine", "dataPianInizio", "dataAssegnazione",
-    "dataUltimaNota", "dataFirmaContratto", "scadenzaCert",
-    "ultimaChiamata", "invioContratto", "aggSettimanale",
-}
+    "dataInizio", "dataFine", "dataPianInizio",
+    "dataAssegnazione", "dataUltimaNota",
+} | EXTRA_DATE_KEYS
 
 
 def parse_row(headers, row, sector):

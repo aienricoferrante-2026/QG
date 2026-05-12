@@ -17,6 +17,12 @@ SECTORS = {
     "AVV": {"label": "Avvocati / Legale", "icon": "⚖️", "color": "#a78bfa"},
     "FIA": {"label": "Finanza Agevolata", "icon": "💼", "color": "#fbbf24"},
     "IST": {"label": "Istituti", "icon": "🏛️", "color": "#34d399"},
+    "GAR": {"label": "Gare d'appalto", "icon": "🎯", "color": "#06b6d4"},
+    "APL_PAL": {"label": "Politiche Attive", "icon": "💼", "color": "#a78bfa"},
+    "APL_RES": {"label": "PAL Risorse", "icon": "👥", "color": "#10b981"},
+    "GDPR": {"label": "Privacy / GDPR", "icon": "🔒", "color": "#ec4899"},
+    # NB: per GDPR i filtri custom Stato Pagamento / Insoluti vanno aggiunti
+    # in una chat Caso 2 dedicata (richiedono index.html custom come ISO).
     # ISO usa il kit per i file JS comuni ma ha un proprio index.html
     # scritto a mano (Caso 2 della governance) con filtri Standard / Tipo Audit /
     # Ente e sezioni custom in dashboard_ISO_CM/js/. Per ISO il build genera

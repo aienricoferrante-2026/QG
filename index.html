@@ -130,13 +130,13 @@ const SECTORS = [
   { code:'FOR',    label:'Formazione',          icon:'🎓', color:'#10b981', count:1335,  url:'dashboard_FOR_CM/',  active:true,  desc:'Corsi finanziati, Stato Corso, classi, discenti, cessione credito.' },
   { code:'ISO',    label:'Certificazioni ISO',  icon:'📜', color:'#3b82f6', count:6185,  url:'dashboard_ISO_CM/',  active:true,  desc:'Audit, ente, scopo, verifiche, stato pagamento.' },
   { code:'SIC',    label:'Sicurezza Lavoro',    icon:'🛡️', color:'#06b6d4', count:2613,  url:'dashboard_SIC_CM/',  active:true,  desc:'Commesse sicurezza, RSPP, formazione obbligatoria.' },
-  { code:'APL_PAL',label:'Politiche Attive',    icon:'💼', color:'#a78bfa', count:1415,  url:null,                 active:false, desc:'Visure, GOL, CV, accompagnamento.' },
-  { code:'GDPR',   label:'Privacy / GDPR',      icon:'🔒', color:'#ec4899', count:695,   url:null,                 active:false, desc:'Consulenze privacy, audit, accordo pagamenti.' },
+  { code:'APL_PAL',label:'Politiche Attive',    icon:'💼', color:'#a78bfa', count:1415,  url:'dashboard_APL_PAL_CM/', active:true,  desc:'Visure, GOL, CV, accompagnamento.' },
+  { code:'GDPR',   label:'Privacy / GDPR',      icon:'🔒', color:'#ec4899', count:695,   url:'dashboard_GDPR_CM/', active:true,  desc:'Consulenze privacy, audit, accordo pagamenti.' },
   { code:'SOA',    label:'Attestazioni SOA',    icon:'🏗️', color:'#f59e0b', count:613,   url:'dashboard_SOA_CM/',  active:true,  desc:'Qualificazione lavori, attestanti, enti 9001, consorzio, firme contratto.' },
   { code:'AVV',    label:'Avvocati / Legale',   icon:'⚖️', color:'#a78bfa', count:328,   url:'dashboard_AVV_CM/',  active:true,  desc:'Pratiche legali e contenzioso.' },
-  { code:'GAR',    label:"Gare d'appalto",      icon:'🎯', color:'#06b6d4', count:325,   url:null,                 active:false, desc:'Protocollo, CIG, importi, scadenze.' },
+  { code:'GAR',    label:"Gare d'appalto",      icon:'🎯', color:'#06b6d4', count:325,   url:'dashboard_GAR_CM/',  active:true,  desc:'Protocollo, CIG, importi, scadenze.' },
   { code:'FIA',    label:'Finanza Agevolata',   icon:'💰', color:'#fbbf24', count:276,   url:'dashboard_FIA_CM/',  active:true,  desc:'Bandi, contributi, finanziamenti agevolati.' },
-  { code:'APL_RES',label:'PAL Risorse',         icon:'👥', color:'#10b981', count:154,   url:null,                 active:false, desc:'Profili, requisiti, variazione ricerca.' },
+  { code:'APL_RES',label:'PAL Risorse',         icon:'👥', color:'#10b981', count:154,   url:'dashboard_APL_RES_CM/', active:true,  desc:'Profili, requisiti, variazione ricerca.' },
   { code:'IST',    label:'Istituti',            icon:'🏛️', color:'#34d399', count:52,    url:'dashboard_IST_CM/',  active:true,  desc:'Gestione commesse istituti.' }
 ];
 
@@ -147,7 +147,11 @@ const SECTOR_DATA_URLS = {
   AVV:'dashboard_AVV_CM/data/commesse_avv.json',
   FIA:'dashboard_FIA_CM/data/commesse_fia.json',
   IST:'dashboard_IST_CM/data/commesse_ist.json',
-  SOA:'dashboard_SOA_CM/data/commesse_soa.json'
+  SOA:'dashboard_SOA_CM/data/commesse_soa.json',
+  GAR:'dashboard_GAR_CM/data/commesse_gar.json',
+  APL_PAL:'dashboard_APL_PAL_CM/data/commesse_apl_pal.json',
+  APL_RES:'dashboard_APL_RES_CM/data/commesse_apl_res.json',
+  GDPR:'dashboard_GDPR_CM/data/commesse_gdpr.json'
 };
 
 function qgToggleTheme(){
