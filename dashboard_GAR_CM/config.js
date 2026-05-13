@@ -10,7 +10,7 @@ window.SECTOR_CONFIG = {
   "dataFile": "data/commesse_gar.json",
   "adminEmail": "gar@qualificagroup.it",
   "adminPassHash": "e900f1030962c2859b291864047c18a77096791e4071685abbac907870417d41",
-  "defaultSection": "executive",
+  "defaultSection": "explore",
   "partnersJsonUrl": "partners_gar/_links.json",
   "partnersBaseUrl": "partners_gar/view.html"
 };

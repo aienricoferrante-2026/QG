@@ -10,7 +10,7 @@ window.SECTOR_CONFIG = {
   "dataFile": "data/commesse_iso.json",
   "adminEmail": "iso@qualificagroup.it",
   "adminPassHash": "82613189a48bbd580f43cda212078e94f328c8970b63bf9d766ff713dc2b6c51",
-  "defaultSection": "executive",
+  "defaultSection": "explore",
   "partnersJsonUrl": "partners_iso/_links.json",
   "partnersBaseUrl": "partners_iso/view.html",
   "filters": [

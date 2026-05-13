@@ -105,9 +105,22 @@ function _wikiCalcRows(items) {
 /* Cache dell'ultimo array di righe calcolate, usato dal popup _wikiCalcInfo. */
 let _wikiCalcCache = [];
 
-/* Apre un modale con il dettaglio "intelligibile" di un singolo KPI. */
+/* Helper globale: produce l'icona "ⓘ" cliccabile accanto a un KPI.
+   Riusato da TUTTE le sezioni (Sintesi, Analisi Incassi, Econ&Fin,
+   Esplora, KPI strip globale) per garantire descrizioni coerenti.
+   id deve corrispondere a un id di _wikiCalcRows. */
+function kpiInfoBtn(id) {
+  if (!id) return '';
+  return '<span class="kpi-info-btn" onclick="event.stopPropagation();_wikiCalcInfo(\'' + id + '\')" title="Cosa significa questo numero?">&#9432;</span>';
+}
+
+/* Apre un modale con il dettaglio "intelligibile" di un singolo KPI.
+   Ricalcola SEMPRE sul `filtered` corrente (no cache stantia). */
 function _wikiCalcInfo(id) {
-  const r = _wikiCalcCache.find(x => x.id === id);
+  if (typeof _wikiCalcRows !== 'function' || typeof filtered === 'undefined') return;
+  const rows = _wikiCalcRows(filtered);
+  _wikiCalcCache = rows;
+  const r = rows.find(x => x.id === id);
   if (!r || typeof openModal !== 'function') return;
   const valTxt = _wikiFmtVal(r);
   let h = '<div style="padding:8px 4px;font-size:12px;color:var(--text);line-height:1.55">';

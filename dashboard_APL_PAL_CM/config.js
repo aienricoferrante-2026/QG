@@ -10,7 +10,7 @@ window.SECTOR_CONFIG = {
   "dataFile": "data/commesse_apl_pal.json",
   "adminEmail": "pal@qualificagroup.it",
   "adminPassHash": "6e51265e644d9ed6ee109c245e63db67094312403f0a39ee4402656ec865e043",
-  "defaultSection": "executive",
+  "defaultSection": "explore",
   "partnersJsonUrl": "partners_apl_pal/_links.json",
   "partnersBaseUrl": "partners_apl_pal/view.html"
 };

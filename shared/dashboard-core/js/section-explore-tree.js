@@ -74,8 +74,17 @@ function _exploreKpis(state, periods) {
   const nd = tree.find(n => n.label === 'N/D');
   const ndPct = tot && nd ? (_exploreMetric(nd.items, state.metric) / tot * 100) : 0;
 
+  const ii = (typeof kpiInfoBtn === 'function') ? kpiInfoBtn : (() => '');
+  /* Mappa metric → id wiki più affine (per il popup ⓘ). */
+  const metricInfoId = {
+    ricavi: 'ricavi', costi: 'costi', mol: 'mol', margine: 'margine',
+    incassato: 'incassato', pctInc: 'pctInc', daIncassare: 'daIncassare',
+    count: 'cnt', wipN: 'open', wipE: 'open', outN: 'closed', outE: 'closed',
+    backlog: 'backlog'
+  };
+  const infoId = metricInfoId[state.metric] || 'cnt';
   let h = '<div class="kpi-grid" style="padding:0 0 14px 0">';
-  h += '<div class="kpi green"><div class="kpi-label">Totale ' + def.short + '</div>' +
+  h += '<div class="kpi green"><div class="kpi-label">Totale ' + def.short + ' ' + ii(infoId) + '</div>' +
        '<div class="kpi-value">' + _exploreFmt(tot, state.metric) + '</div>' +
        '<div class="kpi-sub">' + fmt(periods[0].items.length) + ' commesse</div></div>';
   h += '<div class="kpi blue"><div class="kpi-label">Top ' + dim1.label + '</div>' +

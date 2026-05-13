@@ -10,7 +10,7 @@ window.SECTOR_CONFIG = {
   "dataFile": "data/commesse_gdpr.json",
   "adminEmail": "gdp@qualificagroup.it",
   "adminPassHash": "f7aea5e2742cf7d20f8065e4b6ddf71fc63903121c2c97dab7fc166b10d52c53",
-  "defaultSection": "executive",
+  "defaultSection": "explore",
   "partnersJsonUrl": "partners_gdpr/_links.json",
   "partnersBaseUrl": "partners_gdpr/view.html",
   "filters": [
