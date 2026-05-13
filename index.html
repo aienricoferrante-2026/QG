@@ -99,6 +99,9 @@
     color:var(--text); border-radius:5px; font-size:13px; outline:none;
   }
   .creds-loginbox input:focus{border-color:var(--accent)}
+  .creds-pwd-wrap{position:relative}
+  .creds-pwd-eye{position:absolute;top:50%;right:8px;transform:translateY(-50%);background:transparent;border:0;color:var(--text2);cursor:pointer;padding:4px 6px;font-size:14px;line-height:1}
+  .creds-pwd-eye:hover{color:var(--text)}
   .creds-loginbox button{
     margin-top:10px; background:linear-gradient(90deg,#6366f1,#8b5cf6); color:#fff;
     border:none; padding:8px 18px; border-radius:5px; font-size:12px; font-weight:700; cursor:pointer;
@@ -174,11 +177,18 @@
     <div id="credsForm" class="hidden">
       <form class="creds-loginbox" id="credsLoginForm" autocomplete="on">
         <label for="credsUser">Email Master</label>
-        <input id="credsUser" name="username" type="email" autocomplete="username" required>
+        <input id="credsUser" name="username" type="email" autocomplete="username" placeholder="direzione@qualificagroup.it" required>
         <label for="credsPass">Password</label>
-        <input id="credsPass" name="password" type="password" autocomplete="current-password" required>
+        <div class="creds-pwd-wrap">
+          <input id="credsPass" name="password" type="password" autocomplete="current-password" required style="padding-right:36px">
+          <button type="button" class="creds-pwd-eye" id="credsPassEye" title="Mostra/nascondi password" tabindex="-1">👁</button>
+        </div>
         <button type="submit" id="credsLoginBtn">Entra</button>
         <div class="err" id="credsErr"></div>
+        <div style="margin-top:8px;color:var(--text3);font-size:10px;line-height:1.5">
+          Solo l'account Master <strong>direzione@qualificagroup.it</strong> può accedere.<br>
+          Le credenziali settoriali (es. <code>formazione@qualificagroup.it</code>) NON aprono questa vista.
+        </div>
       </form>
     </div>
 
@@ -520,6 +530,16 @@ document.getElementById('credsLoginForm').addEventListener('submit', async (e) =
     btn.textContent = 'Entra';
     document.getElementById('credsPass').select();
   }
+});
+
+/* Toggle show/hide password nell'overlay credenziali */
+document.getElementById('credsPassEye').addEventListener('click', () => {
+  const p = document.getElementById('credsPass');
+  const btn = document.getElementById('credsPassEye');
+  const show = p.type === 'password';
+  p.type = show ? 'text' : 'password';
+  btn.textContent = show ? '🙈' : '👁';
+  btn.title = show ? 'Nascondi password' : 'Mostra password';
 });
 
 if (sessionStorage.getItem(CREDS_SESSION_KEY) === '1') credsRenderTable();

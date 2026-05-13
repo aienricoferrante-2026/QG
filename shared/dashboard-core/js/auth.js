@@ -73,6 +73,13 @@
           outline: none; transition: border-color .15s;
         }
         .qg-login-card input:focus { border-color: #6366f1; }
+        .qg-pwd-wrap { position: relative; }
+        .qg-pwd-eye {
+          position: absolute; top: 50%; right: 8px; transform: translateY(-50%);
+          background: transparent; border: 0; color: #94a3b8; cursor: pointer;
+          padding: 4px 6px; font-size: 14px; line-height: 1;
+        }
+        .qg-pwd-eye:hover { color: #f8fafc; }
         .qg-login-btn {
           width: 100%; margin-top: 20px;
           background: linear-gradient(90deg, #6366f1, #8b5cf6);
@@ -93,7 +100,10 @@
         <label for="qg-user">Email</label>
         <input id="qg-user" name="username" type="email" autocomplete="username" required>
         <label for="qg-pass">Password</label>
-        <input id="qg-pass" name="password" type="password" autocomplete="current-password" required>
+        <div class="qg-pwd-wrap">
+          <input id="qg-pass" name="password" type="password" autocomplete="current-password" required style="padding-right:36px">
+          <button type="button" class="qg-pwd-eye" id="qg-pass-eye" title="Mostra/nascondi password" tabindex="-1">👁</button>
+        </div>
         <button type="submit" class="qg-login-btn" id="qg-login-btn">Entra</button>
         <div class="qg-login-err" id="qg-login-err"></div>
         <div class="qg-login-hint">Sessione salvata su questo browser. Per uscire: pulsante "Esci" in alto.</div>
@@ -126,6 +136,19 @@
         document.getElementById('qg-pass').select();
       }
     });
+
+    /* Toggle show/hide della password. */
+    const eyeBtn = document.getElementById('qg-pass-eye');
+    if (eyeBtn) {
+      eyeBtn.addEventListener('click', () => {
+        const p = document.getElementById('qg-pass');
+        if (!p) return;
+        const show = p.type === 'password';
+        p.type = show ? 'text' : 'password';
+        eyeBtn.textContent = show ? '🙈' : '👁';
+        eyeBtn.title = show ? 'Nascondi password' : 'Mostra password';
+      });
+    }
 
     setTimeout(() => {
       const u = document.getElementById('qg-user');
