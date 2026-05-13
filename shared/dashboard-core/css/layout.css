@@ -224,22 +224,35 @@ body.sidebar-collapsed .sidebar-toggle { left: 12px; }
 .header h1 { font-size: 18px; font-weight: 700; color: #f8fafc; letter-spacing: -.3px; }
 .header-sub { font-size: 11px; color: #94a3b8; margin-top: 2px; }
 
-/* Toggle bar (Filtri / Numeri) */
-.ui-toggle-bar { display: flex; gap: 6px; align-items: center; }
+/* Toggle bar (Filtri / Numeri) — vive dentro #qg-logout-btn in top-right,
+   stile grigio neutro per non competere visivamente con i KPI / chart. */
+.ui-toggle-bar { display: inline-flex; gap: 4px; align-items: center; margin-right: 8px; }
 .ui-toggle-btn {
-  background: rgba(99, 102, 241, .10);
-  border: 1px solid rgba(99, 102, 241, .30);
-  color: #cbd5e1;
-  padding: 5px 11px;
-  border-radius: 14px;
-  font-size: 11px;
+  background: transparent;
+  border: 1px solid #475569;
+  color: #94a3b8;
+  padding: 3px 9px;
+  border-radius: 12px;
+  font-size: 10px;
   cursor: pointer;
   transition: all .15s;
   font-weight: 600;
   letter-spacing: .2px;
+  white-space: nowrap;
 }
-.ui-toggle-btn:hover { background: rgba(99, 102, 241, .25); border-color: rgba(99, 102, 241, .60); }
-.ui-toggle-btn.active { background: linear-gradient(90deg, #6366f1, #8b5cf6); border-color: transparent; color: white; }
+.ui-toggle-btn:hover {
+  background: rgba(148, 163, 184, .12);
+  border-color: #64748b;
+  color: #cbd5e1;
+}
+.ui-toggle-btn.active {
+  background: rgba(148, 163, 184, .18);
+  border-color: #64748b;
+  color: #e2e8f0;
+}
+body.theme-light .ui-toggle-btn { border-color: #cbd5e1; color: #64748b; }
+body.theme-light .ui-toggle-btn:hover { background: rgba(15, 23, 42, .05); color: #334155; }
+body.theme-light .ui-toggle-btn.active { background: rgba(15, 23, 42, .08); color: #1e293b; }
 
 /* Sub-filtri dentro al card di Esplora */
 .explore-subf-label {

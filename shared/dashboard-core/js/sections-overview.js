@@ -55,13 +55,21 @@ function renderExecutive() {
   h += '<p style="color:var(--text3);font-size:11px;margin-bottom:14px">' +
        '5 KPI macro + 4 grafici di overview. Per analisi flessibili usa <strong>🔍 Esplora</strong> nella sidebar.</p>';
 
-  // Macro KPI (cliccabili → drill-down sui campi corrispondenti)
+  /* KPI macro cliccabili: ogni numero apre il modale con il sottoinsieme
+     di commesse corrispondente. */
+  const clkExec = (title, pred) => 'onclick="drillFiltered(\'' + title.replace(/'/g, "\\'") + "', " + pred + ')" style="cursor:pointer" title="Clicca per vedere le commesse"';
+  const pAll   = "c => true";
+  const pOpen  = "c => isOpen(c)";
+  const pMolNeg = "c => (c.mol||0) < 0 && (c.consulenza||0) > 0";
+  const pCredito = "c => (c.consulenza||0) - (c.giaIncassato||0) > 0";
+  const pSenzaInc = "c => (c.giaIncassato||0) === 0 && (c.consulenza||0) > 0";
+
   h += '<div class="kpi-grid" style="padding:0 0 14px 0">';
-  h += '<div class="kpi blue"><div class="kpi-label">Commesse Totali</div><div class="kpi-value">' + fmt(cnt) + '</div><div class="kpi-sub">' + fmt(aperte) + ' aperte · ' + fmt(chiuse) + ' chiuse</div></div>';
-  h += '<div class="kpi green"><div class="kpi-label">Ricavi Totali</div><div class="kpi-value">' + fmtK(cons) + '</div><div class="kpi-sub">' + fmtE(cons) + '</div></div>';
-  h += '<div class="kpi cyan"><div class="kpi-label">Margine MOL</div><div class="kpi-value">' + margPct.toFixed(1) + '%</div><div class="kpi-sub">' + fmtK(mol) + ' su ' + fmtK(cons) + '</div></div>';
-  h += '<div class="kpi orange"><div class="kpi-label">% Incasso</div><div class="kpi-value">' + incPct.toFixed(1) + '%</div><div class="kpi-sub">' + fmtK(incassato) + ' incassati</div></div>';
-  h += '<div class="kpi pink"><div class="kpi-label">Esposizione</div><div class="kpi-value">' + fmtK(residuo) + '</div><div class="kpi-sub">credito aperto</div></div>';
+  h += '<div class="kpi blue" ' + clkExec('Commesse · ' + sectorLabel(), pAll) + '><div class="kpi-label">Commesse Totali ›</div><div class="kpi-value">' + fmt(cnt) + '</div><div class="kpi-sub">' + fmt(aperte) + ' aperte · ' + fmt(chiuse) + ' chiuse</div></div>';
+  h += '<div class="kpi green" ' + clkExec('Commesse aperte', pOpen) + '><div class="kpi-label">Ricavi Totali ›</div><div class="kpi-value">' + fmtK(cons) + '</div><div class="kpi-sub">' + fmtE(cons) + '</div></div>';
+  h += '<div class="kpi cyan" ' + clkExec('Commesse con MOL negativo', pMolNeg) + '><div class="kpi-label">Margine MOL</div><div class="kpi-value">' + margPct.toFixed(1) + '%</div><div class="kpi-sub">' + fmtK(mol) + ' su ' + fmtK(cons) + (molNeg.length ? ' · <span style="color:#ef4444">' + molNeg.length + ' negativi ›</span>' : '') + '</div></div>';
+  h += '<div class="kpi orange" ' + clkExec('Commesse senza incasso', pSenzaInc) + '><div class="kpi-label">% Incasso</div><div class="kpi-value">' + incPct.toFixed(1) + '%</div><div class="kpi-sub">' + fmtK(incassato) + ' incassati · ' + (senzaIncasso.length ? '<span style="color:#f59e0b">' + senzaIncasso.length + ' a 0 ›</span>' : 'tutto incassato') + '</div></div>';
+  h += '<div class="kpi pink" ' + clkExec('Credito aperto', pCredito) + '><div class="kpi-label">Esposizione ›</div><div class="kpi-value">' + fmtK(residuo) + '</div><div class="kpi-sub">credito aperto</div></div>';
   h += '</div>';
 
   /* 4 chart riassuntivi · Trend + Regioni + Status + Stato Lav.

@@ -38,11 +38,18 @@ function renderAnalisiIncassi() {
   let h = '<div class="sec"><h3 class="sec-title">Analisi Incassi & Crediti</h3>';
   h += '<p style="color:var(--text3);font-size:11px;margin-bottom:14px">Monitoraggio incassi (= Fin. Incassi Tot. da Qnet), residuo da incassare, distribuzione delle commesse per stato di pagamento.</p>';
 
+  /* Predicati per i KPI cliccabili: ogni KPI ha un sottoinsieme di commesse
+     identificabile → click apre il modale drill-down con quelle commesse. */
+  const pInc100 = "c => (c.consulenza||0)>0 && (c.giaIncassato||0) >= (c.consulenza||0)";
+  const pInc0   = "c => (c.consulenza||0)>0 && (c.giaIncassato||0) === 0";
+  const pDaInc  = "c => (c.consulenza||0)>0 && (c.giaIncassato||0) < (c.consulenza||0)";
+  const clk = (title, pred) => 'onclick="drillFiltered(\'' + title.replace(/'/g, "\\'") + "', " + pred + ')" style="cursor:pointer" title="Clicca per vedere le commesse"';
+
   h += '<div class="kpi-grid" style="padding:0 0 14px 0">';
   h += '<div class="kpi green"><div class="kpi-label">% Incasso medio</div><div class="kpi-value">' + pctIncassoMedio.toFixed(1) + '%</div><div class="kpi-sub">' + fmtK(totIncassato) + ' / ' + fmtK(totRicavi) + '</div></div>';
-  h += '<div class="kpi blue"><div class="kpi-label">Commesse al 100%</div><div class="kpi-value">' + fmt(cm100) + '</div><div class="kpi-sub">' + (cmAttive ? (cm100 / cmAttive * 100).toFixed(1) : 0) + '% del totale</div></div>';
-  h += '<div class="kpi orange"><div class="kpi-label">Commesse a 0%</div><div class="kpi-value">' + fmt(cm0) + '</div><div class="kpi-sub">' + (cmAttive ? (cm0 / cmAttive * 100).toFixed(1) : 0) + '% del totale</div></div>';
-  h += '<div class="kpi pink"><div class="kpi-label">Da Incassare (Residuo)</div><div class="kpi-value">' + fmtK(totResiduo) + '</div><div class="kpi-sub">' + pctResiduo.toFixed(1) + '% · Ricavi − Incassato</div></div>';
+  h += '<div class="kpi blue" ' + clk('Commesse saldate (100%)', pInc100) + '><div class="kpi-label">Commesse al 100% ›</div><div class="kpi-value">' + fmt(cm100) + '</div><div class="kpi-sub">' + (cmAttive ? (cm100 / cmAttive * 100).toFixed(1) : 0) + '% del totale</div></div>';
+  h += '<div class="kpi orange" ' + clk('Commesse senza incasso (0%)', pInc0) + '><div class="kpi-label">Commesse a 0% ›</div><div class="kpi-value">' + fmt(cm0) + '</div><div class="kpi-sub">' + (cmAttive ? (cm0 / cmAttive * 100).toFixed(1) : 0) + '% del totale</div></div>';
+  h += '<div class="kpi pink" ' + clk('Da Incassare (commesse con residuo)', pDaInc) + '><div class="kpi-label">Da Incassare ›</div><div class="kpi-value">' + fmtK(totResiduo) + '</div><div class="kpi-sub">' + pctResiduo.toFixed(1) + '% · Ricavi − Incassato</div></div>';
   h += '<div class="kpi purple"><div class="kpi-label">Residuo medio</div><div class="kpi-value">' + fmtK(residuoMedio) + '</div><div class="kpi-sub">su ' + fmt(cmConRicavi) + ' comm. con ricavi</div></div>';
   h += '</div>';
 
