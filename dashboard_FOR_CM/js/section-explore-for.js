@@ -84,3 +84,28 @@ if (typeof EXPLORE_PRESETS !== 'undefined') {
     { id: 'cliCorso',   label: '🎯 Cliente · Corso',  l1: 'cliente',    l2: 'corso', l3: 'none', m: 'ricavi' }
   );
 }
+
+/* ── 7. Wiki FOR: appende "Calcoli effettuati" e "Mapping campi JSON" ──
+   Wrappa il renderWiki locale di FOR per aggiungere in fondo alla sezione
+   le 2 nuove tabelle dal kit (section-wiki-calcs.js), senza toccare il
+   section-wiki.js originale di FOR. */
+if (typeof window.renderWiki === 'function' &&
+    typeof _wikiCalcsHtml === 'function' &&
+    typeof _wikiFieldsHtml === 'function') {
+  const _origRenderWiki = window.renderWiki;
+  window.renderWiki = function () {
+    _origRenderWiki();
+    const el = document.getElementById('sec-wiki');
+    if (!el) return;
+    /* Trova il container principale (.sec) generato da renderWiki e
+       appende dentro 2 sotto-sezioni con lo stile del kit. */
+    const sec = el.querySelector('.sec') || el;
+    const extra = document.createElement('div');
+    extra.innerHTML =
+      '<h4 class="wiki-section-h" style="font-size:13px;font-weight:700;color:var(--text);margin:24px 0 10px 0;padding:4px 8px;border-left:3px solid var(--accent)">📐 Calcoli effettuati · formula → valore sul filtrato</h4>' +
+      _wikiCalcsHtml() +
+      '<h4 class="wiki-section-h" style="font-size:13px;font-weight:700;color:var(--text);margin:24px 0 10px 0;padding:4px 8px;border-left:3px solid var(--accent)">🗂️ Mapping campi JSON · stato di riempimento</h4>' +
+      _wikiFieldsHtml();
+    sec.appendChild(extra);
+  };
+}
