@@ -29,7 +29,7 @@ Cartella locale: `/Users/enricoferrante/Desktop/STW/`
 **Dashboard sul kit condiviso:**
 | Settore | Commesse | Cartella | Stato |
 |---|---:|---|---|
-| SIC Sicurezza Lavoro | 2.613 | `dashboard_SIC_CM/` | base (no Caso 2) |
+| **SIC Sicurezza Lavoro** | 2.613 | `dashboard_SIC_CM/` | **+ 1 sezione Caso 2** (Tipologie & Aggiornamenti) |
 | **AVV Avvalimenti** | 328 | `dashboard_AVV_CM/` | **+ 1 sezione Caso 2** (Avvalimenti) |
 | FIA Finanza Agevolata | 276 | `dashboard_FIA_CM/` | base (no Caso 2) |
 | IST Istituti | 52 | `dashboard_IST_CM/` | base (no Caso 2) |
@@ -213,6 +213,14 @@ Obiettivi:
 - ✅ **GAR Gare d'appalto** (325): 1 sezione — Gare (CIG, Ente,
   Data Scadenza, Importo, Esito; pipeline aperte/esitate/scadute).
   Copertura ~9% sui campi GAR (limite Excel, sezione lo dichiara).
+- ✅ **SIC Sicurezza Lavoro** (2.613): 1 sezione — Tipologie &
+  Aggiornamenti. Parser client-side che estrae 21 sigle dal Titolo
+  (DVR, RSPP, RLS, ART37, FORM, PREP, APS, ADE, VISITE, HACCP, PLE,
+  PIMUS, MULETTO, PES, GRU, DPI, SALDATORI, ALIMENT, TUTTA, 81/08)
+  e il flag AGG (aggiornamento periodico). Aggregazione in 6
+  macro-aree (Documentazione / Formazione / Emergenze / Visite /
+  Specialistico / Pacchetto). Copertura: **86%** classificate,
+  multi-tipologia supportato, trend annuale Nuove vs AGG.
 
 **Da fare** (sezione Caso 2 con grafici/tabelle dedicati):
 - **APL_PAL** (1.415, 60 campi): Visure, GOL, CV, Accompagnamento.
@@ -221,9 +229,6 @@ Obiettivi:
 - **APL_RES** (154, 54 campi): Profilo Risorse, Requisiti, Variazione
   Ricerca, Candidati Selezionati. Riempimento molto basso → bassa
   priorità.
-- **SIC Sicurezza Lavoro** (2.613): volume alto, mai esplorato in
-  Caso 2 — da capire quali campi specifici servono (RSPP, formazione
-  obbligatoria, scadenze visite mediche, ecc.).
 - **FIA Finanza Agevolata** (276) e **IST Istituti** (52): rimangono
   base, da capire se servono campi specifici.
 
