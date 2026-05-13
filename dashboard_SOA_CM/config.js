@@ -77,7 +77,7 @@ window.SECTOR_CONFIG = {
     avanzamento:    () => typeof renderAvanzamento     === 'function' && renderAvanzamento(),
     alert:          () => typeof renderAlert           === 'function' && renderAlert(),
     linkPartner:    () => typeof renderLinkPartner     === 'function' && renderLinkPartner(),
-    performance:    () => typeof renderPerformance     === 'function' && renderPerformance(),
+    explore:        () => typeof renderExplore         === 'function' && renderExplore(),
     soaAttestanti:  () => typeof renderSoaAttestanti   === 'function' && renderSoaAttestanti(),
     entiCert9001:   () => typeof renderEntiCert9001    === 'function' && renderEntiCert9001(),
     consorzio:      () => typeof renderConsorzio       === 'function' && renderConsorzio(),
