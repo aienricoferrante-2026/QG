@@ -12,5 +12,6 @@ window.SECTOR_CONFIG = {
   "adminPassHash": "6e51265e644d9ed6ee109c245e63db67094312403f0a39ee4402656ec865e043",
   "defaultSection": "explore",
   "partnersJsonUrl": "partners_apl_pal/_links.json",
-  "partnersBaseUrl": "partners_apl_pal/view.html"
+  "partnersBaseUrl": "partners_apl_pal/view.html",
+  "extraSections": ["gol"]
 };

@@ -36,7 +36,7 @@ Cartella locale: `/Users/enricoferrante/Desktop/STW/`
 | **ISO Certificazioni** | 6.185 | `dashboard_ISO_CM/` | **+ 2 sezioni Caso 2** (Enti, Audit) |
 | **SOA Attestazioni** | 613 | `dashboard_SOA_CM/` | **+ 5 sezioni Caso 2** (chat parallela) |
 | **GAR Gare d'appalto** | 325 | `dashboard_GAR_CM/` | **+ 1 sezione Caso 2** (Gare) |
-| APL_PAL Politiche Attive | 1.415 | `dashboard_APL_PAL_CM/` | base (no Caso 2) |
+| **APL_PAL Politiche Attive** | 1.415 | `dashboard_APL_PAL_CM/` | **+ 1 sezione Caso 2** (GOL & Politiche Attive) |
 | APL_RES PAL Risorse | 154 | `dashboard_APL_RES_CM/` | base (no Caso 2) |
 | **GDPR Privacy** | 695 | `dashboard_GDPR_CM/` | **+ 1 sezione Caso 2** (Pagamenti) |
 
@@ -218,19 +218,23 @@ Obiettivi:
   (DVR, RSPP, RLS, ART37, FORM, PREP, APS, ADE, VISITE, HACCP, PLE,
   PIMUS, MULETTO, PES, GRU, DPI, SALDATORI, ALIMENT, TUTTA, 81/08)
   e il flag AGG (aggiornamento periodico). Aggregazione in 6
-  macro-aree (Documentazione / Formazione / Emergenze / Visite /
-  Specialistico / Pacchetto). Copertura: **86%** classificate,
-  multi-tipologia supportato, trend annuale Nuove vs AGG.
+  macro-aree. Copertura: **86%** classificate.
+- ✅ **APL_PAL Politiche Attive** (1.415): 1 sezione — GOL &
+  Politiche Attive. APL_PAL è essenzialmente GOL (94%, 1.328 rec).
+  Parser client-side aggrega le 23 fasi distinte di `statoLav`
+  (PAL_1.x → 2.x → 3.x → 4.x → TIROCINI) in un funnel a 6 step
+  (Avvio / Documenti / Pagamento / Concluso PAL / Tirocinio attivo
+  / Tirocinio concluso). Estrazione città+beneficiario dal titolo.
+  Copertura funnel: **90%** GOL classificate.
 
 **Da fare** (sezione Caso 2 con grafici/tabelle dedicati):
-- **APL_PAL** (1.415, 60 campi): Visure, GOL, CV, Accompagnamento.
-  I `dictionary.pal_*` nell'Excel sono a 0% riempimento → confermare
-  con utente se sezione Caso 2 è prioritaria.
+- **FIA Finanza Agevolata** (276): titoli super strutturati per bando
+  (FNC Fondo Nuove Competenze, ISI INAIL, FON, FIN, NEXT PID
+  UNIONCAMERE). Buona priorità — pattern simile a SIC.
 - **APL_RES** (154, 54 campi): Profilo Risorse, Requisiti, Variazione
-  Ricerca, Candidati Selezionati. Riempimento molto basso → bassa
-  priorità.
-- **FIA Finanza Agevolata** (276) e **IST Istituti** (52): rimangono
-  base, da capire se servono campi specifici.
+  Ricerca, Candidati Selezionati. Riempimento basso → bassa priorità.
+- **IST Istituti** (52): titoli con DM170/DM19 e IST_4.0 (PNRR scuola).
+  Volume piccolo → bassa priorità.
 
 **Estensione ISO opzionale** (segnalata da utente 2026-05-13):
 - "Documenti Triennio" — il campo `isoDocTriennio` è 0% riempito
