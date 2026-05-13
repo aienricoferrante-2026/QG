@@ -101,6 +101,7 @@ window.SECTOR_CONFIG = {
     alert:          () => typeof renderAlert           === 'function' && renderAlert(),
     linkPartner:    () => typeof renderLinkPartner     === 'function' && renderLinkPartner(),
     explore:        () => typeof renderExplore         === 'function' && renderExplore(),
+    wiki:           () => typeof renderWiki            === 'function' && renderWiki(),
     soaAttestanti:  () => typeof renderSoaAttestanti   === 'function' && renderSoaAttestanti(),
     entiCert9001:   () => typeof renderEntiCert9001    === 'function' && renderEntiCert9001(),
     consorzio:      () => typeof renderConsorzio       === 'function' && renderConsorzio(),

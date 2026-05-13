@@ -15,7 +15,8 @@ const SECTIONS_DEFAULT = {
   avanzamento: () => typeof renderAvanzamento === 'function' && renderAvanzamento(),
   alert: () => typeof renderAlert === 'function' && renderAlert(),
   linkPartner: () => typeof renderLinkPartner === 'function' && renderLinkPartner(),
-  explore: () => typeof renderExplore === 'function' && renderExplore()
+  explore: () => typeof renderExplore === 'function' && renderExplore(),
+  wiki: () => typeof renderWiki === 'function' && renderWiki()
 };
 
 function _sections() {
