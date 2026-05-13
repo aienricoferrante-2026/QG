@@ -462,6 +462,22 @@ body.sidebar-collapsed .sidebar-toggle { left: 12px; }
   background: var(--accent); color: #fff; transform: scale(1.1);
 }
 
+/* Icona ⓘ inline accanto a tutti i KPI delle dashboard. Cliccando apre
+   il popup con descrizione intelligibile + formula + valore corrente. */
+.kpi-info-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: rgba(99, 102, 241, .18);
+  color: var(--accent);
+  font-size: 11px; font-weight: 700; line-height: 1;
+  cursor: pointer; margin-left: 4px; vertical-align: middle;
+  transition: all .15s;
+}
+.kpi-info-btn:hover {
+  background: var(--accent); color: #fff; transform: scale(1.15);
+}
+body.theme-light .kpi-info-btn { background: rgba(99, 102, 241, .15); }
+
 /* Barra di riempimento campi */
 .wiki-fillbar {
   display: inline-block; vertical-align: middle;

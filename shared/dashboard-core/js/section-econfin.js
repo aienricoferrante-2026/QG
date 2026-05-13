@@ -72,27 +72,28 @@ function renderEconFin() {
        '<strong>Documentale</strong> (fatturato), <strong>Finanziario</strong> (cassa reale). ' +
        'Sotto trovi gli scostamenti per capire dove la realtà diverge dal budget.</p>';
 
+  const ii = (typeof kpiInfoBtn === 'function') ? kpiInfoBtn : (() => '');
   /* 3 BOX AFFIANCATI */
   h += '<div class="row3 econ-boxes">';
   h += _ecBoxHtml('CONSUNTIVO', '#6366f1', '📐', [
-    { label: 'Ricavi',     val: fmtK(A.cons.r), sub: 'ec.RicaviCons' },
-    { label: 'Costi',      val: fmtK(A.cons.c), sub: 'ec.CostiCons' },
-    { label: 'MOL',        val: fmtK(A.cons.m), sub: consMargin.toFixed(1) + '% margine' },
-    { label: 'Avanz. medio', val: avzEc.toFixed(1) + '%', sub: 'media ' + A.avanzEc.n + ' commesse' }
+    { label: 'Ricavi ' + ii('ricavi'),       val: fmtK(A.cons.r), sub: 'ec.RicaviCons' },
+    { label: 'Costi ' + ii('costi'),         val: fmtK(A.cons.c), sub: 'ec.CostiCons' },
+    { label: 'MOL ' + ii('mol'),             val: fmtK(A.cons.m), sub: consMargin.toFixed(1) + '% margine' },
+    { label: 'Avanz. medio',                 val: avzEc.toFixed(1) + '%', sub: 'media ' + A.avanzEc.n + ' commesse' }
   ], 'Budget consuntivato a Qnet · stima');
 
   h += _ecBoxHtml('DOCUMENTALE', '#8b5cf6', '📄', [
-    { label: 'Ricavi',     val: fmtK(A.doc.r), sub: pct(A.doc.r, A.cons.r) + ' del cons.' },
-    { label: 'Costi',      val: fmtK(A.doc.c), sub: pct(A.doc.c, A.cons.c) + ' del cons.' },
-    { label: 'MOL',        val: fmtK(A.doc.m), sub: docMargin.toFixed(1) + '% margine' },
-    { label: 'Δ vs Cons.', val: sign(dM),     sub: 'gap MOL fatt-cons' }
+    { label: 'Ricavi ' + ii('ricavi'),       val: fmtK(A.doc.r), sub: pct(A.doc.r, A.cons.r) + ' del cons.' },
+    { label: 'Costi ' + ii('costi'),         val: fmtK(A.doc.c), sub: pct(A.doc.c, A.cons.c) + ' del cons.' },
+    { label: 'MOL ' + ii('mol'),             val: fmtK(A.doc.m), sub: docMargin.toFixed(1) + '% margine' },
+    { label: 'Δ vs Cons.',                   val: sign(dM),     sub: 'gap MOL fatt-cons' }
   ], 'Fatture emesse · registrato in contabilità');
 
   h += _ecBoxHtml('FINANZIARIO (Cassa)', '#10b981', '💸', [
-    { label: 'Incassi tot.',  val: fmtK(A.fin.in_), sub: pct(A.cassa.incassato, ricTot) + ' dei ricavi' },
-    { label: 'Uscite tot.',   val: fmtK(A.fin.out), sub: 'cassa uscite' },
-    { label: 'Delta cassa',   val: sign(A.fin.delta), sub: A.fin.delta >= 0 ? 'positivo' : 'negativo' },
-    { label: 'Già Incassato', val: fmtK(A.cassa.incassato), sub: incPct.toFixed(1) + '% dei ricavi' }
+    { label: 'Incassi tot. ' + ii('incassato'), val: fmtK(A.fin.in_), sub: pct(A.cassa.incassato, ricTot) + ' dei ricavi' },
+    { label: 'Uscite tot.',                  val: fmtK(A.fin.out), sub: 'cassa uscite' },
+    { label: 'Delta cassa',                  val: sign(A.fin.delta), sub: A.fin.delta >= 0 ? 'positivo' : 'negativo' },
+    { label: 'Già Incassato ' + ii('incassato'), val: fmtK(A.cassa.incassato), sub: incPct.toFixed(1) + '% dei ricavi' }
   ], 'Movimenti reali di cassa · Qnet');
   h += '</div>';
 
