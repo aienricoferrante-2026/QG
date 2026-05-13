@@ -31,12 +31,12 @@ Cartella locale: `/Users/enricoferrante/Desktop/STW/`
 |---|---:|---|---|
 | **SIC Sicurezza Lavoro** | 2.613 | `dashboard_SIC_CM/` | **+ 1 sezione Caso 2** (Tipologie & Aggiornamenti) |
 | **AVV Avvalimenti** | 328 | `dashboard_AVV_CM/` | **+ 1 sezione Caso 2** (Avvalimenti) |
-| FIA Finanza Agevolata | 276 | `dashboard_FIA_CM/` | base (no Caso 2) |
+| **FIA Finanza Agevolata** | 276 | `dashboard_FIA_CM/` | **+ 1 sezione Caso 2** (Bandi & Fondi Pubblici) |
 | IST Istituti | 52 | `dashboard_IST_CM/` | base (no Caso 2) |
 | **ISO Certificazioni** | 6.185 | `dashboard_ISO_CM/` | **+ 2 sezioni Caso 2** (Enti, Audit) |
 | **SOA Attestazioni** | 613 | `dashboard_SOA_CM/` | **+ 5 sezioni Caso 2** (chat parallela) |
 | **GAR Gare d'appalto** | 325 | `dashboard_GAR_CM/` | **+ 1 sezione Caso 2** (Gare) |
-| APL_PAL Politiche Attive | 1.415 | `dashboard_APL_PAL_CM/` | base (no Caso 2) |
+| **APL_PAL Politiche Attive** | 1.415 | `dashboard_APL_PAL_CM/` | **+ 1 sezione Caso 2** (GOL & Politiche Attive) |
 | APL_RES PAL Risorse | 154 | `dashboard_APL_RES_CM/` | base (no Caso 2) |
 | **GDPR Privacy** | 695 | `dashboard_GDPR_CM/` | **+ 1 sezione Caso 2** (Pagamenti) |
 
@@ -218,19 +218,24 @@ Obiettivi:
   (DVR, RSPP, RLS, ART37, FORM, PREP, APS, ADE, VISITE, HACCP, PLE,
   PIMUS, MULETTO, PES, GRU, DPI, SALDATORI, ALIMENT, TUTTA, 81/08)
   e il flag AGG (aggiornamento periodico). Aggregazione in 6
-  macro-aree (Documentazione / Formazione / Emergenze / Visite /
-  Specialistico / Pacchetto). Copertura: **86%** classificate,
-  multi-tipologia supportato, trend annuale Nuove vs AGG.
+  macro-aree. Copertura: **86%** classificate.
+- ✅ **APL_PAL Politiche Attive** (1.415): 1 sezione — GOL &
+  Politiche Attive. APL_PAL è essenzialmente GOL (94%, 1.328 rec).
+  Parser client-side aggrega le 23 fasi distinte di `statoLav`
+  in un funnel a 6 step. Copertura funnel: **90%** GOL classificate.
+- ✅ **FIA Finanza Agevolata** (276): 1 sezione — Bandi & Fondi
+  Pubblici. Parser client-side classifica 7 bandi dal prefisso del
+  titolo: FNC (Fondo Nuove Competenze PNRR), FON (interprofessionali),
+  ISI (INAIL Sicurezza), FIN (incentivi), PID (Unioncamere Digitale),
+  INCENT (assunzioni), IND40 (Industria 4.0). Copertura: **94%**.
+  Focus su Pipeline pianificata (Status "Da pianificare") e Da
+  Incassare per bando (bandi pubblici liquidano a fine progetto).
 
 **Da fare** (sezione Caso 2 con grafici/tabelle dedicati):
-- **APL_PAL** (1.415, 60 campi): Visure, GOL, CV, Accompagnamento.
-  I `dictionary.pal_*` nell'Excel sono a 0% riempimento → confermare
-  con utente se sezione Caso 2 è prioritaria.
 - **APL_RES** (154, 54 campi): Profilo Risorse, Requisiti, Variazione
-  Ricerca, Candidati Selezionati. Riempimento molto basso → bassa
-  priorità.
-- **FIA Finanza Agevolata** (276) e **IST Istituti** (52): rimangono
-  base, da capire se servono campi specifici.
+  Ricerca, Candidati Selezionati. Riempimento basso → bassa priorità.
+- **IST Istituti** (52): titoli con DM170/DM19 e IST_4.0 (PNRR scuola).
+  Volume piccolo → bassa priorità.
 
 **Estensione ISO opzionale** (segnalata da utente 2026-05-13):
 - "Documenti Triennio" — il campo `isoDocTriennio` è 0% riempito
