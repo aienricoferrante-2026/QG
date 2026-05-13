@@ -61,6 +61,15 @@
   .card .desc{color:var(--text2);font-size:12px;line-height:1.5;min-height:34px}
   .card-stats{display:flex;gap:10px;margin-top:10px;color:var(--text3);font-size:11px}
   .card-stats span strong{color:var(--text);font-weight:700}
+  .card-kpi-grid{
+    display:grid; grid-template-columns:1fr 1fr; gap:6px 12px;
+    margin-top:10px; padding-top:10px; border-top:1px dashed var(--border);
+    font-size:11px; color:var(--text2);
+  }
+  .card-kpi-grid b{color:var(--text); font-weight:700; font-variant-numeric:tabular-nums}
+  .card-kpi-grid .pos{color:#10b981}
+  .card-kpi-grid .neg{color:#ef4444}
+  .card-kpi-grid .warn{color:#f59e0b}
   .card .tag{ position:absolute;top:14px;right:14px;font-size:9px;font-weight:700; padding:2px 7px;border-radius:4px;letter-spacing:.4px; }
   .tag-active{background:rgba(16,185,129,.16);color:#10b981}
   .tag-soon{background:rgba(148,163,184,.16);color:#94a3b8}
@@ -301,16 +310,18 @@ function _labelFor(s){
 function renderCards(){
   const cont = document.getElementById('sectorCards');
   let h = '';
-  SECTORS.forEach(s => {
+  SECTORS.forEach((s, i) => {
     const tag = _tagFor(s);
     const stats = '<div class="card-stats"><span><strong>'+fmt(s.count)+'</strong> commesse</span></div>';
+    const kpiId = 'cardKpi-' + s.code + '-' + (s.variant || 'main');
+    const kpiBlock = '<div class="card-kpi-grid" id="' + kpiId + '"><span>…</span></div>';
     if (s.active) {
       h += '<a class="card" href="'+s.url+'" style="border-left:3px solid '+s.color+'">'
         + tag
         + '<span class="icon">'+s.icon+'</span>'
         + '<h3>'+_labelFor(s)+'</h3>'
         + '<p class="desc">'+s.desc+'</p>'
-        + stats + '</a>';
+        + stats + kpiBlock + '</a>';
     } else {
       h += '<div class="card disabled" style="border-left:3px solid '+s.color+'" title="Dashboard in arrivo">'
         + tag
@@ -330,19 +341,26 @@ async function loadGlobalKpis(){
   const uniqueCodes = new Set(activeMain.map(s => s.code));
   document.getElementById('kSec').textContent = uniqueCodes.size;
 
+  /* Per ogni settore: aggregati cnt/ric/mol/inc/esp dal JSON.
+     Usati sia per i KPI globali (somma) sia per popolare le mini-KPI per card. */
+  const sectorEntries = Object.entries(SECTOR_DATA_URLS);
+  const fetched = await Promise.all(sectorEntries.map(([code, url]) =>
+    fetch(url).then(r => r.ok ? r.json() : []).catch(() => []).then(items => ({ code, items: items || [] }))
+  ));
+  const aggr = {};
   let cnt = 0, ric = 0, mol = 0, inc = 0, esp = 0;
-  const promises = Object.values(SECTOR_DATA_URLS).map(url =>
-    fetch(url).then(r => r.ok ? r.json() : []).catch(() => [])
-  );
-  const results = await Promise.all(promises);
-  results.forEach(items => {
-    (items || []).forEach(c => {
-      cnt++;
-      ric += (c.consulenza || 0);
-      mol += (c.mol || 0);
-      inc += (c.giaIncassato || 0);
-      esp += Math.max(0, (c.consulenza || 0) - (c.giaIncassato || 0));
+  fetched.forEach(({ code, items }) => {
+    let sc = 0, sr = 0, sm = 0, si = 0, se = 0, scl = new Set();
+    items.forEach(c => {
+      sc++;
+      sr += (c.consulenza || 0);
+      sm += (c.mol || 0);
+      si += (c.giaIncassato || 0);
+      se += Math.max(0, (c.consulenza || 0) - (c.giaIncassato || 0));
+      if (c.cliente) scl.add(c.cliente);
     });
+    aggr[code] = { cnt: sc, ric: sr, mol: sm, inc: si, esp: se, clienti: scl.size };
+    cnt += sc; ric += sr; mol += sm; inc += si; esp += se;
   });
 
   document.getElementById('kCnt').textContent = fmt(cnt);
@@ -352,6 +370,26 @@ async function loadGlobalKpis(){
   document.getElementById('kEsp').textContent = fmtK(esp);
   document.getElementById('kInc').textContent = ric ? ((inc/ric*100).toFixed(1) + '%') : '—';
   document.getElementById('hub-date').textContent = new Date().toLocaleDateString('it-IT', {day:'2-digit', month:'long', year:'numeric'});
+
+  /* Popola le mini-KPI per ogni card settore. */
+  SECTORS.forEach(s => {
+    if (!s.active) return;
+    const a = aggr[s.code];
+    if (!a) return;
+    const el = document.getElementById('cardKpi-' + s.code + '-' + (s.variant || 'main'));
+    if (!el) return;
+    const margPct = a.ric ? (a.mol / a.ric * 100) : 0;
+    const incPct = a.ric ? (a.inc / a.ric * 100) : 0;
+    const marCls = margPct >= 20 ? 'pos' : margPct >= 5 ? '' : 'neg';
+    const incCls = incPct >= 80 ? 'pos' : incPct >= 50 ? '' : 'warn';
+    el.innerHTML =
+      '<span>Ricavi <b>' + fmtK(a.ric) + '</b></span>' +
+      '<span>Margine <b class="' + marCls + '">' + margPct.toFixed(1) + '%</b></span>' +
+      '<span>Incassato <b class="' + incCls + '">' + incPct.toFixed(1) + '%</b></span>' +
+      '<span>Da Inc. <b>' + fmtK(a.esp) + '</b></span>' +
+      '<span>Clienti <b>' + fmt(a.clienti) + '</b></span>' +
+      '<span>MOL <b>' + fmtK(a.mol) + '</b></span>';
+  });
 }
 loadGlobalKpis().catch(()=>{});
 
