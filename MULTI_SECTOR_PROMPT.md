@@ -98,6 +98,14 @@ dashboard_ISO_CM/  dashboard_SOA_CM/  ← 2 BU "Caso 2": kit + fork interni
 dashboard/                            ISO legacy — non più linkata dall'HUB
 dashboard_SOA_LEGACY/                 SOA legacy — non più linkata dall'HUB
 
+dashboard_COGE/                       ★ Dashboard direzionale (NUOVA)
+├── config.js, index.html             Vista Società × Sede × BU
+├── js/coge-data.js                   Caricamento + aggregazione 11 BU
+├── js/coge-riepilogo.js              Tabellone conto economico
+├── js/coge-hr.js                     Upload Excel/CSV dipendenti (WeA HR)
+├── js/coge-indiretti.js              Form editabile costi indiretti
+└── js/coge-app.js                    Bootstrap navigation
+
 shared/dashboard-core/                ☆ KIT CONDIVISO multi-settore
 ├── README.md                         (cos'è, come si usa, governance)
 ├── index-template.html               (template HTML)
