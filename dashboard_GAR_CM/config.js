@@ -12,5 +12,6 @@ window.SECTOR_CONFIG = {
   "adminPassHash": "e900f1030962c2859b291864047c18a77096791e4071685abbac907870417d41",
   "defaultSection": "explore",
   "partnersJsonUrl": "partners_gar/_links.json",
-  "partnersBaseUrl": "partners_gar/view.html"
+  "partnersBaseUrl": "partners_gar/view.html",
+  "extraSections": ["gare"]
 };
