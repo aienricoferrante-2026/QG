@@ -62,12 +62,12 @@ function renderCogeRiepilogo() {
     costiIndiretti: s.costiIndiretti + r.costiIndiretti,
     commesse: s.commesse + r.commesse,
   }), { ricavi: 0, costiCommessa: 0, mol: 0, costoHr: 0, costiIndiretti: 0, commesse: 0 });
-  // Attenzione: costi indiretti per dimensione non-sede sommerebbero più volte la stessa sede.
-  // Per il TOTALE usiamo sempre la somma "vera" di tutte le sedi una sola volta.
   let totIndirVero = 0;
   cogeUniqueSediConsedi().forEach(({ societa, sede }) => totIndirVero += cogeIndirettiSede(societa, sede));
   totIndirVero *= cogeProRataFactor();
-  const risultatoTot = tot.ricavi - tot.costiCommessa - tot.costoHr - totIndirVero;
+  // Costi generali da Segnatempo (L3 della cascata) — se Segnatempo è caricato
+  const totGenerali = (typeof cogeCostiGenerali === 'function' && COGE.segnatempo.length) ? cogeCostiGenerali() : 0;
+  const risultatoTot = tot.ricavi - tot.costiCommessa - tot.costoHr - totIndirVero - totGenerali;
 
   h += '<div class="kpi-grid" style="padding:0 0 14px 0">';
   h += '<div class="kpi blue"><div class="kpi-label">' + (COGE.pivotDim === 'societa_sede_bu' ? 'Combinazioni' : 'Gruppi') + '</div><div class="kpi-value">' + cogeFmt(rows.length) + '</div><div class="kpi-sub">in vista corrente</div></div>';
@@ -75,6 +75,9 @@ function renderCogeRiepilogo() {
   h += '<div class="kpi cyan"><div class="kpi-label">MOL commesse</div><div class="kpi-value">' + cogeFmtE(tot.mol) + '</div><div class="kpi-sub">da Qnet</div></div>';
   h += '<div class="kpi orange"><div class="kpi-label">Costo Personale</div><div class="kpi-value">' + cogeFmtE(tot.costoHr) + '</div><div class="kpi-sub">' + cogeFmt(COGE.hr.length) + ' dipendenti HR</div></div>';
   h += '<div class="kpi pink"><div class="kpi-label">Costi Indiretti</div><div class="kpi-value">' + cogeFmtE(totIndirVero) + '</div><div class="kpi-sub">affitti, utenze, ecc.</div></div>';
+  if (totGenerali > 0) {
+    h += '<div class="kpi red"><div class="kpi-label">Costi Generali (L3)</div><div class="kpi-value">' + cogeFmtE(totGenerali) + '</div><div class="kpi-sub">overhead Segnatempo</div></div>';
+  }
   const cls = risultatoTot >= 0 ? 'green' : 'red';
   h += '<div class="kpi ' + cls + '"><div class="kpi-label">Risultato operativo</div><div class="kpi-value">' + cogeFmtE(risultatoTot) + '</div><div class="kpi-sub">Ricavi − tutti i costi</div></div>';
   h += '</div>';

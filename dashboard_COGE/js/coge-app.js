@@ -9,6 +9,7 @@ let cogeCurrentSection = 'riepilogo';
 const COGE_SECTIONS = {
   riepilogo:   renderCogeRiepilogo,
   imputazioni: renderCogeImputazioni,
+  segnatempo:  renderCogeSegnatempo,
   hr:          renderCogeHr,
   indiretti:   renderCogeIndiretti,
 };
