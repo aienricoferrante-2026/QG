@@ -41,8 +41,8 @@ window.SECTOR_CONFIG = {
   /* Quick filters: default + uno SOA-specifico per la firma pendente.
      "inLav" è il filtro sticky introdotto in Tappa 1 Performance. */
   quickFilters: [
-    { name: 'inLav', label: '⚙️ Solo in lavorazione', title: 'Stato Lavorazione contiene "Lavorazione" (case-insensitive)',
-      predicate: c => /lavorazione/i.test(c.statoLav || '') },
+    { name: 'inLav', label: '⚙️ Solo in lavorazione', title: 'Status contiene "Lavorazione" (case-insensitive). Es. "In Lavorazione".',
+      predicate: c => /lavorazione/i.test(c.status || '') },
     { name: 'open',  label: '🟢 Solo aperte', title: 'Esclude commesse Annullate o Chiuse',
       predicate: c => typeof isOpen === 'function' ? isOpen(c) : (c.status !== 'Annullato' && c.status !== 'Concluso' && c.status !== 'Chiusa') },
     { name: 'year',  label: '📅 ' + new Date().getFullYear(), title: 'Solo commesse iniziate nell\'anno corrente',

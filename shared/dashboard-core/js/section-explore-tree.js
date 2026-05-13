@@ -232,6 +232,19 @@ function _exploreRenderTable(state, periods) {
 }
 
 /* ── Chart top N (bar) o trend (line per anno/mese) ── */
+/* Cache dei nodi del chart per il click handler (index → node). */
+let _exploreChartNodes = [];
+
+function _exploreChartClick(idx) {
+  const n = _exploreChartNodes[idx];
+  if (!n) return;
+  const state = _exploreState();
+  const dimLabel = (EXPLORE_DIMENSIONS.find(d => d.id === state.l1) || {}).label || state.l1;
+  const valLabel = (n.label || '').length > 40 ? n.label.substring(0, 38) + '..' : n.label;
+  const title = '<span style="color:var(--accent)">&#9632; ' + dimLabel + ':</span> <strong>' + valLabel + '</strong>';
+  if (typeof drillDownItems === 'function') drillDownItems(title, n.items);
+}
+
 function _exploreRenderChart(state, periods) {
   const canvas = document.getElementById('chExplore');
   if (!canvas) return;
@@ -244,6 +257,7 @@ function _exploreRenderChart(state, periods) {
     : (_exploreMetric(b.items, state.metric) - _exploreMetric(a.items, state.metric)));
 
   const top = isTime ? tree : tree.slice(0, 15);
+  _exploreChartNodes = top;
   const labels = top.map(n => n.label.length > 22 ? n.label.substring(0, 20) + '..' : n.label);
   const aData  = top.map(n => _exploreMetric(n.items, state.metric));
 
@@ -272,6 +286,8 @@ function _exploreRenderChart(state, periods) {
       type: 'line',
       data: { labels, datasets },
       options: Object.assign({}, cOpts(), {
+        onClick: (evt, els) => { if (els && els[0]) _exploreChartClick(els[0].index); },
+        onHover: (evt, els) => { evt.native && (evt.native.target.style.cursor = els.length ? 'pointer' : 'default'); },
         plugins: { legend: { display: datasets.length > 1, position: 'top', labels: { color: _chartTick(), font: { size: 10 }, usePointStyle: true } } },
         scales: { x: { ticks: { color: _chartTick(), font: { size: 9 } }, grid: { display: false } }, y: baseScales.x }
       })
@@ -294,6 +310,8 @@ function _exploreRenderChart(state, periods) {
     data: { labels, datasets },
     options: Object.assign({}, cOpts(), {
       indexAxis: 'y',
+      onClick: (evt, els) => { if (els && els[0]) _exploreChartClick(els[0].index); },
+      onHover: (evt, els) => { evt.native && (evt.native.target.style.cursor = els.length ? 'pointer' : 'default'); },
       plugins: { legend: { display: datasets.length > 1, position: 'top', labels: { color: _chartTick(), font: { size: 10 }, usePointStyle: true } } },
       scales: baseScales
     })

@@ -119,6 +119,33 @@ body {
   color: #fca5a5;
   margin-left: 4px;
 }
+.qf-count {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 6px;
+  border-radius: 8px;
+  font-size: 10px;
+  background: rgba(255, 255, 255, .12);
+  color: inherit;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.qf-btn.active .qf-count {
+  background: rgba(255, 255, 255, .25);
+  color: white;
+}
+.qf-feedback {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 8px;
+  padding: 3px 10px;
+  border-radius: 12px;
+  background: rgba(16, 185, 129, .12);
+  border: 1px solid rgba(16, 185, 129, .35);
+  color: #6ee7b7;
+  font-size: 11px;
+  font-weight: 600;
+}
 
 /* Sidebar — SEMPRE scura (anche in tema chiaro: cornice scura per
    focalizzare l'attenzione sul contenuto centrale) */

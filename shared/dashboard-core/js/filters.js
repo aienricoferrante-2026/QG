@@ -108,8 +108,8 @@ function renderPeriodFilter() {
 let _quickFilter = null;
 
 const QUICK_FILTERS_DEFAULT = [
-  { name: 'inLav', label: '⚙️ Solo in lavorazione', title: 'Stato Lavorazione contiene "Lavorazione" (case-insensitive)',
-    predicate: c => /lavorazione/i.test(c.statoLav || '') },
+  { name: 'inLav', label: '⚙️ Solo in lavorazione', title: 'Status contiene "Lavorazione" (case-insensitive). Es. "In Lavorazione".',
+    predicate: c => /lavorazione/i.test(c.status || '') },
   { name: 'open', label: '🟢 Solo aperte', title: 'Esclude commesse Annullate o Chiuse',
     predicate: c => typeof isOpen === 'function' ? isOpen(c) : (c.status !== 'Annullato' && c.status !== 'Concluso' && c.status !== 'Chiusa') },
   { name: 'year', label: '📅 ' + new Date().getFullYear(), title: 'Solo commesse iniziate nell\'anno corrente',
@@ -159,9 +159,26 @@ function renderQuickFilters() {
   let h = '<span class="qf-label">Vista rapida:</span>';
   _quickFilters().forEach(q => {
     const active = _quickFilter && _quickFilter.name === q.name ? ' active' : '';
-    h += '<button class="qf-btn' + active + '" title="' + q.title + '" onclick="setQuickFilter(\'' + q.name + '\')">' + q.label + '</button>';
+    /* Conteggio dinamico per ogni quick filter sul totale dataset filtrato dagli
+       altri filtri (escluso il qf stesso). Mostrato come badge accanto alla label. */
+    let count = -1;
+    if (typeof D !== 'undefined' && D) {
+      const defs = (typeof _filterDefs === 'function') ? _filterDefs() : [];
+      count = D.filter(c => {
+        if (typeof _periodPredicate === 'function' && !_periodPredicate(c)) return false;
+        for (const f of defs) if (typeof _matchFilter === 'function' && !_matchFilter(f, c)) return false;
+        return q.predicate(c);
+      }).length;
+    }
+    const badge = count >= 0
+      ? '<span class="qf-count">' + (count >= 1000 ? (count / 1000).toFixed(count >= 10000 ? 0 : 1) + 'k' : count) + '</span>'
+      : '';
+    h += '<button class="qf-btn' + active + '" title="' + q.title + '" onclick="setQuickFilter(\'' + q.name + '\')">' + q.label + badge + '</button>';
   });
   if (_quickFilter) {
+    const all = (typeof D !== 'undefined' && D) ? D.length : 0;
+    const cur = (typeof filtered !== 'undefined') ? filtered.length : 0;
+    h += '<span class="qf-feedback">→ ' + fmt(cur) + ' di ' + fmt(all) + ' commesse</span>';
     h += '<button class="qf-btn qf-clear" title="Rimuovi vista rapida" onclick="setQuickFilter(null)">✕</button>';
   }
   el.innerHTML = h;

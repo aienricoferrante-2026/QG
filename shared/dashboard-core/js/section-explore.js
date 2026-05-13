@@ -93,23 +93,30 @@ function renderExplore() {
   const s = _exploreState();
   const periods = _explorePeriods(s);
 
+  const metricLabel = EXPLORE_METRICS.find(m => m.id === s.metric).short;
+  const dim1Label = (EXPLORE_DIMENSIONS.find(d => d.id === s.l1) || {}).label || s.l1;
+
   let h = '<div class="sec"><h3 class="sec-title">Esplora · ' + sectorLabel() + '</h3>';
   h += '<p style="color:var(--text3);font-size:11px;margin-bottom:14px">' +
        'Vista unica multi-livello: scegli le dimensioni, la metrica e il confronto. ' +
-       'Le scelte sono memorizzate per BU. Clicca su un nodo per espandere, o sul bottone ' +
-       '"Apri n" per il drill-down sulle commesse.</p>';
+       'Le scelte sono memorizzate per BU. Clicca su un nodo per espandere, sul bottone ' +
+       '"Apri n" per il drill-down sulle commesse, oppure direttamente su una barra del grafico.</p>';
 
   h += _explorePresetsHtml();
   h += _exploreControlsHtml();
   h += _exploreKpis(s, periods);
 
-  h += '<div class="card"><h4>Top per ' +
-       EXPLORE_METRICS.find(m => m.id === s.metric).short + '</h4>' +
+  const chartInfo = _exploreChartInfoHtml(s, dim1Label, metricLabel);
+  h += '<div class="card"><h4 style="display:flex;align-items:center;gap:4px">Top per ' + metricLabel +
+       ' · per ' + dim1Label +
+       chartInfo +
+       '</h4>' +
        '<div class="chart-wrap"><canvas id="chExplore"></canvas></div></div>';
 
   h += '<div class="card" style="margin-top:14px">';
   h += '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;flex-wrap:wrap">';
-  h += '<h4 style="margin:0">Albero · ' + _exploreDimsPath(s) + '</h4>';
+  const treeInfo = _exploreTreeInfoHtml(s);
+  h += '<h4 style="margin:0;display:flex;align-items:center;gap:4px">Albero · ' + _exploreDimsPath(s) + treeInfo + '</h4>';
   h += '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">';
   h += '<input type="search" placeholder="Cerca nei nodi…" value="' + (s.search || '').replace(/"/g, '&quot;') +
        '" oninput="_exploreSetSearch(this.value)" ' +
@@ -153,6 +160,45 @@ function _exploreSelect(fn, opts, cur, exclude) {
     h += '<option value="' + o.id + '"' + (o.id === cur ? ' selected' : '') + '>' + o.label + '</option>';
   });
   return h + '</select>';
+}
+
+function _exploreChartInfoHtml(s, dim1Label, metricLabel) {
+  const isTime = s.l1 === 'anno' || s.l1 === 'mese';
+  const cmp = (EXPLORE_COMPARE.find(c => c.id === s.compare) || { label: 'Nessuno' }).label;
+  let body = '';
+  body += '<p><strong>Cosa mostra:</strong> ';
+  if (isTime) {
+    body += 'una linea con l\'andamento di <strong>' + metricLabel + '</strong> nel tempo, raggruppato per ' + dim1Label.toLowerCase() + '.';
+  } else {
+    body += 'le prime 15 voci di <strong>' + dim1Label + '</strong> ordinate per <strong>' + metricLabel + '</strong> (decrescente).';
+  }
+  body += '</p>';
+  body += '<p><strong>Cliccando su una barra/punto</strong> si apre il modale drill-down con le commesse di quel valore, dove puoi filtrare ulteriormente per Status / Stato Lav. / Cliente / Sede e scaricare il CSV.</p>';
+  if (s.compare !== 'none') {
+    body += '<p><strong>Confronto attivo:</strong> ' + cmp + '. La barra blu è il periodo corrente / A; la barra arancione è B.</p>';
+  }
+  body += '<p style="color:var(--text3);font-size:11px;margin-top:10px">L\'asse dei valori usa la metrica primaria scelta. Cambia metrica dal dropdown sopra per ricalcolare.</p>';
+  return chartInfoIcon('Top per ' + metricLabel, body);
+}
+
+function _exploreTreeInfoHtml(s) {
+  const dims = [s.l1, s.l2, s.l3]
+    .filter(d => d && d !== 'none')
+    .map(d => (EXPLORE_DIMENSIONS.find(x => x.id === d) || { label: d }).label);
+  const m = EXPLORE_METRICS.find(x => x.id === s.metric).label;
+  let body = '';
+  body += '<p><strong>Cosa mostra:</strong> i tuoi dati raggruppati in albero per <strong>' + dims.join(' › ') + '</strong>.';
+  body += ' La colonna evidenziata in azzurro è la metrica primaria <strong>' + m + '</strong>; ' +
+          'a fianco trovi sempre Ricavi · Costi · MOL · Margine % · Incassato · % Inc.';
+  body += '</p>';
+  body += '<ul style="margin:6px 0 6px 18px;padding:0">';
+  body += '<li>Clicca sulla riga con la freccia ▶ per <strong>espandere</strong> al livello successivo.</li>';
+  body += '<li>Clicca sul bottone <strong>Apri n</strong> per aprire le commesse di quel nodo (drill-down).</li>';
+  body += '<li>L\'ordinamento è per metrica primaria, decrescente. Usa la search per cercare un nodo specifico.</li>';
+  body += '<li>I record con valore vuoto sono raggruppati come <strong>N/D</strong> (mai esclusi).</li>';
+  body += '</ul>';
+  body += '<p style="color:var(--text3);font-size:11px">Esporta CSV aggregato per la vista corrente, oppure CSV "commesse" per tutte le righe filtrate (flat).</p>';
+  return chartInfoIcon('Albero · ' + dims.join(' › '), body);
 }
 
 function _exploreControlsHtml() {

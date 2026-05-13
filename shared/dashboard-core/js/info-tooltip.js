@@ -185,3 +185,17 @@ function showInfo(key) {
 function infoIcon(key) {
   return '<span onclick="event.stopPropagation();showInfo(\'' + key + '\')" title="Come è calcolato questo valore?" style="cursor:pointer;display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:rgba(59,130,246,.15);color:var(--accent);font-size:11px;margin-left:4px;font-weight:700;line-height:1;vertical-align:middle">i</span>';
 }
+
+/* Tooltip generico "come si legge questo grafico": passa titolo e testo.
+   L'utente vede un piccolo cerchio "i" che, al click, apre un modale con
+   spiegazione e suggerimenti d'uso. */
+function chartInfoIcon(title, html) {
+  const safe = (html || '').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  const t = (title || '').replace(/'/g, '&#39;');
+  return '<span onclick="event.stopPropagation();_chartInfoOpen(\'' + t + '\',\'' + safe + '\')" title="Come si legge questo grafico?" style="cursor:pointer;display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:rgba(59,130,246,.15);color:var(--accent);font-size:11px;margin-left:6px;font-weight:700;line-height:1;vertical-align:middle">i</span>';
+}
+
+function _chartInfoOpen(title, htmlEsc) {
+  const body = '<div style="padding:8px 4px;font-size:12px;color:var(--text);line-height:1.55">' + htmlEsc + '</div>';
+  openModal('<span style="color:var(--accent);font-size:18px;margin-right:6px">&#9432;</span> ' + title, body);
+}
