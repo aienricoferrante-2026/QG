@@ -31,20 +31,22 @@ body {
   transform: rotate(15deg);
 }
 
-/* Logout chip integrato nell'header — non più fixed/blur */
+/* Logout chip integrato nell'header — sfondo scuro come l'header (sempre
+   scuro anche in tema chiaro). Niente pillola colorata, solo un bordo
+   sottile per delimitare il chip rispetto al titolo. */
 #qg-logout-btn {
   display: inline-flex;
   align-items: center;
   gap: 8px;
   padding: 4px 10px;
-  border: 1px solid rgba(99, 102, 241, .25);
+  border: 1px solid rgba(255, 255, 255, .14);
   border-radius: 18px;
-  background: rgba(99, 102, 241, .08);
+  background: transparent;
   font-family: 'Segoe UI', system-ui, sans-serif;
   font-size: 11px;
   color: #cbd5e1;
 }
-body.theme-light #qg-logout-btn { background: rgba(15, 23, 42, .04); color: #475569; border-color: rgba(15, 23, 42, .12); }
+body.theme-light #qg-logout-btn { background: transparent; border-color: rgba(255, 255, 255, .14); color: #cbd5e1; }
 #qg-logout-btn .qg-user-email { max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 #qg-logout-btn > button {
   background: transparent;
@@ -55,7 +57,6 @@ body.theme-light #qg-logout-btn { background: rgba(15, 23, 42, .04); color: #475
   cursor: pointer;
   font-size: 10px;
 }
-body.theme-light #qg-logout-btn > button { border-color: #cbd5e1; color: #475569; }
 #qg-logout-btn > button:hover { background: #ef4444; border-color: #ef4444; color: #fff; }
 
 /* Period Filter (range temporale globale) */
@@ -272,9 +273,8 @@ body.sidebar-collapsed .sidebar-toggle { left: 12px; }
 }
 .ui-toggle-btn:hover { background: rgba(203, 213, 225, .10); border-color: #64748b; }
 .ui-toggle-btn.active { background: rgba(203, 213, 225, .14); border-color: #64748b; }
-body.theme-light .ui-toggle-btn { border-color: #cbd5e1; color: #475569; }
-body.theme-light .ui-toggle-btn:hover { background: rgba(15, 23, 42, .06); }
-body.theme-light .ui-toggle-btn.active { background: rgba(15, 23, 42, .10); }
+/* L'header è sempre scuro (anche in tema chiaro): manteniamo i toggle in
+   versione dark per garantire contrasto e leggibilità. */
 
 /* Sub-filtri dentro al card di Esplora */
 .explore-subf-label {
