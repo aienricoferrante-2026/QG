@@ -10,7 +10,7 @@ window.SECTOR_CONFIG = {
   "dataFile": "data/commesse_avv.json",
   "adminEmail": "avv@qualificagroup.it",
   "adminPassHash": "ef8b41fbadc535e58755bee0db8857c3b35ef898a784065540a0822d906e06a5",
-  "defaultSection": "explore",
+  "defaultSection": "executive",
   "partnersJsonUrl": "partners_avv/_links.json",
   "partnersBaseUrl": "partners_avv/view.html",
   "targetsFile": "data/targets.json",

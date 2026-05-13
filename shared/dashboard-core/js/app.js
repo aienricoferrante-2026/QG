@@ -128,7 +128,7 @@ fetch(window.DATA_URL || _CORE_DATA_URL)
     if (typeof initQuickFilters === 'function') initQuickFilters();
     renderFilteredKpis();
     _uiInitToggles();
-    const startSection = (window.SECTOR_CONFIG && window.SECTOR_CONFIG.defaultSection) || 'explore';
+    const startSection = (window.SECTOR_CONFIG && window.SECTOR_CONFIG.defaultSection) || 'executive';
     showSec(startSection);
 
     // Aggiorna count nell'header se presente

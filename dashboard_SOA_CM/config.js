@@ -17,7 +17,7 @@ window.SECTOR_CONFIG = {
   dataFile: 'data/commesse_soa.json',
   adminEmail: 'soa@qualificagroup.it',
   adminPassHash: 'd28673a3e666f6fc7d128e35a08e3395a639e7c7d3263cf7fed1f653850efa91',
-  defaultSection: 'explore',
+  defaultSection: 'executive',
   partnersJsonUrl: 'partners_soa/_links.json',
   partnersBaseUrl: 'partners_soa/view.html',
   targetsFile: 'data/targets.json',
