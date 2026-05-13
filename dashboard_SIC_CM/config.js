@@ -13,5 +13,6 @@ window.SECTOR_CONFIG = {
   "defaultSection": "explore",
   "partnersJsonUrl": "partners_sic/_links.json",
   "partnersBaseUrl": "partners_sic/view.html",
-  "targetsFile": "data/targets.json"
+  "targetsFile": "data/targets.json",
+  "extraSections": ["sicurezza"]
 };
