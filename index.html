@@ -102,6 +102,14 @@
   .creds-pwd-wrap{position:relative}
   .creds-pwd-eye{position:absolute;top:50%;right:8px;transform:translateY(-50%);background:transparent;border:0;color:var(--text2);cursor:pointer;padding:4px 6px;font-size:14px;line-height:1}
   .creds-pwd-eye:hover{color:var(--text)}
+  .creds-coord-input{
+    background:transparent; border:1px dashed var(--border); color:var(--text);
+    padding:3px 6px; font-size:11px; border-radius:4px; min-width:140px;
+    font-family:inherit; outline:none;
+  }
+  .creds-coord-input:hover{border-color:var(--accent); border-style:solid}
+  .creds-coord-input:focus{border-color:var(--accent); border-style:solid; background:var(--bg)}
+  .creds-coord-input::placeholder{color:var(--text3); font-style:italic}
   .creds-loginbox button{
     margin-top:10px; background:linear-gradient(90deg,#6366f1,#8b5cf6); color:#fff;
     border:none; padding:8px 18px; border-radius:5px; font-size:12px; font-weight:700; cursor:pointer;
@@ -207,6 +215,7 @@
             <tr>
               <th style="width:32px"></th>
               <th>Settore</th>
+              <th>Coordinatore</th>
               <th>Email</th>
               <th>Password</th>
               <th>Dashboard</th>
@@ -428,6 +437,30 @@ const CREDS_MASTER_USER = 'direzione@qualificagroup.it';
 /* SHA-256("Qualifica!26") */
 const CREDS_MASTER_HASH = '5bb40be187baff36150a637bacf46f1b6c75eb1e51efebf6f71d6ad5c92af43a';
 const CREDS_SESSION_KEY = 'qg_passwords_authed_v1';
+const CREDS_COORD_KEY   = 'qg_creds_coordinators_v1';
+
+/* Helper per leggere/scrivere i nomi dei coordinatori. Persistono nel
+   localStorage del browser dell'utente Master (chi vede questa pagina). */
+function credsCoordGet() {
+  try { return JSON.parse(localStorage.getItem(CREDS_COORD_KEY) || '{}') || {}; }
+  catch (e) { return {}; }
+}
+function credsCoordSet(code, name) {
+  const m = credsCoordGet();
+  if (name && name.trim()) m[code] = name.trim();
+  else delete m[code];
+  try { localStorage.setItem(CREDS_COORD_KEY, JSON.stringify(m)); } catch (e) {}
+}
+/* onchange handler diretto dall'input nella tabella. */
+function credsCoordOnChange(input, code) {
+  credsCoordSet(code, input.value);
+  /* Re-render per aggiornare il mailto / "tutto" con il nuovo nome. */
+  credsRenderTable();
+  /* Mantieni il focus dove eri se vuoi continuare a scrivere su un'altra
+     riga: trova il nuovo input dello stesso code e mettilo a fuoco. */
+  const after = document.querySelector('input[data-coord-code="' + code + '"]');
+  if (after && document.activeElement !== after) { /* rimasto attivo dopo re-render */ }
+}
 
 async function _credsSha256(text) {
   const enc = new TextEncoder().encode(text);
@@ -447,11 +480,14 @@ function credsRenderTable() {
   document.getElementById('credsView').classList.remove('hidden');
   const base = location.origin + location.pathname.replace(/[^/]*$/, '');
   const tbody = document.getElementById('credsBody');
+  const coords = credsCoordGet();
   tbody.innerHTML = CREDS_SECTORS.map(s => {
     const dashUrl = base + s.url;
+    const coordName = coords[s.code] || '';
+    const greeting = coordName ? ('Ciao ' + coordName + ',') : 'Ciao,';
     const subj = encodeURIComponent('Accesso dashboard ' + s.label + ' · Qualifica Group');
     const body = encodeURIComponent(
-      'Ciao,\n\nti invio le credenziali per accedere alla dashboard "' + s.label + '" (' + s.code + ') di Qualifica Group:\n\n' +
+      greeting + '\n\nti invio le credenziali per accedere alla dashboard "' + s.label + '" (' + s.code + ') di Qualifica Group:\n\n' +
       '  Link:     ' + dashUrl + '\n' +
       '  Email:    ' + s.email + '\n' +
       '  Password: ' + s.password + '\n\n' +
@@ -459,24 +495,28 @@ function credsRenderTable() {
       'A presto,\nQualifica Group'
     );
     const mailto = 'mailto:?subject=' + subj + '&body=' + body;
+    /* Passa anche il nome coordinatore al "Copia tutto". */
+    const sWithCoord = Object.assign({}, s, { coord: coordName });
     return '' +
       '<tr>' +
         '<td style="font-size:18px">' + s.icon + '</td>' +
         '<td><strong>' + s.label + '</strong><br><span style="color:var(--text3);font-size:10px">' + s.code + '</span></td>' +
+        '<td><input type="text" class="creds-coord-input" data-coord-code="' + s.code + '" placeholder="Nome cognome…" value="' + coordName.replace(/"/g, '&quot;') + '" onchange="credsCoordOnChange(this,\'' + s.code + '\')"></td>' +
         '<td class="code">' + s.email + '</td>' +
         '<td class="code">' + s.password + '</td>' +
         '<td><a href="' + s.url + '" style="color:var(--accent);font-size:11px">' + s.url + '</a></td>' +
         '<td><div class="creds-actions">' +
           '<button class="creds-btn" onclick="credsCopy(this,\'' + s.email + '\')" title="Copia email">📋 mail</button>' +
           '<button class="creds-btn" onclick="credsCopy(this,\'' + s.password + '\')" title="Copia password">📋 pwd</button>' +
-          '<button class="creds-btn" onclick="credsCopyAll(this,' + JSON.stringify(s).replace(/'/g, '&#39;').replace(/"/g, '&quot;') + ',\'' + dashUrl + '\')" title="Copia testo completo">📋 tutto</button>' +
-          '<a class="creds-btn creds-btn-mail" href="' + mailto + '" title="Apri client mail con messaggio precompilato">✉️ invia</a>' +
+          '<button class="creds-btn" onclick="credsCopyAll(this,' + JSON.stringify(sWithCoord).replace(/'/g, '&#39;').replace(/"/g, '&quot;') + ',\'' + dashUrl + '\')" title="Copia testo completo (con nome se inserito)">📋 tutto</button>' +
+          '<a class="creds-btn creds-btn-mail" href="' + mailto + '" title="' + (coordName ? 'Invia a ' + coordName : 'Apri client mail con messaggio precompilato') + '">✉️ invia</a>' +
         '</div></td>' +
       '</tr>';
   }).join('') +
   /* Riga master in fondo */
   '<tr style="border-top:2px solid var(--border)"><td style="font-size:18px">👑</td>' +
     '<td><strong>Master Direzione</strong><br><span style="color:var(--text3);font-size:10px">accesso ovunque</span></td>' +
+    '<td><span style="color:var(--text3);font-size:11px">Enrico Ferrante</span></td>' +
     '<td class="code">' + CREDS_MASTER_USER + '</td>' +
     '<td class="code">Qualifica!26</td>' +
     '<td><span style="color:var(--text3);font-size:11px">tutte le dashboard</span></td>' +
@@ -496,7 +536,9 @@ function credsCopy(btn, text) {
 }
 
 function credsCopyAll(btn, s, dashUrl) {
-  const txt = 'Dashboard ' + s.label + ' (' + s.code + ')\n' +
+  const greeting = s.coord ? ('Ciao ' + s.coord + ',\n\n') : '';
+  const txt = greeting +
+              'Dashboard ' + s.label + ' (' + s.code + ')\n' +
               'Link:     ' + dashUrl + '\n' +
               'Email:    ' + s.email + '\n' +
               'Password: ' + s.password;
