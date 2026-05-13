@@ -51,6 +51,29 @@ window.SECTOR_CONFIG = {
         return (c.dataInizio || c.dataPianInizio || '').endsWith('-' + yy)
             || (c.dataInizio || c.dataPianInizio || '').endsWith('/' + yy);
       } },
+    { name: 'thisMonth', label: '🗓️ Questo mese', title: 'Data inizio dentro al mese corrente',
+      predicate: c => {
+        const d = (typeof _qfStart === 'function') ? _qfStart(c) : null;
+        if (!d) return false;
+        const now = new Date();
+        return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+      } },
+    { name: 'lastMonth', label: '⬅️ Mese scorso', title: 'Data inizio dentro al mese precedente',
+      predicate: c => {
+        const d = (typeof _qfStart === 'function') ? _qfStart(c) : null;
+        if (!d) return false;
+        const now = new Date();
+        const ref = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        return d.getFullYear() === ref.getFullYear() && d.getMonth() === ref.getMonth();
+      } },
+    { name: 'lastQuarter', label: '📈 Ultimo trimestre', title: 'Data inizio negli ultimi 90 giorni',
+      predicate: c => {
+        const d = (typeof _qfStart === 'function') ? _qfStart(c) : null;
+        if (!d) return false;
+        const now = new Date();
+        const from = new Date(now); from.setDate(from.getDate() - 90);
+        return d >= from && d <= now;
+      } },
     { name: 'noFirma', label: '✍️ Firma mancante', title: 'Commesse aperte senza Data Firma Contratto',
       predicate: c => (typeof isOpen === 'function' ? isOpen(c) : true) && !(c.dataFirmaContratto || '').trim() },
     { name: 'noincasso', label: '💸 Senza incasso', title: 'Già Incassato a 0 e ricavi > 0',

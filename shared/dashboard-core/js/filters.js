@@ -104,8 +104,26 @@ function renderPeriodFilter() {
   }
 }
 
-/* ── Quick Filters ── */
-let _quickFilter = null;
+/* ── Quick Filters (multi-select) ──
+   `_activeQuickFilters` è un Set<string> di nomi attivi. I filtri si
+   combinano in AND: una commessa passa solo se soddisfa TUTTE le predicate.
+   Persistenza: array di nomi in localStorage `qg_quickfilter_<BU>`. */
+let _activeQuickFilters = new Set();
+
+/* Helper data per i quick filter temporali (questo mese / mese scorso /
+   ultimo trimestre). Parsano `c.dataInizio || c.dataPianInizio` con il
+   formato dd-mm-yyyy o dd/mm/yyyy del JSON. */
+function _qfParseDate(s) {
+  if (!s) return null;
+  const m = String(s).match(/^(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})$/);
+  return m ? new Date(parseInt(m[3]), parseInt(m[2]) - 1, parseInt(m[1])) : null;
+}
+function _qfStart(c) { return _qfParseDate(c.dataInizio) || _qfParseDate(c.dataPianInizio); }
+function _qfInRange(c, from, to) {
+  const d = _qfStart(c);
+  if (!d) return false;
+  return d >= from && d <= to;
+}
 
 const QUICK_FILTERS_DEFAULT = [
   { name: 'inLav', label: '⚙️ Solo in lavorazione', title: 'Status contiene "Lavorazione" (case-insensitive). Es. "In Lavorazione".',
@@ -117,6 +135,26 @@ const QUICK_FILTERS_DEFAULT = [
       const yy = String(new Date().getFullYear());
       return (c.dataInizio || c.dataPianInizio || '').endsWith('-' + yy)
           || (c.dataInizio || c.dataPianInizio || '').endsWith('/' + yy);
+    } },
+  { name: 'thisMonth', label: '🗓️ Questo mese', title: 'Data inizio dentro al mese corrente',
+    predicate: c => {
+      const now = new Date();
+      const from = new Date(now.getFullYear(), now.getMonth(), 1);
+      const to = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+      return _qfInRange(c, from, to);
+    } },
+  { name: 'lastMonth', label: '⬅️ Mese scorso', title: 'Data inizio dentro al mese precedente',
+    predicate: c => {
+      const now = new Date();
+      const from = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      const to = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
+      return _qfInRange(c, from, to);
+    } },
+  { name: 'lastQuarter', label: '📈 Ultimo trimestre', title: 'Data inizio negli ultimi 90 giorni',
+    predicate: c => {
+      const now = new Date();
+      const from = new Date(now); from.setDate(from.getDate() - 90);
+      return _qfInRange(c, from, now);
     } },
   { name: 'noincasso', label: '💸 Senza incasso', title: 'Già Incassato a 0 e ricavi > 0',
     predicate: c => (c.giaIncassato || 0) === 0 && (c.consulenza || 0) > 0 },
@@ -141,14 +179,24 @@ function _quickFilterStorageKey() {
   return 'qg_quickfilter_' + code;
 }
 
-function setQuickFilter(name) {
+function _activeQuickFilterObjs() {
   const list = _quickFilters();
-  if (!name || (_quickFilter && _quickFilter.name === name)) {
-    _quickFilter = null;
+  return [..._activeQuickFilters].map(n => list.find(q => q.name === n)).filter(Boolean);
+}
+
+/* Toggle: aggiunge/rimuove un quick filter dal Set. `name = null` resetta. */
+function setQuickFilter(name) {
+  if (!name) {
+    _activeQuickFilters.clear();
+  } else if (_activeQuickFilters.has(name)) {
+    _activeQuickFilters.delete(name);
   } else {
-    _quickFilter = list.find(q => q.name === name) || null;
+    _activeQuickFilters.add(name);
   }
-  try { localStorage.setItem(_quickFilterStorageKey(), _quickFilter ? _quickFilter.name : ''); } catch (e) {}
+  try {
+    localStorage.setItem(_quickFilterStorageKey(),
+      _activeQuickFilters.size ? JSON.stringify([..._activeQuickFilters]) : '');
+  } catch (e) {}
   applyFilters();
   renderQuickFilters();
 }
@@ -156,11 +204,11 @@ function setQuickFilter(name) {
 function renderQuickFilters() {
   const el = document.getElementById('quickFilters');
   if (!el) return;
-  let h = '<span class="qf-label">Vista rapida:</span>';
+  let h = '<span class="qf-label">Vista rapida (combinabili):</span>';
   _quickFilters().forEach(q => {
-    const active = _quickFilter && _quickFilter.name === q.name ? ' active' : '';
-    /* Conteggio dinamico per ogni quick filter sul totale dataset filtrato dagli
-       altri filtri (escluso il qf stesso). Mostrato come badge accanto alla label. */
+    const active = _activeQuickFilters.has(q.name) ? ' active' : '';
+    /* Conteggio dinamico per ogni quick filter: applica il singolo predicate
+       sul dataset filtrato dai multiselect/periodo. Mostrato come badge. */
     let count = -1;
     if (typeof D !== 'undefined' && D) {
       const defs = (typeof _filterDefs === 'function') ? _filterDefs() : [];
@@ -175,11 +223,12 @@ function renderQuickFilters() {
       : '';
     h += '<button class="qf-btn' + active + '" title="' + q.title + '" onclick="setQuickFilter(\'' + q.name + '\')">' + q.label + badge + '</button>';
   });
-  if (_quickFilter) {
+  if (_activeQuickFilters.size) {
     const all = (typeof D !== 'undefined' && D) ? D.length : 0;
     const cur = (typeof filtered !== 'undefined') ? filtered.length : 0;
-    h += '<span class="qf-feedback">→ ' + fmt(cur) + ' di ' + fmt(all) + ' commesse</span>';
-    h += '<button class="qf-btn qf-clear" title="Rimuovi vista rapida" onclick="setQuickFilter(null)">✕</button>';
+    h += '<span class="qf-feedback">→ ' + fmt(cur) + ' di ' + fmt(all) + ' commesse · ' +
+         _activeQuickFilters.size + ' filtr' + (_activeQuickFilters.size === 1 ? 'o' : 'i') + ' attiv' + (_activeQuickFilters.size === 1 ? 'o' : 'i') + '</span>';
+    h += '<button class="qf-btn qf-clear" title="Rimuovi tutti i quick filter attivi" onclick="setQuickFilter(null)">✕ Reset</button>';
   }
   el.innerHTML = h;
 }
@@ -251,12 +300,14 @@ function rebuildFilterCounts() {
 
 function applyFilters() {
   const defs = _filterDefs();
+  const qfObjs = _activeQuickFilterObjs();
   filtered = D.filter(c => {
     if (!_periodPredicate(c)) return false;
     for (const f of defs) {
       if (!_matchFilter(f, c)) return false;
     }
-    if (_quickFilter && !_quickFilter.predicate(c)) return false;
+    /* Quick filter multi-select: tutti i predicate devono passare (AND). */
+    for (const q of qfObjs) if (!q.predicate(c)) return false;
     return true;
   });
   rebuildFilterCounts();
@@ -268,26 +319,39 @@ function applyFilters() {
 
 function resetFilters() {
   MultiSelect.resetAll();
-  _quickFilter = null;
+  _activeQuickFilters.clear();
   _periodFilter = { kind: 'all', from: null, to: null };
+  try { localStorage.setItem(_quickFilterStorageKey(), ''); } catch (e) {}
   renderQuickFilters();
   if (typeof renderPeriodFilter === 'function') renderPeriodFilter();
   applyFilters();
 }
 
 function initQuickFilters() {
-  // Sticky: ripristina la scelta dell'utente da localStorage.
-  // Default al primo accesso (chiave assente): "Solo in lavorazione" ON.
+  /* Sticky: ripristina i quick filter dalla chiave localStorage.
+     Default al primo accesso (chiave assente): "Solo in lavorazione" ON.
+     Formato storage:
+       - assente   → default (inLav)
+       - ''        → nessuno
+       - JSON []   → lista di nomi attivi (nuovo formato multi-select)
+       - 'inLav'   → singolo nome (vecchio formato, retrocompatibile) */
   let stored = null;
   try { stored = localStorage.getItem(_quickFilterStorageKey()); } catch (e) {}
+  _activeQuickFilters = new Set();
+  const allNames = new Set(_quickFilters().map(q => q.name));
   if (stored === null) {
-    _quickFilter = _quickFilters().find(q => q.name === 'inLav') || null;
+    if (allNames.has('inLav')) _activeQuickFilters.add('inLav');
   } else if (stored === '') {
-    _quickFilter = null;
-  } else {
-    _quickFilter = _quickFilters().find(q => q.name === stored) || null;
+    /* nessun filtro */
+  } else if (stored.startsWith('[')) {
+    try {
+      const arr = JSON.parse(stored);
+      if (Array.isArray(arr)) arr.forEach(n => { if (allNames.has(n)) _activeQuickFilters.add(n); });
+    } catch (e) {}
+  } else if (allNames.has(stored)) {
+    _activeQuickFilters.add(stored);
   }
-  if (_quickFilter) applyFilters();
+  if (_activeQuickFilters.size) applyFilters();
   renderQuickFilters();
   if (typeof renderPeriodFilter === 'function') renderPeriodFilter();
 }

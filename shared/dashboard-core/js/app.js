@@ -56,6 +56,59 @@ function renderCurrentSection() {
   if (typeof fn === 'function') fn();
 }
 
+/* ── UI toggles: nasconde/mostra i blocchi Filtri e KPI globali ──
+   Preferenza per BU in localStorage (qg_ui_<BU>). Tasti F (toggle filtri),
+   K (toggle KPI) attivi se non si sta digitando in un input. */
+const _UI_TOGGLE_DEFAULT = { hideFilters: false, hideKpis: false };
+function _uiKey() { return 'qg_ui_' + (typeof sectorCode === 'function' ? sectorCode() : 'GEN'); }
+function _uiState() {
+  if (!window._uiStateCache) {
+    try {
+      const raw = localStorage.getItem(_uiKey());
+      window._uiStateCache = raw ? Object.assign({}, _UI_TOGGLE_DEFAULT, JSON.parse(raw)) : Object.assign({}, _UI_TOGGLE_DEFAULT);
+    } catch (e) { window._uiStateCache = Object.assign({}, _UI_TOGGLE_DEFAULT); }
+  }
+  return window._uiStateCache;
+}
+function _uiSave() { try { localStorage.setItem(_uiKey(), JSON.stringify(_uiState())); } catch (e) {} }
+
+const _UI_FILTER_TARGETS = ['#periodFilter', '#quickFilters', '.filters', '#activeFilters'];
+
+function _uiApply() {
+  const s = _uiState();
+  _UI_FILTER_TARGETS.forEach(sel => {
+    document.querySelectorAll(sel).forEach(el => { el.style.display = s.hideFilters ? 'none' : ''; });
+  });
+  const kpis = document.getElementById('filteredKpis');
+  if (kpis) kpis.style.display = s.hideKpis ? 'none' : '';
+  const tf = document.getElementById('ui-toggle-filters');
+  const tk = document.getElementById('ui-toggle-kpis');
+  if (tf) { tf.classList.toggle('active', !s.hideFilters); tf.innerHTML = (s.hideFilters ? '&#9654;' : '&#9660;') + ' Filtri'; }
+  if (tk) { tk.classList.toggle('active', !s.hideKpis);    tk.innerHTML = (s.hideKpis ? '&#9654;' : '&#9660;') + ' Numeri'; }
+}
+function uiToggleFilters() { _uiState().hideFilters = !_uiState().hideFilters; _uiSave(); _uiApply(); }
+function uiToggleKpis()    { _uiState().hideKpis    = !_uiState().hideKpis;    _uiSave(); _uiApply(); }
+
+function _uiInitToggles() {
+  const header = document.querySelector('.header');
+  if (!header) return;
+  if (document.getElementById('ui-toggle-bar')) return;
+  const bar = document.createElement('div');
+  bar.id = 'ui-toggle-bar';
+  bar.className = 'ui-toggle-bar';
+  bar.innerHTML =
+    '<button id="ui-toggle-filters" class="ui-toggle-btn" title="Mostra/nascondi filtri (F)" onclick="uiToggleFilters()">&#9660; Filtri</button>' +
+    '<button id="ui-toggle-kpis" class="ui-toggle-btn" title="Mostra/nascondi numeri (KPI globali) (K)" onclick="uiToggleKpis()">&#9660; Numeri</button>';
+  header.appendChild(bar);
+  document.addEventListener('keydown', e => {
+    if (e.target && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.key === 'f' || e.key === 'F') { uiToggleFilters(); e.preventDefault(); }
+    else if (e.key === 'k' || e.key === 'K') { uiToggleKpis(); e.preventDefault(); }
+  });
+  _uiApply();
+}
+
 const _CORE_DATA_URL = (window.SECTOR_CONFIG && window.SECTOR_CONFIG.dataFile) || 'data/commesse.json';
 
 fetch(window.DATA_URL || _CORE_DATA_URL)
@@ -66,6 +119,7 @@ fetch(window.DATA_URL || _CORE_DATA_URL)
     initFilters();
     if (typeof initQuickFilters === 'function') initQuickFilters();
     renderFilteredKpis();
+    _uiInitToggles();
     const startSection = (window.SECTOR_CONFIG && window.SECTOR_CONFIG.defaultSection) || 'executive';
     showSec(startSection);
 

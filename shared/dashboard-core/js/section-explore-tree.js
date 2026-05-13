@@ -5,20 +5,25 @@
 
 /* Stato espansione per nodo (sticky durante la sessione, reset al render). */
 let _exploreExpanded = {};
+/* Periods per la sezione, con sub-filtri locali applicati. */
+function _explorePeriodsFiltered(s) {
+  const raw = _explorePeriods(s);
+  return (typeof _exploreApplySubFilters === 'function') ? _exploreApplySubFilters(raw, s) : raw;
+}
 function _exploreToggleNode(nid) {
   _exploreExpanded[nid] = !_exploreExpanded[nid];
   const wrap = document.getElementById('explore-tbl-wrap');
-  if (wrap) wrap.innerHTML = _exploreRenderTable(_exploreState(), _explorePeriods());
+  if (wrap) wrap.innerHTML = _exploreRenderTable(_exploreState(), _explorePeriodsFiltered(_exploreState()));
 }
 
 /* Cache items per leaf-modal (chiavi = nodeId). */
 const _exploreLeafCache = {};
 
 function _exploreLeafOpen(nid) {
-  const arr = _exploreLeafCache[nid];
-  if (!arr || !arr.length) return;
-  const title = arr.title || ('Nodo · ' + arr.items.length + ' commesse');
-  if (typeof drillDownItems === 'function') drillDownItems(title, arr.items);
+  const entry = _exploreLeafCache[nid];
+  if (!entry || !entry.items || !entry.items.length) return;
+  const title = entry.title || ('Nodo · ' + entry.items.length + ' commesse');
+  if (typeof drillDownItems === 'function') drillDownItems(title, entry.items);
 }
 
 /* ── Tree build ──
@@ -201,10 +206,15 @@ function _exploreRenderTable(state, periods) {
     const pad = n.depth * 18;
     const hasChildren = n.children && n.children.length;
     const isOpen = !!_exploreExpanded[n.id];
-    const arrow = hasChildren ? (isOpen ? '&#9660;' : '&#9654;') : '';
-    const clickToggle = hasChildren ? ' onclick="_exploreToggleNode(\'' + n.id + '\')"' : '';
+    const arrow = hasChildren ? (isOpen ? '&#9660;' : '&#9654;') : '&#8226;';
+    /* Click sulla riga:
+       - parent (hasChildren) → toggle espandi/comprimi
+       - foglia → apri drill-down sulle commesse del nodo */
+    const rowOnclick = hasChildren
+      ? '_exploreToggleNode(\'' + n.id + '\')'
+      : '_exploreLeafOpen(\'' + n.id + '\')';
     const rowCls = 'tree-row tree-l' + Math.min(n.depth, 2);
-    h += '<tr class="' + rowCls + '"' + clickToggle + (hasChildren ? ' style="cursor:pointer"' : '') + '>';
+    h += '<tr class="' + rowCls + '" onclick="' + rowOnclick + '" style="cursor:pointer">';
     h += '<td class="tree-toggle">' + arrow + '</td>';
     const label = n.label.length > 50 ? n.label.substring(0, 48) + '..' : n.label;
     const leafBtn = !hasChildren ? ' <button class="btn-export" style="padding:1px 6px;font-size:9px;margin-left:6px" onclick="event.stopPropagation();_exploreLeafOpen(\'' + n.id + '\')">Apri ' + n.items.length + '</button>' : '';
@@ -321,7 +331,7 @@ function _exploreRenderChart(state, periods) {
 /* ── Export CSV ── */
 function _exploreExportAggCSV() {
   const state = _exploreState();
-  const periods = _explorePeriods(state);
+  const periods = _explorePeriodsFiltered(state);
   const cols = _exploreTableColumns(state, periods);
   const periodB = periods[1] || null;
   const dims = [state.l1, state.l2, state.l3].filter(d => d && d !== 'none');
@@ -347,7 +357,7 @@ function _exploreExportAggCSV() {
 }
 
 function _exploreExportFlatCSV() {
-  const periods = _explorePeriods(_exploreState());
+  const periods = _explorePeriodsFiltered(_exploreState());
   const items = periods[0].items;
   const hdr = ['ID', 'Contratto', 'Titolo', 'Cliente', 'Societa', 'Sede', 'Regione', 'Tecnico', 'Commerciale', 'Segnalatore', 'Status', 'Stato Lav.', 'Funzione', 'Data Inizio', 'Ricavi', 'Costi', 'MOL', 'Incassato', 'Avz.'];
   let csv = '﻿' + hdr.join(';') + '\n';
