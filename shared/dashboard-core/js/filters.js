@@ -314,6 +314,7 @@ function applyFilters() {
   renderFilteredKpis();
   renderActiveFilters();
   if (typeof renderPeriodFilter === 'function') renderPeriodFilter();
+  if (typeof renderBriefing === 'function') renderBriefing();
   renderCurrentSection();
 }
 

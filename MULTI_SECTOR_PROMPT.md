@@ -104,7 +104,10 @@ shared/dashboard-core/                ☆ KIT CONDIVISO multi-settore
 ├── css/   variables, layout, tables, modal
 └── js/    theme, auth, utils, tables, charts, drilldown, filters, kpis,
            sections-overview, sections-finance, section-econfin,
-           section-analisi-incassi, section-link-partner, info-tooltip, app
+           section-analisi-incassi, section-link-partner, info-tooltip, app,
+           section-explore[+metrics+tree], section-wiki[+calcs],
+           section-produttivita (Top commerciali/tecnici/rete),
+           section-briefing (mini-briefing narrativo sui filtri attivi)
 
 shared/                               (file usati anche da FOR — NON cambiare)
 ├── multiselect.js, upload.js, upload.css

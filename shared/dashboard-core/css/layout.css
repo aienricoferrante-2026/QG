@@ -577,3 +577,32 @@ body.theme-light .kpi-info-btn { background: rgba(99, 102, 241, .15); }
   .main { margin-left: 0; }
   .row2, .row3 { grid-template-columns: 1fr; }
 }
+
+/* ── Mini-briefing filtri (section-briefing.js) ── */
+.briefing {
+  background: linear-gradient(135deg, rgba(99,102,241,.08), rgba(16,185,129,.06));
+  border: 1px solid var(--border);
+  border-left: 3px solid #6366f1;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin: 0 0 14px 0;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--text);
+}
+.briefing-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.briefing-title { font-weight: 600; color: var(--text2); font-size: 11px; text-transform: uppercase; letter-spacing: .5px; }
+.briefing-x {
+  background: transparent; border: none; color: var(--text3);
+  cursor: pointer; font-size: 14px; padding: 0 4px;
+}
+.briefing-x:hover { color: var(--text); }
+.briefing-body p { margin-bottom: 6px; }
+.briefing-body p:last-child { margin-bottom: 0; }
+.briefing-body b { color: var(--text); font-weight: 600; }
+.briefing-filters { color: var(--text2); font-size: 11px; padding-top: 4px; border-top: 1px dashed var(--border); }
+.briefing-show {
+  background: rgba(99,102,241,.1); border: 1px solid rgba(99,102,241,.3);
+  color: #818cf8; padding: 4px 10px; border-radius: 5px; font-size: 11px; cursor: pointer;
+}
+.briefing-show:hover { background: rgba(99,102,241,.2); }
