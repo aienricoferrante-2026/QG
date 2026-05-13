@@ -71,6 +71,56 @@
   .footer{margin-top:34px;color:var(--text3);font-size:11px;text-align:center}
   .footer a{color:var(--text2);text-decoration:none;margin:0 6px}
   .legacy{margin-top:30px;padding-top:20px;border-top:1px solid var(--border)}
+
+  /* Credenziali settori (login Master inline) */
+  .creds-wrap{margin-top:30px;padding-top:20px;border-top:1px solid var(--border)}
+  .creds-toggle{
+    background:var(--card); border:1px solid var(--border); color:var(--text);
+    padding:9px 16px; border-radius:8px; cursor:pointer; font-size:12px; font-weight:600;
+    display:inline-flex; align-items:center; gap:8px;
+  }
+  .creds-toggle:hover{border-color:var(--accent)}
+  .creds-loginbox{
+    background:var(--card); border:1px solid var(--border); border-radius:8px;
+    padding:14px 18px; max-width:380px; margin-top:8px;
+  }
+  .creds-loginbox label{color:var(--text2); font-size:11px; font-weight:600; display:block; margin:6px 0 3px; text-transform:uppercase; letter-spacing:.3px}
+  .creds-loginbox input{
+    width:100%; padding:8px 10px; background:var(--bg); border:1px solid var(--border);
+    color:var(--text); border-radius:5px; font-size:13px; outline:none;
+  }
+  .creds-loginbox input:focus{border-color:var(--accent)}
+  .creds-loginbox button{
+    margin-top:10px; background:linear-gradient(90deg,#6366f1,#8b5cf6); color:#fff;
+    border:none; padding:8px 18px; border-radius:5px; font-size:12px; font-weight:700; cursor:pointer;
+  }
+  .creds-loginbox .err{color:#f87171; font-size:11px; margin-top:8px; min-height:14px}
+  .creds-table-wrap{background:var(--card); border:1px solid var(--border); border-radius:8px; padding:16px; overflow-x:auto}
+  .creds-warn{
+    background:rgba(245,158,11,.10); border-left:3px solid #f59e0b;
+    padding:8px 12px; border-radius:4px; color:var(--text2); font-size:11px;
+    margin-bottom:12px; line-height:1.5;
+  }
+  body.theme-light .creds-warn{color:#92400e}
+  .creds-table{width:100%; border-collapse:collapse; font-size:12px}
+  .creds-table th{
+    text-align:left; padding:8px; border-bottom:1px solid var(--border); color:var(--text2);
+    font-weight:600; text-transform:uppercase; font-size:10px; letter-spacing:.3px;
+  }
+  .creds-table td{padding:8px; border-bottom:1px solid var(--border); color:var(--text); vertical-align:middle}
+  .creds-table td.code{font-family:'SF Mono',Menlo,Consolas,monospace; white-space:nowrap}
+  .creds-actions{display:flex; gap:4px; flex-wrap:nowrap}
+  .creds-btn{
+    background:rgba(99,102,241,.12); color:#a5b4fc; border:1px solid rgba(99,102,241,.4);
+    padding:3px 8px; border-radius:4px; font-size:10px; cursor:pointer; white-space:nowrap;
+    text-decoration:none; display:inline-block;
+  }
+  .creds-btn:hover{background:rgba(99,102,241,.25); color:#fff}
+  .creds-btn.copied{background:#10b981; color:#fff; border-color:#10b981}
+  .creds-btn-mail{background:rgba(16,185,129,.12); color:#6ee7b7; border-color:rgba(16,185,129,.4)}
+  .creds-btn-mail:hover{background:rgba(16,185,129,.25); color:#fff}
+  body.theme-light .creds-btn{color:#4f46e5; background:rgba(99,102,241,.08)}
+  body.theme-light .creds-btn-mail{color:#047857; background:rgba(16,185,129,.08)}
 </style>
 </head>
 <body>
@@ -99,6 +149,54 @@
 
   <h2 class="section">Settori — Commesse</h2>
   <div class="cards" id="sectorCards"></div>
+
+  <!-- Sezione Credenziali Settori (visibile solo dopo login Master) -->
+  <div class="creds-wrap">
+    <h2 class="section">🔑 Credenziali coordinatori settore</h2>
+    <p style="color:var(--text2);font-size:12px;margin-bottom:10px">
+      Email e password per ogni dashboard di settore, pronte da inviare ai coordinatori.
+      Accesso riservato a <strong>direzione@qualificagroup.it</strong>.
+    </p>
+
+    <div id="credsLogin">
+      <button class="creds-toggle" onclick="credsShowForm()">🔐 Mostra credenziali (login Master)</button>
+    </div>
+
+    <div id="credsForm" class="hidden">
+      <form class="creds-loginbox" id="credsLoginForm" autocomplete="on">
+        <label for="credsUser">Email Master</label>
+        <input id="credsUser" name="username" type="email" autocomplete="username" required>
+        <label for="credsPass">Password</label>
+        <input id="credsPass" name="password" type="password" autocomplete="current-password" required>
+        <button type="submit" id="credsLoginBtn">Entra</button>
+        <div class="err" id="credsErr"></div>
+      </form>
+    </div>
+
+    <div id="credsView" class="hidden">
+      <div class="creds-warn">
+        ⚠ <strong>Avvertenza:</strong> queste credenziali sono visibili nel sorgente JS del sito
+        a chiunque ispezioni la pagina. Servono a impedire accessi casuali — non sono protezione
+        contro un utente determinato. Le credenziali Master funzionano ovunque.
+        · <a href="#" onclick="credsLogout();return false;" style="color:var(--text2)">Nascondi credenziali</a>
+      </div>
+      <div class="creds-table-wrap">
+        <table class="creds-table">
+          <thead>
+            <tr>
+              <th style="width:32px"></th>
+              <th>Settore</th>
+              <th>Email</th>
+              <th>Password</th>
+              <th>Dashboard</th>
+              <th style="width:1%">Azioni</th>
+            </tr>
+          </thead>
+          <tbody id="credsBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 
   <div class="legacy">
     <h2 class="section">Altri strumenti</h2>
@@ -256,6 +354,137 @@ async function loadGlobalKpis(){
   document.getElementById('hub-date').textContent = new Date().toLocaleDateString('it-IT', {day:'2-digit', month:'long', year:'numeric'});
 }
 loadGlobalKpis().catch(()=>{});
+
+/* ── Credenziali coordinatori settore (login Master inline) ─────
+   Riusa l'autenticazione Master di passwords.html (stessa chiave
+   sessionStorage e stesso hash). Mostra tabella con Email + Password
+   per ogni BU + bottoni Copia / Invia via email precompilato. */
+
+const CREDS_SECTORS = [
+  { code:'FOR',     icon:'🎓', label:'Formazione',         url:'dashboard_FOR_CM/',     email:'for@qualificagroup.it', password:'256FOR913' },
+  { code:'ISO',     icon:'📜', label:'Certificazioni ISO', url:'dashboard_ISO_CM/',     email:'iso@qualificagroup.it', password:'250ISO909' },
+  { code:'SIC',     icon:'🛡️', label:'Sicurezza Lavoro',   url:'dashboard_SIC_CM/',     email:'sic@qualificagroup.it', password:'997SIC578' },
+  { code:'AVV',     icon:'🤝', label:'Avvalimenti',        url:'dashboard_AVV_CM/',     email:'avv@qualificagroup.it', password:'719AVV633' },
+  { code:'FIA',     icon:'💰', label:'Finanza Agevolata',  url:'dashboard_FIA_CM/',     email:'fia@qualificagroup.it', password:'948FIA387' },
+  { code:'IST',     icon:'🏛️', label:'Istituti',           url:'dashboard_IST_CM/',     email:'ist@qualificagroup.it', password:'292IST150' },
+  { code:'SOA',     icon:'🏗️', label:'Attestazioni SOA',   url:'dashboard_SOA_CM/',     email:'soa@qualificagroup.it', password:'775SOA543' },
+  { code:'GAR',     icon:'🎯', label:"Gare d'appalto",     url:'dashboard_GAR_CM/',     email:'gar@qualificagroup.it', password:'425GAR332' },
+  { code:'GDPR',    icon:'🔒', label:'Privacy / GDPR',     url:'dashboard_GDPR_CM/',    email:'gdp@qualificagroup.it', password:'173GDP266' },
+  { code:'APL_PAL', icon:'💼', label:'Politiche Attive',   url:'dashboard_APL_PAL_CM/', email:'pal@qualificagroup.it', password:'484PAL336' },
+  { code:'APL_RES', icon:'👥', label:'PAL Risorse',        url:'dashboard_APL_RES_CM/', email:'res@qualificagroup.it', password:'123RES379' }
+];
+
+const CREDS_MASTER_USER = 'direzione@qualificagroup.it';
+/* SHA-256("Qualifica!26") */
+const CREDS_MASTER_HASH = '5bb40be187baff36150a637bacf46f1b6c75eb1e51efebf6f71d6ad5c92af43a';
+const CREDS_SESSION_KEY = 'qg_passwords_authed_v1';
+
+async function _credsSha256(text) {
+  const enc = new TextEncoder().encode(text);
+  const buf = await crypto.subtle.digest('SHA-256', enc);
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+function credsShowForm() {
+  document.getElementById('credsLogin').classList.add('hidden');
+  document.getElementById('credsForm').classList.remove('hidden');
+  setTimeout(() => document.getElementById('credsUser').focus(), 50);
+}
+
+function credsRenderTable() {
+  document.getElementById('credsLogin').classList.add('hidden');
+  document.getElementById('credsForm').classList.add('hidden');
+  document.getElementById('credsView').classList.remove('hidden');
+  const base = location.origin + location.pathname.replace(/[^/]*$/, '');
+  const tbody = document.getElementById('credsBody');
+  tbody.innerHTML = CREDS_SECTORS.map(s => {
+    const dashUrl = base + s.url;
+    const subj = encodeURIComponent('Accesso dashboard ' + s.label + ' · Qualifica Group');
+    const body = encodeURIComponent(
+      'Ciao,\n\nti invio le credenziali per accedere alla dashboard "' + s.label + '" (' + s.code + ') di Qualifica Group:\n\n' +
+      '  Link:     ' + dashUrl + '\n' +
+      '  Email:    ' + s.email + '\n' +
+      '  Password: ' + s.password + '\n\n' +
+      'Le credenziali sono personali. Sessione salvata sul browser dopo il primo accesso.\n\n' +
+      'A presto,\nQualifica Group'
+    );
+    const mailto = 'mailto:?subject=' + subj + '&body=' + body;
+    return '' +
+      '<tr>' +
+        '<td style="font-size:18px">' + s.icon + '</td>' +
+        '<td><strong>' + s.label + '</strong><br><span style="color:var(--text3);font-size:10px">' + s.code + '</span></td>' +
+        '<td class="code">' + s.email + '</td>' +
+        '<td class="code">' + s.password + '</td>' +
+        '<td><a href="' + s.url + '" style="color:var(--accent);font-size:11px">' + s.url + '</a></td>' +
+        '<td><div class="creds-actions">' +
+          '<button class="creds-btn" onclick="credsCopy(this,\'' + s.email + '\')" title="Copia email">📋 mail</button>' +
+          '<button class="creds-btn" onclick="credsCopy(this,\'' + s.password + '\')" title="Copia password">📋 pwd</button>' +
+          '<button class="creds-btn" onclick="credsCopyAll(this,' + JSON.stringify(s).replace(/'/g, '&#39;').replace(/"/g, '&quot;') + ',\'' + dashUrl + '\')" title="Copia testo completo">📋 tutto</button>' +
+          '<a class="creds-btn creds-btn-mail" href="' + mailto + '" title="Apri client mail con messaggio precompilato">✉️ invia</a>' +
+        '</div></td>' +
+      '</tr>';
+  }).join('') +
+  /* Riga master in fondo */
+  '<tr style="border-top:2px solid var(--border)"><td style="font-size:18px">👑</td>' +
+    '<td><strong>Master Direzione</strong><br><span style="color:var(--text3);font-size:10px">accesso ovunque</span></td>' +
+    '<td class="code">' + CREDS_MASTER_USER + '</td>' +
+    '<td class="code">Qualifica!26</td>' +
+    '<td><span style="color:var(--text3);font-size:11px">tutte le dashboard</span></td>' +
+    '<td><div class="creds-actions">' +
+      '<button class="creds-btn" onclick="credsCopy(this,\'' + CREDS_MASTER_USER + '\')">📋 mail</button>' +
+      '<button class="creds-btn" onclick="credsCopy(this,\'Qualifica!26\')">📋 pwd</button>' +
+    '</div></td></tr>';
+}
+
+function credsCopy(btn, text) {
+  navigator.clipboard.writeText(text).then(() => {
+    const old = btn.textContent;
+    btn.textContent = '✓ ok';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = old; btn.classList.remove('copied'); }, 1200);
+  });
+}
+
+function credsCopyAll(btn, s, dashUrl) {
+  const txt = 'Dashboard ' + s.label + ' (' + s.code + ')\n' +
+              'Link:     ' + dashUrl + '\n' +
+              'Email:    ' + s.email + '\n' +
+              'Password: ' + s.password;
+  credsCopy(btn, txt);
+}
+
+function credsLogout() {
+  sessionStorage.removeItem(CREDS_SESSION_KEY);
+  document.getElementById('credsView').classList.add('hidden');
+  document.getElementById('credsForm').classList.add('hidden');
+  document.getElementById('credsLogin').classList.remove('hidden');
+  document.getElementById('credsUser').value = '';
+  document.getElementById('credsPass').value = '';
+  document.getElementById('credsErr').textContent = '';
+}
+
+document.getElementById('credsLoginForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const u = (document.getElementById('credsUser').value || '').trim().toLowerCase();
+  const p = document.getElementById('credsPass').value || '';
+  const err = document.getElementById('credsErr');
+  const btn = document.getElementById('credsLoginBtn');
+  err.textContent = '';
+  btn.disabled = true;
+  btn.textContent = 'Verifico…';
+  const hash = await _credsSha256(p);
+  if (u === CREDS_MASTER_USER && hash === CREDS_MASTER_HASH) {
+    sessionStorage.setItem(CREDS_SESSION_KEY, '1');
+    credsRenderTable();
+  } else {
+    err.textContent = 'Credenziali non valide. Servono quelle Master.';
+    btn.disabled = false;
+    btn.textContent = 'Entra';
+    document.getElementById('credsPass').select();
+  }
+});
+
+if (sessionStorage.getItem(CREDS_SESSION_KEY) === '1') credsRenderTable();
 </script>
 </body>
 </html>
