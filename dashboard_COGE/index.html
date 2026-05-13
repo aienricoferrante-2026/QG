@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard COGE 📊 — Qualifica Group</title>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+  <link rel="stylesheet" href="../shared/dashboard-core/css/variables.css">
+  <link rel="stylesheet" href="../shared/dashboard-core/css/layout.css">
+  <link rel="stylesheet" href="../shared/dashboard-core/css/tables.css">
+  <link rel="stylesheet" href="../shared/dashboard-core/css/modal.css">
+  <style>
+    /* CSS specifico COGE — tabella conto economico */
+    .coge-tbl{width:100%;border-collapse:collapse;font-size:12px}
+    .coge-tbl th{padding:8px 10px;border-bottom:1px solid var(--border);color:var(--text2);font-weight:600;
+                 text-transform:uppercase;font-size:10px;letter-spacing:.3px;background:rgba(99,102,241,.05);text-align:left}
+    .coge-tbl td{padding:8px 10px;border-bottom:1px solid var(--border);color:var(--text)}
+    .coge-tbl tbody tr:hover{background:rgba(99,102,241,.04)}
+    .coge-edit input{font-size:12px}
+    .coge-edit input:focus{outline:2px solid var(--accent);outline-offset:-1px}
+    .kpi.red .kpi-value{color:#dc2626}
+    .kpi.green .kpi-value{color:#10b981}
+    .header-tools{display:flex;gap:10px;align-items:center;margin-left:auto}
+    .header-tools select{padding:5px 10px;border:1px solid var(--border);border-radius:5px;background:var(--card);color:var(--text)}
+  </style>
+</head>
+<body>
+
+<button class="sidebar-toggle" id="sidebarToggle" onclick="cogeToggleSidebar()" title="Nascondi/Mostra menu">&#9776;</button>
+
+<nav class="sidebar">
+  <div class="sidebar-brand">
+    <h2>Qualifica Group</h2>
+    <p>COGE — Conto Economico</p>
+    <p style="margin-top:6px"><a href="../index.html" style="color:#94a3b8;font-size:10px;text-decoration:none">&larr; Torna all'Hub</a></p>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-label">📊 Conto Economico</div>
+    <a class="nav-item active" data-sec="riepilogo" onclick="cogeShowSec('riepilogo')"><span class="nav-icon">📊</span>Bilancino (pivot)</a>
+    <a class="nav-item" data-sec="imputazioni" onclick="cogeShowSec('imputazioni')"><span class="nav-icon">🧮</span>Imputazione su commesse</a>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-label">📥 Dati esterni</div>
+    <a class="nav-item" data-sec="hr" onclick="cogeShowSec('hr')"><span class="nav-icon">👥</span>Personale (HR)</a>
+    <a class="nav-item" data-sec="indiretti" onclick="cogeShowSec('indiretti')"><span class="nav-icon">🏢</span>Costi indiretti</a>
+  </div>
+</nav>
+
+<main class="main">
+  <div class="header">
+    <div>
+      <h1>Dashboard COGE 📊</h1>
+      <div class="header-sub">Conto Economico per Società × Sede × BU · ricavi dalle 11 BU + costi HR + indiretti</div>
+    </div>
+    <div class="header-tools">
+      <label style="color:var(--text3);font-size:11px">Anno</label>
+      <select id="cogeYear"></select>
+      <label style="color:var(--text3);font-size:11px;margin-left:8px">Mese</label>
+      <select id="cogeMonth"></select>
+      <button class="theme-btn" id="themeBtn" title="Cambia tema" onclick="cogeToggleTheme()" style="width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--text);cursor:pointer;font-size:14px">🌙</button>
+    </div>
+  </div>
+
+  <div id="sec-riepilogo"></div>
+  <div id="sec-imputazioni" class="hidden"></div>
+  <div id="sec-hr" class="hidden"></div>
+  <div id="sec-indiretti" class="hidden"></div>
+</main>
+
+<script src="config.js"></script>
+<script src="js/coge-data.js"></script>
+<script src="js/coge-riepilogo.js"></script>
+<script src="js/coge-imputazioni.js"></script>
+<script src="js/coge-hr.js"></script>
+<script src="js/coge-indiretti.js"></script>
+<script src="js/coge-app.js"></script>
+
+</body>
+</html>

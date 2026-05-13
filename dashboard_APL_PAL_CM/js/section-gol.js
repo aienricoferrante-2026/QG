@@ -195,6 +195,68 @@ function renderGol() {
     ['Beneficiario', 'Città', 'Fase', 'StatoLav', 'Status', 'Ricavi', 'Qnet'],
     benefRows,
     ['str', 'str', 'str', 'str', 'str', 'num', 'str']);
+
+  /* 🚨 Anomalie GOL */
+  function _gParseDate(s) {
+    const m = String(s || '').match(/^(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})/);
+    if (m) return new Date(+m[3], +m[2] - 1, +m[1]);
+    const m2 = String(s || '').match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+    if (m2) return new Date(+m2[1], +m2[2] - 1, +m2[3]);
+    return null;
+  }
+  function _gAgo(s) {
+    const d = _gParseDate(s);
+    if (!d) return null;
+    return Math.floor((new Date() - d) / 86400000);
+  }
+  // PAL concluso (fase 2.2.5) ma giaIncassato = 0
+  const concNoInc = gol.filter(c => /^PAL_2\.2\.5/i.test(c.statoLav || '') && (c.giaIncassato || 0) === 0 && (c.consulenza || 0) > 0);
+  // Tirocinio attivato (4.4.5) da >180gg senza chiusura
+  const tirocStuck = gol.filter(c => {
+    if (!/^PAL_4\.4\.5/i.test(c.statoLav || '')) return false;
+    const ago = _gAgo(c.dataInizio || c.dataPianInizio);
+    return ago !== null && ago > 180;
+  });
+
+  if (concNoInc.length || tirocStuck.length) {
+    const a = document.createElement('div');
+    a.className = 'card';
+    a.style.cssText = 'margin-top:14px;border-left:3px solid #dc2626';
+    let ah = '<h4 style="color:#dc2626">🚨 Anomalie GOL · ' + fmt(concNoInc.length + tirocStuck.length) + ' da verificare</h4>';
+    if (concNoInc.length) {
+      ah += '<p style="color:var(--text3);font-size:11px;margin:10px 0 4px 0"><b>PAL Concluso (fase 2.2.5) ma giaIncassato = 0</b> · ' + fmt(concNoInc.length) + ' beneficiari · liquidazione regionale non arrivata o non registrata.</p>';
+      ah += '<div class="tbl-scroll"><table id="tblGolAnomConc"></table></div>';
+    }
+    if (tirocStuck.length) {
+      ah += '<p style="color:var(--text3);font-size:11px;margin:14px 0 4px 0"><b>Tirocinio attivato da >180 giorni</b> · ' + fmt(tirocStuck.length) + ' beneficiari ancora in PAL_4.4.5 (probabili conclusioni dimenticate).</p>';
+      ah += '<div class="tbl-scroll"><table id="tblGolAnomTiroc"></table></div>';
+    }
+    a.innerHTML = ah;
+    el.appendChild(a);
+
+    if (concNoInc.length) buildTbl('tblGolAnomConc',
+      ['Beneficiario', 'Città', 'Data Inizio', 'Ricavi', 'Resp.', 'Qnet'],
+      concNoInc.slice(0, 30).map(c => [
+        { display: _golBeneficiario(c) || '—', val: _golBeneficiario(c) || '' },
+        { display: _golCity(c), val: _golCity(c) },
+        c.dataInizio || c.dataPianInizio || '-',
+        { display: '<b style="color:#dc2626">' + fmtE(c.consulenza || 0) + '</b>', val: c.consulenza || 0 },
+        { display: (c.responsabile || '—').substring(0, 18), val: c.responsabile || '' },
+        { display: qnetBtn(c), val: c.id }
+      ]),
+      ['str', 'str', 'str', 'num', 'str', 'str']);
+    if (tirocStuck.length) buildTbl('tblGolAnomTiroc',
+      ['Beneficiario', 'Città', 'Data Inizio', 'Giorni', 'Resp.', 'Qnet'],
+      tirocStuck.slice(0, 30).map(c => [
+        { display: _golBeneficiario(c) || '—', val: _golBeneficiario(c) || '' },
+        { display: _golCity(c), val: _golCity(c) },
+        c.dataInizio || c.dataPianInizio || '-',
+        { display: '<b style="color:#dc2626">' + fmt(_gAgo(c.dataInizio || c.dataPianInizio) || 0) + '</b>', val: _gAgo(c.dataInizio || c.dataPianInizio) || 0 },
+        { display: (c.responsabile || '—').substring(0, 18), val: c.responsabile || '' },
+        { display: qnetBtn(c), val: c.id }
+      ]),
+      ['str', 'str', 'str', 'num', 'str', 'str']);
+  }
 }
 
 function _golDrill(fase) {

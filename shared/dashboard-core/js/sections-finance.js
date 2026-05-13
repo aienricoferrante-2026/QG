@@ -217,39 +217,177 @@ function renderAvanzamento() {
   }
 }
 
-/* ── Alert ── */
+/* ── Alert (modulare, kit, Caso 1) ──
+ * 7 alert condivisi calcolati su `filtered`. Auto-hide se conteggio = 0.
+ * Ogni alert dichiara: id, label, icon, color, predicate(c), enrich(c).
+ * Le tabelle mostrano max 30 righe ordinate per gravità.
+ */
+function _alParseDate(s) {
+  if (!s) return null;
+  let m = String(s).match(/^(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})$/);
+  if (m) return new Date(+m[3], +m[2] - 1, +m[1]);
+  m = String(s).match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if (m) return new Date(+m[1], +m[2] - 1, +m[3]);
+  return null;
+}
+
+function _alDaysSince(s) {
+  const d = _alParseDate(s);
+  if (!d) return null;
+  return Math.floor((new Date() - d) / 86400000);
+}
+
+function _alIsCompleted(c) {
+  /* Una commessa è "davvero conclusa" se ha avanzamento ≥ 100% oppure
+     uno dei campi BU-specifici di conclusione (FOR statoCorso/Classe). */
+  if ((c.avanzamento || 0) >= 100) return true;
+  const sc = (c.statoCorso || '') + '|' + (c.statoClasse || '');
+  if (/concluso|chiusa/i.test(sc)) return true;
+  return false;
+}
+
+const ALERT_DEFS = [
+  {
+    id: 'chiusaNoAvz',
+    label: 'Chiuse senza completamento',
+    icon: '⚠️', color: '#dc2626',
+    desc: 'status = "Chiusa" ma avanzamento < 100% e nessun segnale BU-specifico di conclusione',
+    predicate: c => c.status === 'Chiusa' && !_alIsCompleted(c),
+    cols: ['ID', 'Titolo', 'Cliente', 'Avz.', 'Ricavi', 'Incassato', 'Qnet'],
+    types: ['num', 'str', 'str', 'num', 'num', 'num', 'str'],
+    row: c => [
+      c.id || '',
+      { display: ((c.titolo || c.contratto || '') + '').substring(0, 40), val: c.titolo },
+      { display: (c.cliente || '').substring(0, 25), val: c.cliente },
+      { display: (c.avanzamento || 0) + '%', val: c.avanzamento || 0 },
+      { display: fmtE(c.consulenza || 0), val: c.consulenza || 0 },
+      { display: fmtE(c.giaIncassato || 0), val: c.giaIncassato || 0 },
+      qnetBtn(c)
+    ],
+    sortBy: c => -(c.consulenza || 0),
+  },
+  {
+    id: 'chiusaNoInc',
+    label: 'Chiuse senza incasso',
+    icon: '💸', color: '#f59e0b',
+    desc: 'status = "Chiusa" e ricavi > 0 ma giaIncassato = 0',
+    predicate: c => c.status === 'Chiusa' && (c.giaIncassato || 0) === 0 && (c.consulenza || 0) > 0,
+    cols: ['ID', 'Titolo', 'Cliente', 'Data Fine', 'Età (gg)', 'Da Incassare', 'Qnet'],
+    types: ['num', 'str', 'str', 'str', 'num', 'num', 'str'],
+    row: c => [
+      c.id || '',
+      { display: ((c.titolo || c.contratto || '') + '').substring(0, 40), val: c.titolo },
+      { display: (c.cliente || '').substring(0, 25), val: c.cliente },
+      c.dataFine || c.dataInizio || '-',
+      { display: '<b>' + fmt(_alDaysSince(c.dataFine || c.dataInizio) || 0) + '</b>', val: _alDaysSince(c.dataFine || c.dataInizio) || 0 },
+      { display: '<b style="color:#dc2626">' + fmtE(c.consulenza || 0) + '</b>', val: c.consulenza || 0 },
+      qnetBtn(c)
+    ],
+    sortBy: c => -(c.consulenza || 0),
+  },
+  {
+    id: 'inLavOld',
+    label: 'In Lavorazione da >12 mesi',
+    icon: '🐢', color: '#8b5cf6',
+    desc: 'status = "In Lavorazione" con dataInizio o dataPianInizio anteriore a 365 giorni fa',
+    predicate: c => {
+      if (c.status !== 'In Lavorazione') return false;
+      const eta = _alDaysSince(c.dataInizio || c.dataPianInizio);
+      return eta !== null && eta > 365;
+    },
+    cols: ['ID', 'Titolo', 'Cliente', 'Data Inizio', 'Età (gg)', 'Ricavi', 'Resp.', 'Qnet'],
+    types: ['num', 'str', 'str', 'str', 'num', 'num', 'str', 'str'],
+    row: c => [
+      c.id || '',
+      { display: ((c.titolo || c.contratto || '') + '').substring(0, 40), val: c.titolo },
+      { display: (c.cliente || '').substring(0, 25), val: c.cliente },
+      c.dataInizio || c.dataPianInizio || '-',
+      { display: '<b style="color:#8b5cf6">' + fmt(_alDaysSince(c.dataInizio || c.dataPianInizio) || 0) + '</b>', val: _alDaysSince(c.dataInizio || c.dataPianInizio) || 0 },
+      { display: fmtE(c.consulenza || 0), val: c.consulenza || 0 },
+      { display: (c.responsabile || '—').substring(0, 18), val: c.responsabile || '' },
+      qnetBtn(c)
+    ],
+    sortBy: c => -(_alDaysSince(c.dataInizio || c.dataPianInizio) || 0),
+  },
+  {
+    id: 'pipFerma',
+    label: 'Pipeline ferma da >12 mesi',
+    icon: '⏳', color: '#06b6d4',
+    desc: 'status = "Da pianificare" con dataPianInizio anteriore a 365 giorni fa',
+    predicate: c => {
+      if (c.status !== 'Da pianificare') return false;
+      const eta = _alDaysSince(c.dataPianInizio);
+      return eta !== null && eta > 365;
+    },
+    cols: ['ID', 'Titolo', 'Cliente', 'Data Pian.', 'Età (gg)', 'Ricavi', 'Qnet'],
+    types: ['num', 'str', 'str', 'str', 'num', 'num', 'str'],
+    row: c => [
+      c.id || '',
+      { display: ((c.titolo || c.contratto || '') + '').substring(0, 40), val: c.titolo },
+      { display: (c.cliente || '').substring(0, 25), val: c.cliente },
+      c.dataPianInizio || '-',
+      { display: '<b>' + fmt(_alDaysSince(c.dataPianInizio) || 0) + '</b>', val: _alDaysSince(c.dataPianInizio) || 0 },
+      { display: fmtE(c.consulenza || 0), val: c.consulenza || 0 },
+      qnetBtn(c)
+    ],
+    sortBy: c => -(_alDaysSince(c.dataPianInizio) || 0),
+  },
+  {
+    id: 'ricZero',
+    label: 'Ricavi azzerati su attive',
+    icon: '📊', color: '#ec4899',
+    desc: 'status = "In Lavorazione" ma consulenza = 0 (commessa senza valorizzazione)',
+    predicate: c => c.status === 'In Lavorazione' && (c.consulenza || 0) === 0,
+    cols: ['ID', 'Titolo', 'Cliente', 'StatoLav', 'Data Inizio', 'Resp.', 'Qnet'],
+    types: ['num', 'str', 'str', 'str', 'str', 'str', 'str'],
+    row: c => [
+      c.id || '',
+      { display: ((c.titolo || c.contratto || '') + '').substring(0, 40), val: c.titolo },
+      { display: (c.cliente || '').substring(0, 25), val: c.cliente },
+      { display: (c.statoLav || '—').substring(0, 25), val: c.statoLav || '' },
+      c.dataInizio || c.dataPianInizio || '-',
+      { display: (c.responsabile || '—').substring(0, 18), val: c.responsabile || '' },
+      qnetBtn(c)
+    ],
+    sortBy: c => c.id || 0,
+  },
+  {
+    id: 'dataInv',
+    label: 'Date invertite (errore Excel)',
+    icon: '🗓', color: '#fb7185',
+    desc: 'dataFine anteriore a dataInizio — errore di compilazione',
+    predicate: c => {
+      const di = _alParseDate(c.dataInizio);
+      const df = _alParseDate(c.dataFine);
+      return di && df && df < di;
+    },
+    cols: ['ID', 'Titolo', 'Cliente', 'Data Inizio', 'Data Fine', 'Qnet'],
+    types: ['num', 'str', 'str', 'str', 'str', 'str'],
+    row: c => [
+      c.id || '',
+      { display: ((c.titolo || c.contratto || '') + '').substring(0, 40), val: c.titolo },
+      { display: (c.cliente || '').substring(0, 25), val: c.cliente },
+      { display: '<b>' + (c.dataInizio || '-') + '</b>', val: c.dataInizio || '' },
+      { display: '<b style="color:#dc2626">' + (c.dataFine || '-') + '</b>', val: c.dataFine || '' },
+      qnetBtn(c)
+    ],
+    sortBy: c => c.id || 0,
+  },
+];
+
 function renderAlert() {
   const el = document.getElementById('sec-alert');
   if (!el) return;
   const f = filtered;
 
-  function _parseDate(s) {
-    if (!s) return null;
-    const m = String(s).match(/^(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})$/);
-    if (!m) return null;
-    return new Date(parseInt(m[3]), parseInt(m[2]) - 1, parseInt(m[1]));
-  }
-  const today = new Date();
+  // Esegui tutti gli alert
+  const results = ALERT_DEFS.map(a => {
+    const items = f.filter(a.predicate);
+    items.sort((x, y) => a.sortBy(x) - a.sortBy(y));
+    return { ...a, items };
+  });
 
-  const molNeg = f.filter(c => (c.mol || 0) < 0 && (c.consulenza || 0) > 0)
-    .map(c => ({ ...c, _kpi: c.mol })).sort((a, b) => a._kpi - b._kpi);
-  const stalled = f.filter(c => {
-    if ((c.avanzamento || 0) >= 50) return false;
-    const fine = _parseDate(c.dataFine);
-    return fine && fine < today;
-  }).map(c => {
-    const fine = _parseDate(c.dataFine);
-    const giorni = fine ? Math.floor((today - fine) / 86400000) : 0;
-    return { ...c, _kpi: giorni };
-  }).sort((a, b) => b._kpi - a._kpi);
-  const senzaIncasso = f.filter(c => (c.giaIncassato || 0) === 0 && (c.consulenza || 0) > 0)
-    .map(c => {
-      const inizio = _parseDate(c.dataInizio || c.dataPianInizio);
-      const eta = inizio ? Math.floor((today - inizio) / 86400000) : 0;
-      return { ...c, _kpi: eta };
-    }).sort((a, b) => b._kpi - a._kpi);
-
-  // Clienti a rischio
+  // Clienti a rischio (separato, struttura diversa)
   const cliRisk = {};
   f.forEach(c => {
     const k = c.cliente || 'N/D';
@@ -266,90 +404,61 @@ function renderAlert() {
     }))
     .filter(v => v.esposizione > 50000 && v.pctInc < 30)
     .sort((a, b) => b.esposizione - a.esposizione)
-    .slice(0, 10);
+    .slice(0, 15);
 
-  let h = '<div class="sec"><h3 class="sec-title">Alert & Anomalie</h3>';
-  h += '<p style="color:var(--text3);font-size:11px;margin-bottom:14px">Vista prioritizzata di problemi e situazioni a rischio.</p>';
+  let h = '<div class="sec"><h3 class="sec-title">Alert &amp; Anomalie</h3>';
+  h += '<p style="color:var(--text3);font-size:11px;margin-bottom:14px">' +
+       'Sette controlli automatici sui filtri attuali. Auto-hide degli alert con 0 hit. ' +
+       'Clicca sui valori per drill-down. Le commesse "fantasma chiuse" (chiuse senza completamento o senza incasso) ' +
+       'sono le anomalie più frequenti — correggere in Qnet.</p>';
 
+  // KPI grid: 1 box per alert + Clienti a rischio
   h += '<div class="kpi-grid" style="padding:0 0 14px 0">';
-  h += '<div class="kpi pink"><div class="kpi-label">MOL Negativo</div><div class="kpi-value">' + fmt(molNeg.length) + '</div><div class="kpi-sub">Costi &gt; Ricavi</div></div>';
-  h += '<div class="kpi orange"><div class="kpi-label">Senza incasso</div><div class="kpi-value">' + fmt(senzaIncasso.length) + '</div><div class="kpi-sub">€ 0 incassati</div></div>';
-  h += '<div class="kpi purple"><div class="kpi-label">Stalled</div><div class="kpi-value">' + fmt(stalled.length) + '</div><div class="kpi-sub">avz. &lt; 50% e data passata</div></div>';
-  h += '<div class="kpi green"><div class="kpi-label">Clienti a rischio</div><div class="kpi-value">' + fmt(cliRiskList.length) + '</div><div class="kpi-sub">esposiz. &gt; 50K, %inc &lt; 30%</div></div>';
+  results.forEach(r => {
+    const cls = r.items.length ? '' : 'style="opacity:.5"';
+    h += '<div class="kpi" ' + cls + ' style="border-left:3px solid ' + r.color + ';' + (r.items.length ? 'cursor:pointer' : '') + '"' +
+         (r.items.length ? ' onclick="_alScrollTo(\'tblAlert_' + r.id + '\')"' : '') + '>' +
+         '<div class="kpi-label">' + r.icon + ' ' + r.label + '</div>' +
+         '<div class="kpi-value" style="color:' + (r.items.length ? r.color : 'var(--text3)') + '">' + fmt(r.items.length) + '</div>' +
+         '<div class="kpi-sub">' + r.desc.substring(0, 60) + '…</div></div>';
+  });
+  h += '<div class="kpi" style="border-left:3px solid #10b981;' + (cliRiskList.length ? 'cursor:pointer' : 'opacity:.5') + '"' +
+       (cliRiskList.length ? ' onclick="_alScrollTo(\'tblAlertCli\')"' : '') + '>' +
+       '<div class="kpi-label">🎯 Clienti a rischio</div>' +
+       '<div class="kpi-value" style="color:' + (cliRiskList.length ? '#10b981' : 'var(--text3)') + '">' + fmt(cliRiskList.length) + '</div>' +
+       '<div class="kpi-sub">esposiz. &gt; 50K, %inc &lt; 30%</div></div>';
   h += '</div>';
 
-  if (molNeg.length) {
-    h += '<div class="card" style="margin-top:14px;border-left:3px solid #ef4444"><h4 style="color:#ef4444">⚠️ Top 10 commesse con MOL negativo</h4>';
-    h += '<div class="tbl-scroll"><table id="tblAlertMolNeg"></table></div></div>';
-  }
-  if (stalled.length) {
-    h += '<div class="card" style="margin-top:14px;border-left:3px solid #8b5cf6"><h4 style="color:#8b5cf6">🐢 Top 10 commesse stalled</h4>';
-    h += '<div class="tbl-scroll"><table id="tblAlertStalled"></table></div></div>';
-  }
-  if (senzaIncasso.length) {
-    h += '<div class="card" style="margin-top:14px;border-left:3px solid #f59e0b"><h4 style="color:#f59e0b">💸 Top 10 commesse senza incasso</h4>';
-    h += '<div class="tbl-scroll"><table id="tblAlertNoInc"></table></div></div>';
-  }
+  // Cards per alert non vuoti
+  results.forEach(r => {
+    if (!r.items.length) return;
+    h += '<div class="card" style="margin-top:14px;border-left:3px solid ' + r.color + '">' +
+         '<h4 style="color:' + r.color + '">' + r.icon + ' ' + r.label + ' · ' + fmt(r.items.length) + ' commesse</h4>' +
+         '<p style="color:var(--text3);font-size:11px;margin-bottom:10px">' + r.desc + '. Mostrate le prime 30.</p>' +
+         '<div class="tbl-scroll"><table id="tblAlert_' + r.id + '"></table></div></div>';
+  });
+
   if (cliRiskList.length) {
-    h += '<div class="card" style="margin-top:14px;border-left:3px solid #10b981"><h4 style="color:#10b981">🎯 Clienti a rischio</h4>';
-    h += '<div class="tbl-scroll"><table id="tblAlertCli"></table></div></div>';
+    h += '<div class="card" style="margin-top:14px;border-left:3px solid #10b981">' +
+         '<h4 style="color:#10b981">🎯 Clienti a rischio · ' + cliRiskList.length + '</h4>' +
+         '<p style="color:var(--text3);font-size:11px;margin-bottom:10px">Clienti con esposizione (Ricavi − Incassato) sopra €50K e percentuale di incasso sotto il 30%.</p>' +
+         '<div class="tbl-scroll"><table id="tblAlertCli"></table></div></div>';
   }
 
-  if (!molNeg.length && !stalled.length && !senzaIncasso.length && !cliRiskList.length) {
-    h += '<div class="card"><p style="color:var(--green);text-align:center;padding:20px">Nessun alert rilevato sui filtri attuali</p></div>';
+  const hasAny = results.some(r => r.items.length) || cliRiskList.length;
+  if (!hasAny) {
+    h += '<div class="card" style="background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.3)">' +
+         '<p style="color:#10b981;text-align:center;padding:20px;font-weight:600">✓ Nessun alert rilevato sui filtri attuali. Dato pulito.</p></div>';
   }
   h += '</div>';
   el.innerHTML = h;
 
-  const cmCols = ['ID', 'Titolo', 'Cliente', 'Sede', 'Ricavi', 'Costi', 'MOL', 'Avz.', 'Qnet'];
-  const cmTypes = ['num', 'str', 'str', 'str', 'num', 'num', 'num', 'num', 'str'];
-  function _row(c) {
-    return [
-      c.id || '',
-      { display: ((c.titolo || c.contratto || '') + '').substring(0, 50), val: c.titolo },
-      { display: (c.cliente || '').substring(0, 30), val: c.cliente },
-      { display: ((c.sedeNorm || c.sedeOp || '').split(' - ')[0]).substring(0, 25), val: c.sedeNorm },
-      { display: fmtE(c.consulenza || 0), val: c.consulenza || 0 },
-      { display: fmtE(c.costi || 0), val: c.costi || 0 },
-      { display: fmtE(c.mol || 0), val: c.mol || 0 },
-      { display: (c.avanzamento || 0) + '%', val: c.avanzamento || 0 },
-      qnetBtn(c)
-    ];
-  }
-  if (molNeg.length) buildTbl('tblAlertMolNeg', cmCols, molNeg.slice(0, 10).map(_row), cmTypes);
-  if (stalled.length) {
-    buildTbl('tblAlertStalled',
-      ['ID', 'Titolo', 'Cliente', 'Sede', 'Avz.', 'Data Fine', 'Giorni rit.', 'Ricavi', 'Qnet'],
-      stalled.slice(0, 10).map(c => [
-        c.id || '',
-        { display: ((c.titolo || c.contratto || '') + '').substring(0, 45), val: c.titolo },
-        { display: (c.cliente || '').substring(0, 30), val: c.cliente },
-        { display: ((c.sedeNorm || c.sedeOp || '').split(' - ')[0]).substring(0, 25), val: c.sedeNorm },
-        { display: (c.avanzamento || 0) + '%', val: c.avanzamento || 0 },
-        c.dataFine || '-',
-        { display: '<strong style="color:#ef4444">' + fmt(c._kpi) + ' gg</strong>', val: c._kpi },
-        { display: fmtE(c.consulenza || 0), val: c.consulenza || 0 },
-        qnetBtn(c)
-      ]),
-      ['num', 'str', 'str', 'str', 'num', 'str', 'num', 'num', 'str']
-    );
-  }
-  if (senzaIncasso.length) {
-    buildTbl('tblAlertNoInc',
-      ['ID', 'Titolo', 'Cliente', 'Sede', 'Data Inizio', 'Età (gg)', 'Ricavi', 'Qnet'],
-      senzaIncasso.slice(0, 10).map(c => [
-        c.id || '',
-        { display: ((c.titolo || c.contratto || '') + '').substring(0, 45), val: c.titolo },
-        { display: (c.cliente || '').substring(0, 30), val: c.cliente },
-        { display: ((c.sedeNorm || c.sedeOp || '').split(' - ')[0]).substring(0, 25), val: c.sedeNorm },
-        c.dataInizio || c.dataPianInizio || '-',
-        { display: '<strong>' + fmt(c._kpi) + '</strong>', val: c._kpi },
-        { display: fmtE(c.consulenza || 0), val: c.consulenza || 0 },
-        qnetBtn(c)
-      ]),
-      ['num', 'str', 'str', 'str', 'str', 'num', 'num', 'str']
-    );
-  }
+  // Render tables
+  results.forEach(r => {
+    if (!r.items.length) return;
+    buildTbl('tblAlert_' + r.id, r.cols, r.items.slice(0, 30).map(r.row), r.types);
+  });
+
   if (cliRiskList.length) {
     buildTbl('tblAlertCli',
       ['Cliente', 'Comm.', 'Ricavi', 'Incassato', '% Inc.', 'Esposizione'],
@@ -358,11 +467,16 @@ function renderAlert() {
         { display: fmt(c.cnt), val: c.cnt },
         { display: fmtE(c.ric), val: c.ric },
         { display: fmtE(c.inc), val: c.inc },
-        { display: '<strong style="color:#ef4444">' + c.pctInc.toFixed(1) + '%</strong>', val: c.pctInc },
-        { display: '<strong>' + fmtE(c.esposizione) + '</strong>', val: c.esposizione }
+        { display: '<b style="color:#dc2626">' + c.pctInc.toFixed(1) + '%</b>', val: c.pctInc },
+        { display: '<b>' + fmtE(c.esposizione) + '</b>', val: c.esposizione }
       ]),
       ['str', 'num', 'num', 'num', 'num', 'num'],
       { clickField: 'cliente' }
     );
   }
+}
+
+function _alScrollTo(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
