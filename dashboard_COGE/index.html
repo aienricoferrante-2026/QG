@@ -41,6 +41,7 @@
   </div>
   <div class="nav-group">
     <div class="nav-group-label">📥 Dati esterni</div>
+    <a class="nav-item" data-sec="segnatempo" onclick="cogeShowSec('segnatempo')"><span class="nav-icon">⏱️</span>Segnatempo</a>
     <a class="nav-item" data-sec="hr" onclick="cogeShowSec('hr')"><span class="nav-icon">👥</span>Personale (HR)</a>
     <a class="nav-item" data-sec="indiretti" onclick="cogeShowSec('indiretti')"><span class="nav-icon">🏢</span>Costi indiretti</a>
   </div>
@@ -63,14 +64,17 @@
 
   <div id="sec-riepilogo"></div>
   <div id="sec-imputazioni" class="hidden"></div>
+  <div id="sec-segnatempo" class="hidden"></div>
   <div id="sec-hr" class="hidden"></div>
   <div id="sec-indiretti" class="hidden"></div>
 </main>
 
 <script src="config.js"></script>
 <script src="js/coge-data.js"></script>
+<script src="js/coge-imputazione-logic.js"></script>
 <script src="js/coge-riepilogo.js"></script>
 <script src="js/coge-imputazioni.js"></script>
+<script src="js/coge-segnatempo.js"></script>
 <script src="js/coge-hr.js"></script>
 <script src="js/coge-indiretti.js"></script>
 <script src="js/coge-app.js"></script>

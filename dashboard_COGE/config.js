@@ -43,6 +43,10 @@ window.SECTOR_CONFIG = {
   },
   /* Anno corrente di analisi (default = anno attuale). */
   defaultYear: new Date().getFullYear(),
+  /* Ore lavorative annue standard per il calcolo del costo orario.
+     CCNL italiano standard: ~1.720 ore effettive (40h/settimana − ferie,
+     festività, malattia media). Modificabile se necessario. */
+  oreAnnueLavorative: 1720,
   /* Voci di costo indiretto fisse, ordinate (form editabile). */
   vociIndirette: [
     'Affitti & locazioni',

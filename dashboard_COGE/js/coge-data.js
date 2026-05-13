@@ -14,17 +14,21 @@
 
 const COGE = {
   year: window.SECTOR_CONFIG.defaultYear,
-  month: 0,   // 0 = anno intero, 1..12 = mese specifico
-  pivotDim: 'societa_sede_bu',  // dimensione bilancino: societa | sede | bu | regione | societa_sede_bu
+  month: 0,
+  pivotDim: 'societa_sede_bu',
   rawByBu: {},
   aggSocSedeBu: {},
   hr: [],
   indiretti: {},
+  segnatempo: [],
+  /* Cache per ricerca commessa per id (popolata da cogeBuildAggregates). */
+  commessaById: new Map(),
   loaded: false,
 };
 
 const COGE_HR_KEY = 'qg_coge_hr';
 const COGE_IND_KEY = 'qg_coge_indiretti';
+const COGE_TT_KEY = 'qg_coge_segnatempo';
 
 function cogeFmt(n) { return Number(n || 0).toLocaleString('it-IT'); }
 function cogeFmtE(n) {
@@ -78,10 +82,13 @@ function _cogeNormSede(sedeNorm) {
 
 function cogeBuildAggregates() {
   /* Per ogni BU × commessa filtrata sull'anno (+mese): aggrega per
-     (Società, Sede, Regione, BU). Conserva tutte le dimensioni per pivot. */
+     (Società, Sede, Regione, BU). Conserva tutte le dimensioni per pivot.
+     Popola anche commessaById per lookup rapido in Segnatempo. */
   const agg = {};
+  COGE.commessaById = new Map();
   Object.entries(COGE.rawByBu).forEach(([bu, items]) => {
     items.forEach(c => {
+      if (c.id) COGE.commessaById.set(String(c.id), { ...c, _bu: bu });
       if (!_cogePeriodMatch(c)) return;
       const soc = (c.societa || '—').trim();
       const sede = _cogeNormSede(c.sedeNorm || c.sedeOp);
@@ -102,6 +109,39 @@ function cogeBuildAggregates() {
     });
   });
   COGE.aggSocSedeBu = agg;
+}
+
+/* ── Parser data Segnatempo (yyyy-mm-dd o dd/mm/yyyy) ── */
+function _cogeParseDataTs(s) {
+  if (!s) return null;
+  let m = String(s).match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if (m) return { y: +m[1], m: +m[2], d: +m[3] };
+  m = String(s).match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})/);
+  if (m) return { y: +m[3], m: +m[2], d: +m[1] };
+  return null;
+}
+
+function _cogePeriodMatchDate(dataStr) {
+  const d = _cogeParseDataTs(dataStr);
+  if (!d) return false;
+  if (d.y !== COGE.year) return false;
+  if (COGE.month >= 1 && COGE.month <= 12) return d.m === COGE.month;
+  return true;
+}
+
+/* ── Costo orario per dipendente (mappa nome → €/ora) ── */
+function cogeCostiOrari() {
+  const oreAnnue = window.SECTOR_CONFIG.oreAnnueLavorative || 1720;
+  const out = {};
+  COGE.hr.forEach(h => {
+    const nome = (h.dipendente || '').trim().toLowerCase();
+    if (!nome) return;
+    const costoAnnuo = parseFloat(h.costoAnnuo) || 0;
+    /* Se il dipendente è imputato a più BU (più righe HR), sommiamo il
+       costo annuo totale e dividiamo per le ore annue → costo orario unico. */
+    out[nome] = (out[nome] || 0) + (costoAnnuo / oreAnnue);
+  });
+  return out;
 }
 
 /* ── Pivot per dimensione ──────────────────────────────────────
@@ -177,7 +217,6 @@ function cogePivotAggregato(dim) {
 }
 
 function cogeLoadAll() {
-  /* Scarica tutti i JSON BU in parallelo + ripristina HR/indiretti da localStorage. */
   const cfg = window.SECTOR_CONFIG;
   const entries = Object.entries(cfg.buData);
   return Promise.all(entries.map(([bu, url]) =>
@@ -185,27 +224,17 @@ function cogeLoadAll() {
       .then(items => ({ bu, items: items || [] }))
   )).then(results => {
     results.forEach(({ bu, items }) => { COGE.rawByBu[bu] = items; });
-    // HR da localStorage
-    try {
-      const raw = localStorage.getItem(COGE_HR_KEY);
-      COGE.hr = raw ? JSON.parse(raw) : [];
-    } catch (e) { COGE.hr = []; }
-    // Indiretti da localStorage
-    try {
-      const raw = localStorage.getItem(COGE_IND_KEY);
-      COGE.indiretti = raw ? JSON.parse(raw) : {};
-    } catch (e) { COGE.indiretti = {}; }
+    try { COGE.hr = JSON.parse(localStorage.getItem(COGE_HR_KEY) || '[]'); } catch (e) { COGE.hr = []; }
+    try { COGE.indiretti = JSON.parse(localStorage.getItem(COGE_IND_KEY) || '{}'); } catch (e) { COGE.indiretti = {}; }
+    try { COGE.segnatempo = JSON.parse(localStorage.getItem(COGE_TT_KEY) || '[]'); } catch (e) { COGE.segnatempo = []; }
     cogeBuildAggregates();
     COGE.loaded = true;
   });
 }
 
-function cogeSaveHr() {
-  try { localStorage.setItem(COGE_HR_KEY, JSON.stringify(COGE.hr)); } catch (e) {}
-}
-function cogeSaveIndiretti() {
-  try { localStorage.setItem(COGE_IND_KEY, JSON.stringify(COGE.indiretti)); } catch (e) {}
-}
+function cogeSaveHr() { try { localStorage.setItem(COGE_HR_KEY, JSON.stringify(COGE.hr)); } catch (e) {} }
+function cogeSaveIndiretti() { try { localStorage.setItem(COGE_IND_KEY, JSON.stringify(COGE.indiretti)); } catch (e) {} }
+function cogeSaveSegnatempo() { try { localStorage.setItem(COGE_TT_KEY, JSON.stringify(COGE.segnatempo)); } catch (e) {} }
 
 function cogeHrSumByBuSede(bu, soc, sede) {
   /* Somma costo annuo dipendenti dell'HR caricato che matchano BU+Società+Sede. */
@@ -240,56 +269,5 @@ function cogeUniqueSediConsedi() {
   }).sort((a, b) => (a.societa + a.sede).localeCompare(b.societa + b.sede));
 }
 
-/* ── Imputazione costo dipendente → commessa (via Qnet `responsabile`) ──
- * Per ogni dipendente HR, cerca commesse "aperte/in-lav" del periodo dove
- * `responsabile` matcha (case-insensitive, prefisso). Spalma il costo
- * annuo pro-rata sulle commesse del dipendente.
- *
- * Output: Map(commessa.id → { idCommessa, titolo, cliente, bu, costoImputato })
- */
-function cogeImputazioneCostiCommessa() {
-  const proRata = cogeProRataFactor();
-  const out = new Map();
-  // Indicizza commesse per responsabile
-  const commByResp = {};
-  Object.entries(COGE.rawByBu).forEach(([bu, items]) => {
-    items.forEach(c => {
-      if (!_cogePeriodMatch(c)) return;
-      const r = (c.responsabile || '').trim().toLowerCase();
-      if (!r || r === '***') return;
-      if (!commByResp[r]) commByResp[r] = [];
-      commByResp[r].push({ ...c, _bu: bu });
-    });
-  });
-  // Per ogni dipendente HR: cerca match
-  COGE.hr.forEach(h => {
-    const nomeDip = (h.dipendente || '').trim().toLowerCase();
-    if (!nomeDip) return;
-    const costoAnnuo = (parseFloat(h.costoAnnuo) || 0) * proRata;
-    // Match esatto (case-insensitive)
-    let matches = commByResp[nomeDip] || [];
-    // Fallback: match per Cognome (ultima parola del nome dipendente)
-    if (!matches.length) {
-      const last = nomeDip.split(/\s+/).pop();
-      Object.keys(commByResp).forEach(r => {
-        if (r.includes(last)) matches = matches.concat(commByResp[r]);
-      });
-    }
-    if (!matches.length) return;
-    const quota = costoAnnuo / matches.length;
-    matches.forEach(c => {
-      if (!out.has(c.id)) out.set(c.id, {
-        idCommessa: c.id, titolo: c.titolo || c.contratto || '',
-        cliente: c.cliente || '', bu: c._bu,
-        societa: c.societa || '', sede: _cogeNormSede(c.sedeNorm || c.sedeOp),
-        ricavi: c.consulenza || 0,
-        costoImputato: 0,
-        dipendenti: [],
-      });
-      const item = out.get(c.id);
-      item.costoImputato += quota;
-      item.dipendenti.push(h.dipendente);
-    });
-  });
-  return out;
-}
+/* Imputazione cascata costo dipendente → commessa: vedi
+   coge-imputazione-logic.js (cogeImputazioneSegnatempo). */
