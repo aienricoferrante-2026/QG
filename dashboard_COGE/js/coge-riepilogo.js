@@ -1,17 +1,25 @@
-/* ── COGE · Sezione Riepilogo Generale ──
- * Matrice riepilogativa di tutte le Società × Sede × BU con conto
- * economico calcolato:
- *   Ricavi
- * − Costi diretti commessa (campo costi, popolato solo per FOR)
- * − Costi dipendenti BU/Sede (da HR caricato)
- * ─────────────────────────────────
- * = MOL operativo BU/Sede
+/* ── COGE · Sezione Riepilogo Generale (pivot dimensionale) ──
+ * Bilancino conto economico aggregato per la dimensione scelta:
+ *   - Società × Sede × BU  (vista classica dettagliata)
+ *   - Sede                  (per inviare ai partner)
+ *   - BU                    (vista verticale per settore)
+ *   - Società               (rollup massimo)
+ *   - Regione               (vista geografica)
  *
- * Aggregato Sede:
- *   Σ MOL operativo BU/Sede
- * − Costi indiretti Sede
- * = Risultato operativo Sede (da inviare ai partner)
+ * Formula in ogni riga:
+ *   Risultato = Ricavi − Costi diretti − Costo Personale BU − Costi Indiretti
+ *
+ * Granularità: anno + (opzionale) mese. HR e indiretti sono scalati
+ * pro-rata 1/12 se mese specifico è selezionato (vedi cogeProRataFactor).
  */
+
+const PIVOT_LABELS = {
+  societa_sede_bu: 'Società × Sede × BU (dettaglio)',
+  sede:    'Sede (per partner)',
+  bu:      'BU',
+  societa: 'Società',
+  regione: 'Regione',
+};
 
 function renderCogeRiepilogo() {
   const el = document.getElementById('sec-riepilogo');
@@ -21,96 +29,99 @@ function renderCogeRiepilogo() {
     return;
   }
 
-  const sediConsedi = cogeUniqueSediConsedi();
-  const buCodes = Object.keys(window.SECTOR_CONFIG.buMeta);
+  const periodLbl = COGE.month >= 1 && COGE.month <= 12
+    ? COGE.year + ' · mese ' + String(COGE.month).padStart(2, '0')
+    : COGE.year + ' · anno intero';
 
-  // Totali globali per riga "Totale generale"
-  let tot = { ricavi: 0, costiComm: 0, costiHr: 0, mol: 0, indir: 0 };
-
-  // Build rows: per ogni (Società, Sede): una riga per BU + una riga totale Sede
-  let h = '<div class="sec"><h3 class="sec-title">📊 Riepilogo Conto Economico · ' + COGE.year + '</h3>';
+  let h = '<div class="sec"><h3 class="sec-title">📊 Bilancino Conto Economico · ' + periodLbl + '</h3>';
   h += '<p style="color:var(--text3);font-size:11px;margin-bottom:14px">' +
-       'Per ogni <b>Società × Sede × BU</b>: Ricavi (dalle commesse), costi diretti commessa, costi dipendenti BU (HR), ' +
-       'MOL operativo BU/Sede. Per ogni <b>Sede</b>: aggregato BU + costi indiretti = risultato operativo. ' +
-       'I dati HR e indiretti vivono in <code>localStorage</code> del browser (modifiche locali al PC).</p>';
+       'Conto economico operativo pivotabile per dimensione. ' +
+       '<b>Risultato = Ricavi − Costi diretti − Costo Personale BU − Costi Indiretti</b>. ' +
+       'Se è selezionato un mese, HR e indiretti sono scalati pro-rata 1/12.</p>';
 
-  // KPI band
-  let totRicavi = 0, totMol = 0, totHr = 0, totIndir = 0;
-  sediConsedi.forEach(({ societa, sede }) => {
-    buCodes.forEach(bu => {
-      const k = societa + '|' + sede + '|' + bu;
-      const a = COGE.aggSocSedeBu[k];
-      if (!a) return;
-      totRicavi += a.ricavi;
-      totMol += a.mol;
-      totHr += cogeHrSumByBuSede(bu, societa, sede);
-    });
-    totIndir += cogeIndirettiSede(societa, sede);
+  // Selettore dimensione pivot
+  h += '<div style="display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap">';
+  h += '<label style="color:var(--text2);font-size:11px;text-transform:uppercase;letter-spacing:.4px;font-weight:600">📐 Vista bilancino:</label>';
+  Object.entries(PIVOT_LABELS).forEach(([dim, lbl]) => {
+    const active = COGE.pivotDim === dim;
+    h += '<button onclick="cogeSetPivot(\'' + dim + '\')" style="padding:6px 12px;border-radius:5px;font-size:11px;cursor:pointer;border:1px solid ' +
+         (active ? 'var(--accent)' : 'var(--border)') + ';background:' +
+         (active ? 'rgba(99,102,241,.18)' : 'var(--card)') + ';color:' +
+         (active ? 'var(--text)' : 'var(--text2)') + ';font-weight:' + (active ? '600' : '400') + '">' + lbl + '</button>';
   });
-  const risultato = totMol - totHr - totIndir;
-  h += '<div class="kpi-grid" style="padding:0 0 14px 0">';
-  h += '<div class="kpi blue"><div class="kpi-label">Sedi attive</div><div class="kpi-value">' + cogeFmt(sediConsedi.length) + '</div><div class="kpi-sub">Società × Sede</div></div>';
-  h += '<div class="kpi green"><div class="kpi-label">Ricavi totali</div><div class="kpi-value">' + cogeFmtE(totRicavi) + '</div><div class="kpi-sub">somma 11 BU · ' + COGE.year + '</div></div>';
-  h += '<div class="kpi cyan"><div class="kpi-label">MOL commesse</div><div class="kpi-value">' + cogeFmtE(totMol) + '</div><div class="kpi-sub">da campo mol Qnet</div></div>';
-  h += '<div class="kpi orange"><div class="kpi-label">Costo Personale</div><div class="kpi-value">' + cogeFmtE(totHr) + '</div><div class="kpi-sub">' + cogeFmt(COGE.hr.length) + ' dipendenti HR</div></div>';
-  h += '<div class="kpi pink"><div class="kpi-label">Costi Indiretti</div><div class="kpi-value">' + cogeFmtE(totIndir) + '</div><div class="kpi-sub">affitti, utenze, ecc.</div></div>';
-  const cls = risultato >= 0 ? 'green' : 'red';
-  h += '<div class="kpi ' + cls + '"><div class="kpi-label">Risultato operativo</div><div class="kpi-value">' + cogeFmtE(risultato) + '</div><div class="kpi-sub">MOL − HR − Indiretti</div></div>';
   h += '</div>';
 
-  // Tabella per ogni Sede
+  const rows = cogePivotAggregato(COGE.pivotDim);
+
+  // KPI band totali
+  const tot = rows.reduce((s, r) => ({
+    ricavi: s.ricavi + r.ricavi,
+    costiCommessa: s.costiCommessa + r.costiCommessa,
+    mol: s.mol + r.mol,
+    costoHr: s.costoHr + r.costoHr,
+    costiIndiretti: s.costiIndiretti + r.costiIndiretti,
+    commesse: s.commesse + r.commesse,
+  }), { ricavi: 0, costiCommessa: 0, mol: 0, costoHr: 0, costiIndiretti: 0, commesse: 0 });
+  // Attenzione: costi indiretti per dimensione non-sede sommerebbero più volte la stessa sede.
+  // Per il TOTALE usiamo sempre la somma "vera" di tutte le sedi una sola volta.
+  let totIndirVero = 0;
+  cogeUniqueSediConsedi().forEach(({ societa, sede }) => totIndirVero += cogeIndirettiSede(societa, sede));
+  totIndirVero *= cogeProRataFactor();
+  const risultatoTot = tot.ricavi - tot.costiCommessa - tot.costoHr - totIndirVero;
+
+  h += '<div class="kpi-grid" style="padding:0 0 14px 0">';
+  h += '<div class="kpi blue"><div class="kpi-label">' + (COGE.pivotDim === 'societa_sede_bu' ? 'Combinazioni' : 'Gruppi') + '</div><div class="kpi-value">' + cogeFmt(rows.length) + '</div><div class="kpi-sub">in vista corrente</div></div>';
+  h += '<div class="kpi green"><div class="kpi-label">Ricavi totali</div><div class="kpi-value">' + cogeFmtE(tot.ricavi) + '</div><div class="kpi-sub">' + cogeFmt(tot.commesse) + ' commesse</div></div>';
+  h += '<div class="kpi cyan"><div class="kpi-label">MOL commesse</div><div class="kpi-value">' + cogeFmtE(tot.mol) + '</div><div class="kpi-sub">da Qnet</div></div>';
+  h += '<div class="kpi orange"><div class="kpi-label">Costo Personale</div><div class="kpi-value">' + cogeFmtE(tot.costoHr) + '</div><div class="kpi-sub">' + cogeFmt(COGE.hr.length) + ' dipendenti HR</div></div>';
+  h += '<div class="kpi pink"><div class="kpi-label">Costi Indiretti</div><div class="kpi-value">' + cogeFmtE(totIndirVero) + '</div><div class="kpi-sub">affitti, utenze, ecc.</div></div>';
+  const cls = risultatoTot >= 0 ? 'green' : 'red';
+  h += '<div class="kpi ' + cls + '"><div class="kpi-label">Risultato operativo</div><div class="kpi-value">' + cogeFmtE(risultatoTot) + '</div><div class="kpi-sub">Ricavi − tutti i costi</div></div>';
+  h += '</div>';
+
+  // Tabella pivot
   h += '<div class="tbl-scroll"><table class="coge-tbl"><thead><tr>';
-  h += '<th>Società / Sede</th><th>BU</th><th style="text-align:right">Commesse</th>';
-  h += '<th style="text-align:right">Ricavi</th><th style="text-align:right">Costi diretti</th>';
-  h += '<th style="text-align:right">Costo Pers. BU</th><th style="text-align:right">MOL BU/Sede</th>';
+  h += '<th>' + (PIVOT_LABELS[COGE.pivotDim] || COGE.pivotDim) + '</th>';
+  h += '<th style="text-align:right">Commesse</th>';
+  h += '<th style="text-align:right">Ricavi</th>';
+  h += '<th style="text-align:right">Costi diretti</th>';
+  h += '<th style="text-align:right">Costo Personale</th>';
+  h += '<th style="text-align:right">Costi Indiretti</th>';
+  h += '<th style="text-align:right">Risultato</th>';
+  h += '<th style="text-align:right">Margine %</th>';
   h += '</tr></thead><tbody>';
 
-  sediConsedi.forEach(({ societa, sede }) => {
-    let sedeRicavi = 0, sedeCostiComm = 0, sedeHr = 0, sedeMolBu = 0;
-    const buPresenti = buCodes.filter(bu => COGE.aggSocSedeBu[societa + '|' + sede + '|' + bu]);
-    if (!buPresenti.length) return;
-
-    // Righe BU
-    buPresenti.forEach((bu, idx) => {
-      const a = COGE.aggSocSedeBu[societa + '|' + sede + '|' + bu];
-      const meta = window.SECTOR_CONFIG.buMeta[bu];
-      const costoHr = cogeHrSumByBuSede(bu, societa, sede);
-      const molBu = a.ricavi - a.costiCommessa - costoHr;
-      sedeRicavi += a.ricavi;
-      sedeCostiComm += a.costiCommessa;
-      sedeHr += costoHr;
-      sedeMolBu += molBu;
-      const isFirst = idx === 0;
-      h += '<tr>';
-      h += '<td>' + (isFirst ? '<b>' + societa.substring(0, 28) + '</b><br><span style="color:var(--text3);font-size:10px">' + sede + '</span>' : '') + '</td>';
-      h += '<td><span style="color:' + meta.color + ';font-weight:600">' + meta.icon + ' ' + bu + '</span></td>';
-      h += '<td style="text-align:right">' + cogeFmt(a.commesse) + '</td>';
-      h += '<td style="text-align:right">' + cogeFmtE(a.ricavi) + '</td>';
-      h += '<td style="text-align:right;color:var(--text3)">' + (a.costiCommessa > 0 ? cogeFmtE(a.costiCommessa) : '—') + '</td>';
-      h += '<td style="text-align:right;color:var(--text3)">' + (costoHr > 0 ? cogeFmtE(costoHr) : '—') + '</td>';
-      h += '<td style="text-align:right;color:' + (molBu >= 0 ? '#10b981' : '#dc2626') + ';font-weight:600">' + cogeFmtE(molBu) + '</td>';
-      h += '</tr>';
-    });
-    // Riga totale Sede: include costi indiretti e Risultato Operativo
-    const indir = cogeIndirettiSede(societa, sede);
-    const risSede = sedeMolBu - indir;
-    h += '<tr style="background:rgba(99,102,241,.06);font-weight:600">';
-    h += '<td colspan="2" style="padding-left:18px"><i>Totale Sede</i></td>';
-    h += '<td style="text-align:right"><i>—</i></td>';
-    h += '<td style="text-align:right">' + cogeFmtE(sedeRicavi) + '</td>';
-    h += '<td style="text-align:right">' + (sedeCostiComm > 0 ? cogeFmtE(sedeCostiComm) : '—') + '</td>';
-    h += '<td style="text-align:right">' + (sedeHr > 0 ? cogeFmtE(sedeHr) : '—') + '</td>';
-    h += '<td style="text-align:right;color:' + (sedeMolBu >= 0 ? '#10b981' : '#dc2626') + '">' + cogeFmtE(sedeMolBu) + '</td>';
+  rows.forEach(r => {
+    const margPct = r.ricavi ? (r.risultato / r.ricavi * 100) : 0;
+    const margCol = r.risultato >= 0 ? '#10b981' : '#dc2626';
+    h += '<tr>';
+    h += '<td><b>' + r.label + '</b>';
+    if (COGE.pivotDim === 'societa') h += '<br><span style="color:var(--text3);font-size:10px">' + r.nSedi + ' sedi · ' + r.nBu + ' BU</span>';
+    else if (COGE.pivotDim === 'bu') h += '<br><span style="color:var(--text3);font-size:10px">' + r.nSedi + ' sedi · ' + r.nSocieta + ' società</span>';
+    else if (COGE.pivotDim === 'regione') h += '<br><span style="color:var(--text3);font-size:10px">' + r.nSedi + ' sedi · ' + r.nBu + ' BU</span>';
+    h += '</td>';
+    h += '<td style="text-align:right">' + cogeFmt(r.commesse) + '</td>';
+    h += '<td style="text-align:right">' + cogeFmtE(r.ricavi) + '</td>';
+    h += '<td style="text-align:right;color:var(--text3)">' + (r.costiCommessa > 0 ? cogeFmtE(r.costiCommessa) : '—') + '</td>';
+    h += '<td style="text-align:right;color:var(--text3)">' + (r.costoHr > 0 ? cogeFmtE(r.costoHr) : '—') + '</td>';
+    h += '<td style="text-align:right;color:var(--text3)">' + (r.costiIndiretti > 0 ? cogeFmtE(r.costiIndiretti) : '—') + '</td>';
+    h += '<td style="text-align:right;color:' + margCol + ';font-weight:700">' + cogeFmtE(r.risultato) + '</td>';
+    h += '<td style="text-align:right;color:' + margCol + '">' + margPct.toFixed(1) + '%</td>';
     h += '</tr>';
-    h += '<tr style="background:rgba(99,102,241,.1)">';
-    h += '<td colspan="6" style="padding-left:18px;color:var(--text2);font-size:11px"><i>Costi Indiretti Sede:</i> ' + cogeFmtE(indir) + (indir === 0 ? ' <span style="color:#f59e0b">⚠ da inserire</span>' : '') + '</td>';
-    h += '<td style="text-align:right;font-weight:700;color:' + (risSede >= 0 ? '#10b981' : '#dc2626') + ';font-size:14px">' + cogeFmtE(risSede) + '</td>';
-    h += '</tr>';
-    // Spacer
-    h += '<tr><td colspan="7" style="height:6px;border:none"></td></tr>';
   });
-
   h += '</tbody></table></div>';
+
+  // Note sulla dimensione
+  if (COGE.pivotDim !== 'sede' && COGE.pivotDim !== 'societa_sede_bu') {
+    h += '<p style="color:var(--text3);font-size:11px;margin-top:10px;padding:8px 12px;background:rgba(99,102,241,.04);border-left:3px solid #6366f1;border-radius:4px">' +
+         '💡 In questa vista i <i>Costi Indiretti</i> sono aggregati sommando le sedi appartenenti al gruppo. Per il report Sede usa la vista <b>Sede (per partner)</b>.</p>';
+  }
+
   h += '</div>';
   el.innerHTML = h;
+}
+
+function cogeSetPivot(dim) {
+  COGE.pivotDim = dim;
+  renderCogeRiepilogo();
 }

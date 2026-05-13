@@ -7,10 +7,13 @@
 let cogeCurrentSection = 'riepilogo';
 
 const COGE_SECTIONS = {
-  riepilogo: renderCogeRiepilogo,
-  hr:        renderCogeHr,
-  indiretti: renderCogeIndiretti,
+  riepilogo:   renderCogeRiepilogo,
+  imputazioni: renderCogeImputazioni,
+  hr:          renderCogeHr,
+  indiretti:   renderCogeIndiretti,
 };
+
+const MESI_NOMI = ['Anno intero', 'Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
 
 function cogeShowSec(name) {
   cogeCurrentSection = name;
@@ -32,7 +35,13 @@ function cogeShowSec(name) {
 function cogeYearChange(y) {
   COGE.year = parseInt(y);
   cogeBuildAggregates();
-  // Re-render current section
+  const fn = COGE_SECTIONS[cogeCurrentSection];
+  if (fn) fn();
+}
+
+function cogeMonthChange(m) {
+  COGE.month = parseInt(m);
+  cogeBuildAggregates();
   const fn = COGE_SECTIONS[cogeCurrentSection];
   if (fn) fn();
 }
@@ -58,7 +67,7 @@ function cogeToggleTheme() {
 
 // Bootstrap
 document.addEventListener('DOMContentLoaded', () => {
-  // Popola year selector con anni 2022..2027
+  // Year selector 2022..2027
   const yearSel = document.getElementById('cogeYear');
   if (yearSel) {
     for (let y = 2022; y <= 2027; y++) {
@@ -68,6 +77,17 @@ document.addEventListener('DOMContentLoaded', () => {
       yearSel.appendChild(opt);
     }
     yearSel.addEventListener('change', e => cogeYearChange(e.target.value));
+  }
+  // Month selector 0 (anno intero) + 1..12
+  const monthSel = document.getElementById('cogeMonth');
+  if (monthSel) {
+    for (let m = 0; m <= 12; m++) {
+      const opt = document.createElement('option');
+      opt.value = m; opt.textContent = MESI_NOMI[m];
+      if (m === COGE.month) opt.selected = true;
+      monthSel.appendChild(opt);
+    }
+    monthSel.addEventListener('change', e => cogeMonthChange(e.target.value));
   }
   cogeLoadAll().then(() => cogeShowSec('riepilogo'));
 });

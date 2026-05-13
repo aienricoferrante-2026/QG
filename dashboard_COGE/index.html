@@ -36,7 +36,8 @@
   </div>
   <div class="nav-group">
     <div class="nav-group-label">📊 Conto Economico</div>
-    <a class="nav-item active" data-sec="riepilogo" onclick="cogeShowSec('riepilogo')"><span class="nav-icon">📊</span>Riepilogo generale</a>
+    <a class="nav-item active" data-sec="riepilogo" onclick="cogeShowSec('riepilogo')"><span class="nav-icon">📊</span>Bilancino (pivot)</a>
+    <a class="nav-item" data-sec="imputazioni" onclick="cogeShowSec('imputazioni')"><span class="nav-icon">🧮</span>Imputazione su commesse</a>
   </div>
   <div class="nav-group">
     <div class="nav-group-label">📥 Dati esterni</div>
@@ -54,11 +55,14 @@
     <div class="header-tools">
       <label style="color:var(--text3);font-size:11px">Anno</label>
       <select id="cogeYear"></select>
+      <label style="color:var(--text3);font-size:11px;margin-left:8px">Mese</label>
+      <select id="cogeMonth"></select>
       <button class="theme-btn" id="themeBtn" title="Cambia tema" onclick="cogeToggleTheme()" style="width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--text);cursor:pointer;font-size:14px">🌙</button>
     </div>
   </div>
 
   <div id="sec-riepilogo"></div>
+  <div id="sec-imputazioni" class="hidden"></div>
   <div id="sec-hr" class="hidden"></div>
   <div id="sec-indiretti" class="hidden"></div>
 </main>
@@ -66,6 +70,7 @@
 <script src="config.js"></script>
 <script src="js/coge-data.js"></script>
 <script src="js/coge-riepilogo.js"></script>
+<script src="js/coge-imputazioni.js"></script>
 <script src="js/coge-hr.js"></script>
 <script src="js/coge-indiretti.js"></script>
 <script src="js/coge-app.js"></script>
