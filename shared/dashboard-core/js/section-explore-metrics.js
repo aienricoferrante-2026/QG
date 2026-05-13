@@ -156,9 +156,10 @@ function _exploreFmt(v, metric) {
 function _exploreBase() {
   if (typeof D === 'undefined' || !D) return [];
   const defs = (typeof _filterDefs === 'function') ? _filterDefs() : [];
+  const qfs = (typeof _activeQuickFilterObjs === 'function') ? _activeQuickFilterObjs() : [];
   return D.filter(c => {
     for (const f of defs) if (typeof _matchFilter === 'function' && !_matchFilter(f, c)) return false;
-    if (typeof _quickFilter !== 'undefined' && _quickFilter && !_quickFilter.predicate(c)) return false;
+    for (const q of qfs) if (!q.predicate(c)) return false;
     return true;
   });
 }

@@ -11,7 +11,9 @@ function _exploreDefault() {
     l1: 'societa', l2: 'none', l3: 'none',
     metric: 'ricavi', compare: 'none',
     aIso: '', bIso: '',
-    search: ''
+    search: '',
+    subStatus: 'all',
+    subYear: 'all'
   };
 }
 
@@ -62,13 +64,15 @@ function _exploreSetL3(v) {
 }
 function _exploreSetMet(v) { _exploreSet('metric', v); }
 function _exploreSetCmp(v) { _exploreSet('compare', v); }
+function _exploreSetSubStatus(v) { _exploreSet('subStatus', v); }
+function _exploreSetSubYear(v)   { _exploreSet('subYear',   v); }
 function _exploreSetA(v)   { _exploreSet('aIso', String(v || '').trim()); }
 function _exploreSetB(v)   { _exploreSet('bIso', String(v || '').trim()); }
 function _exploreSetSearch(v) {
   _exploreState().search = String(v || '');
   _exploreSave();
   const wrap = document.getElementById('explore-tbl-wrap');
-  if (wrap) wrap.innerHTML = _exploreRenderTable(_exploreState(), _explorePeriods());
+  if (wrap) wrap.innerHTML = _exploreRenderTable(_exploreState(), _explorePeriodsFiltered(_exploreState()));
 }
 
 function _explorePreset(id) {
@@ -86,12 +90,47 @@ function _exploreActivePreset() {
   return EXPLORE_PRESETS.find(p => p.l1 === s.l1 && p.l2 === s.l2 && p.l3 === s.l3 && p.m === s.metric);
 }
 
+/* Sub-filtri locali a Esplora: si applicano sopra ai filtri globali del
+   kit (multiselect + period + quick filter), e influenzano sia il chart
+   che la tabella albero. */
+function _exploreSubMatch(c, s) {
+  if (s.subStatus !== 'all') {
+    if (s.subStatus === 'open'    && !isOpen(c))     return false;
+    if (s.subStatus === 'closed'  && !isClosed(c))   return false;
+    if (s.subStatus === 'cancel'  && !isCancelled(c))return false;
+    if (s.subStatus === 'inLav'   && !/lavorazione/i.test(c.status || '')) return false;
+    if (s.subStatus === 'plan'    && c.status !== 'Da pianificare') return false;
+  }
+  if (s.subYear !== 'all') {
+    const d = _exploreStart(c);
+    if (!d) return false;
+    if (String(d.getFullYear()) !== String(s.subYear)) return false;
+  }
+  return true;
+}
+
+function _exploreApplySubFilters(periods, s) {
+  if (s.subStatus === 'all' && s.subYear === 'all') return periods;
+  return periods.map(p => ({ label: p.label, items: p.items.filter(c => _exploreSubMatch(c, s)) }));
+}
+
+/* Anni disponibili nel dataset filtrato (per il dropdown subYear). */
+function _exploreYearsAvailable() {
+  const set = new Set();
+  (typeof filtered !== 'undefined' ? filtered : []).forEach(c => {
+    const d = _exploreStart(c);
+    if (d) set.add(d.getFullYear());
+  });
+  return [...set].sort((a, b) => b - a);
+}
+
 /* ── Render ── */
 function renderExplore() {
   const el = document.getElementById('sec-explore');
   if (!el) return;
   const s = _exploreState();
-  const periods = _explorePeriods(s);
+  const periodsRaw = _explorePeriods(s);
+  const periods = _exploreApplySubFilters(periodsRaw, s);
 
   const metricLabel = EXPLORE_METRICS.find(m => m.id === s.metric).short;
   const dim1Label = (EXPLORE_DIMENSIONS.find(d => d.id === s.l1) || {}).label || s.l1;
@@ -107,9 +146,11 @@ function renderExplore() {
   h += _exploreKpis(s, periods);
 
   const chartInfo = _exploreChartInfoHtml(s, dim1Label, metricLabel);
-  h += '<div class="card"><h4 style="display:flex;align-items:center;gap:4px">Top per ' + metricLabel +
-       ' · per ' + dim1Label +
+  h += '<div class="card"><h4 style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">' +
+       '<span>Top per ' + metricLabel + ' · per ' + dim1Label + '</span>' +
        chartInfo +
+       '<span style="flex:1"></span>' +
+       _exploreSubFiltersHtml(s) +
        '</h4>' +
        '<div class="chart-wrap"><canvas id="chExplore"></canvas></div></div>';
 
@@ -160,6 +201,36 @@ function _exploreSelect(fn, opts, cur, exclude) {
     h += '<option value="' + o.id + '"' + (o.id === cur ? ' selected' : '') + '>' + o.label + '</option>';
   });
   return h + '</select>';
+}
+
+/* Sub-filtri dentro al card del grafico: agiscono solo sulla sezione
+   Esplora (chart + albero), in aggiunta ai filtri globali del kit. */
+function _exploreSubFiltersHtml(s) {
+  const statusOpts = [
+    { id: 'all',    label: 'Tutti' },
+    { id: 'open',   label: 'Solo aperte' },
+    { id: 'closed', label: 'Solo chiuse' },
+    { id: 'inLav',  label: 'In Lavorazione' },
+    { id: 'plan',   label: 'Da pianificare' },
+    { id: 'cancel', label: 'Annullate' }
+  ];
+  const years = _exploreYearsAvailable();
+  const yearOpts = [{ id: 'all', label: 'Tutti gli anni' }].concat(years.map(y => ({ id: String(y), label: String(y) })));
+  const active = (s.subStatus !== 'all' || s.subYear !== 'all');
+  const sel = (fn, opts, cur) => {
+    let r = '<select class="explore-subf" onchange="' + fn + '(this.value)">';
+    opts.forEach(o => { r += '<option value="' + o.id + '"' + (String(o.id) === String(cur) ? ' selected' : '') + '>' + o.label + '</option>'; });
+    return r + '</select>';
+  };
+  let h = '<span class="explore-subf-label" title="Sub-filtri locali alla sezione Esplora (in AND con i filtri globali)">' +
+          (active ? '🎯' : '⊕') + ' Sub-filtri:</span>';
+  h += sel('_exploreSetSubStatus', statusOpts, s.subStatus);
+  h += sel('_exploreSetSubYear',   yearOpts,   s.subYear);
+  if (active) {
+    h += '<button class="qf-btn qf-clear" style="padding:2px 8px;font-size:10px" ' +
+         'onclick="_exploreSetSubStatus(\'all\');_exploreSetSubYear(\'all\')" title="Resetta sub-filtri">✕</button>';
+  }
+  return h;
 }
 
 function _exploreChartInfoHtml(s, dim1Label, metricLabel) {
