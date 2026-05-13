@@ -22,6 +22,23 @@ window.SECTOR_CONFIG = {
   partnersBaseUrl: 'partners_soa/view.html',
   targetsFile: 'data/targets.json',
 
+  /* Upload Excel — estensioni SOA al fieldMap base del kit. */
+  uploadGithubDataPath: 'dashboard_SOA_CM/data/commesse_soa.json',
+  uploadExtraFieldMap: {
+    'SOA Attestante':           'soaAttestante',
+    'Ente Certificazione 9001': 'enteCert9001',
+    'Ente Cert. 9001':          'enteCert9001',
+    'Consorzio':                'consorzio',
+    'Consorzio Flag':           'consorzioFlag',
+    'Data Firma Contratto':     'dataFirmaContratto',
+    'Aggiornamento Settimanale':'aggSettimanale',
+    'Agg. Settimanale':         'aggSettimanale',
+    'Ultima Chiamata':          'ultimaChiamata',
+    'Invio Contratto':          'invioContratto',
+    'Scadenza Cert.':           'scadenzaCert',
+    'Scadenza Certificazione':  'scadenzaCert'
+  },
+
   /* Drill-down: oltre ai default aggiungiamo i campi SOA. */
   drillFields: [
     { key: 'sedeNorm',      label: 'Sede' },
