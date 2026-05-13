@@ -121,19 +121,29 @@
       btn.textContent = 'Verifico…';
       const u = (document.getElementById('qg-user').value || '').trim().toLowerCase();
       const p = document.getElementById('qg-pass').value || '';
-      const hash = await sha256(p);
-      const isMaster = (u === MASTER_USER && hash === MASTER_PASS_HASH);
-      const isSector = (u === ADMIN_USER && hash === ADMIN_PASS_HASH);
-      if (isMaster || isSector) {
-        setAuthed(u);
-        ov.style.transition = 'opacity .25s';
-        ov.style.opacity = '0';
-        setTimeout(() => { ov.remove(); installLogoutBtn(); }, 260);
-      } else {
-        errEl.textContent = 'Credenziali non valide.';
+      try {
+        if (!window.isSecureContext || !window.crypto || !crypto.subtle) {
+          throw new Error('Browser senza crypto.subtle: apri il sito via HTTPS.');
+        }
+        const hash = await sha256(p);
+        const isMaster = (u === MASTER_USER && hash === MASTER_PASS_HASH);
+        const isSector = (u === ADMIN_USER && hash === ADMIN_PASS_HASH);
+        console.log('[auth] user=' + u + ' isMaster=' + isMaster + ' isSector=' + isSector);
+        if (isMaster || isSector) {
+          setAuthed(u);
+          ov.style.transition = 'opacity .25s';
+          ov.style.opacity = '0';
+          setTimeout(() => { ov.remove(); installLogoutBtn(); }, 260);
+          return;
+        }
+        errEl.textContent = 'Credenziali non valide. Email accettate: ' + MASTER_USER + (ADMIN_USER !== MASTER_USER ? ' o ' + ADMIN_USER : '');
+        document.getElementById('qg-pass').select();
+      } catch (ex) {
+        console.error('[auth] login error', ex);
+        errEl.textContent = 'Errore: ' + ex.message;
+      } finally {
         btn.disabled = false;
         btn.textContent = 'Entra';
-        document.getElementById('qg-pass').select();
       }
     });
 
