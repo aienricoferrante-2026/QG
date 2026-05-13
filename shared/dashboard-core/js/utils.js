@@ -37,6 +37,16 @@ function mkpi(val, label) {
   return '<div class="modal-kpi"><div class="v">' + val + '</div><div class="l">' + label + '</div></div>';
 }
 
+/* Helper per drill-down su un sottoinsieme delle commesse filtrate.
+   Usato dai KPI cliccabili. Title supporta HTML; items è già filtrato.
+   Wrapper attorno a drillDownItems del modulo drilldown.js. */
+function drillFiltered(title, predicate) {
+  if (typeof filtered === 'undefined' || !Array.isArray(filtered)) return;
+  const items = filtered.filter(predicate);
+  if (typeof drillDownItems !== 'function') return;
+  drillDownItems(title + ' · ' + items.length + ' commesse', items);
+}
+
 /* Bottone "Apri in Qnet" — usa qnetLink/erpLink della commessa */
 function qnetBtn(c) {
   const link = c && (c.qnetLink || c.erpLink);

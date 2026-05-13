@@ -1,184 +1,225 @@
-/* ── Sezione Economico & Finanziario (core) ──
-   Budget Commessa allineato a Qnet: Consuntivo Ec., Documentale, Finanziario.
-*/
+/* ── Sezione Econ. & Finanziario · 3 viste affiancate ──
+   Aggrega i dati di Qnet in 3 box paralleli:
+     Consuntivo   (campi ec*Cons)    — stima a budget consuntivata
+     Documentale  (*Docum)           — fatturato registrato
+     Finanziario  (fin*Tot + cassa)  — incassi/uscite reali
+
+   Sotto: chart scostamento Doc vs Cons per Società, chart cassa per Società,
+   tabella unificata per Società con tutte e 3 le viste, tabella per Cliente. */
+
+function _ecAggrega(items) {
+  const a = {
+    cons:  { r: 0, c: 0, m: 0 },
+    doc:   { r: 0, c: 0, m: 0 },
+    fin:   { in_: 0, out: 0, delta: 0 },
+    cassa: { ricavi: 0, incassato: 0, daInc: 0 },
+    avanzEc: { sum: 0, n: 0 }
+  };
+  items.forEach(c => {
+    a.cons.r += (c.ecRicaviCons || 0);
+    a.cons.c += (c.ecCostiCons || 0);
+    a.cons.m += (c.ecMolCons || 0);
+    a.doc.r  += (c.ricaviDocum || 0);
+    a.doc.c  += (c.costiDocum || 0);
+    a.doc.m  += (c.molDocum || 0);
+    a.fin.in_   += (c.finIncassiTot || 0);
+    a.fin.out   += (c.finUsciteTot || 0);
+    a.fin.delta += (c.finDeltaTot || 0);
+    a.cassa.ricavi    += (c.consulenza || 0);
+    a.cassa.incassato += (c.giaIncassato || 0);
+    a.cassa.daInc     += Math.max(0, (c.consulenza || 0) - (c.giaIncassato || 0));
+    if (typeof c.pctAvanzEc === 'number') { a.avanzEc.sum += c.pctAvanzEc; a.avanzEc.n++; }
+  });
+  return a;
+}
+
+function _ecBoxHtml(title, color, icon, rows, footer) {
+  let h = '<div class="card econ-box" style="border-top:3px solid ' + color + '">';
+  h += '<h4 style="color:' + color + ';margin:0 0 10px 0;font-size:13px;display:flex;align-items:center;gap:6px">' +
+       '<span style="font-size:16px">' + icon + '</span>' + title + '</h4>';
+  h += '<div class="econ-rows">';
+  rows.forEach(r => {
+    h += '<div class="econ-row"><span class="econ-label">' + r.label + '</span>' +
+         '<strong class="econ-val">' + r.val + '</strong>' +
+         (r.sub ? '<span class="econ-sub">' + r.sub + '</span>' : '') + '</div>';
+  });
+  h += '</div>';
+  if (footer) h += '<div class="econ-foot">' + footer + '</div>';
+  h += '</div>';
+  return h;
+}
 
 function renderEconFin() {
   const el = document.getElementById('sec-econFin');
   if (!el) return;
   const f = filtered;
+  const A = _ecAggrega(f);
 
-  // Reddituale (CE)
-  const ricavi = f.reduce((s, c) => s + (c.consulenza || 0), 0);
-  const costi = f.reduce((s, c) => s + (c.costi || 0), 0);
-  const mol = f.reduce((s, c) => s + (c.mol || 0), 0);
-  const marginePct = ricavi ? (mol / ricavi * 100) : 0;
-
-  // Budget Commessa: Consuntivo Economico
-  const ecRic = f.reduce((s, c) => s + (c.ecRicaviCons || 0), 0);
-  const ecCos = f.reduce((s, c) => s + (c.ecCostiCons || 0), 0);
-  const ecMol = f.reduce((s, c) => s + (c.ecMolCons || 0), 0);
-  const avgAvanzEc = f.length ? f.reduce((s, c) => s + (c.pctAvanzEc || 0), 0) / f.length : 0;
-
-  // Budget Commessa: Documentale
-  const docRic = f.reduce((s, c) => s + (c.ricaviDocum || 0), 0);
-  const docCos = f.reduce((s, c) => s + (c.costiDocum || 0), 0);
-  const docMol = f.reduce((s, c) => s + (c.molDocum || 0), 0);
-
-  // Finanziario
-  const incassato = f.reduce((s, c) => s + (c.giaIncassato || 0), 0);
-  const daIncassare = f.reduce((s, c) => s + Math.max(0, (c.consulenza || 0) - (c.giaIncassato || 0)), 0);
-  const incassatoPct = ricavi ? (incassato / ricavi * 100) : 0;
-  const daIncassarePct = ricavi ? (daIncassare / ricavi * 100) : 0;
-  const finIn = f.reduce((s, c) => s + (c.finIncassiTot || 0), 0);
-  const finOut = f.reduce((s, c) => s + (c.finUsciteTot || 0), 0);
-  const finDelta = f.reduce((s, c) => s + (c.finDeltaTot || 0), 0);
+  const ricTot = A.cassa.ricavi;
+  const consMargin = A.cons.r ? (A.cons.m / A.cons.r * 100) : 0;
+  const docMargin  = A.doc.r  ? (A.doc.m  / A.doc.r  * 100) : 0;
+  const incPct     = ricTot ? (A.cassa.incassato / ricTot * 100) : 0;
+  const avzEc = A.avanzEc.n ? (A.avanzEc.sum / A.avanzEc.n) : 0;
+  /* Scostamenti chiave Documentale - Consuntivo (gap fatturato vs consuntivato) */
+  const dR = A.doc.r - A.cons.r;
+  const dC = A.doc.c - A.cons.c;
+  const dM = A.doc.m - A.cons.m;
+  const sign = v => (v >= 0 ? '+' : '') + fmtK(v);
 
   let h = '<div class="sec"><h3 class="sec-title">Economico & Finanziario · Budget Commessa Qnet</h3>';
-  h += '<p style="color:var(--text3);font-size:11px;margin-bottom:14px">Reddituale (totale teorico), Budget Commessa (Consuntivo Ec., Documentale, %) e Finanziario (cassa reale, allineato a Qnet).</p>';
+  h += '<p style="color:var(--text3);font-size:11px;margin-bottom:14px">' +
+       'Tre viste affiancate sui dati Qnet: <strong>Consuntivo</strong> (stima ec*Cons), ' +
+       '<strong>Documentale</strong> (fatturato), <strong>Finanziario</strong> (cassa reale). ' +
+       'Sotto trovi gli scostamenti per capire dove la realtà diverge dal budget.</p>';
 
-  // BUDGET COMMESSA
-  h += '<h4 style="font-size:13px;font-weight:700;color:#6366f1;margin:8px 0 10px 0;padding:4px 8px;border-left:3px solid #6366f1">BUDGET COMMESSA · allineato a Qnet</h4>';
-  h += '<div class="kpi-grid" style="padding:0 0 14px 0">';
-  h += '<div class="kpi blue"><div class="kpi-label">Ec. Ricavi Cons.</div><div class="kpi-value">' + fmtK(ecRic) + '</div><div class="kpi-sub">' + pct(ecRic, ricavi) + ' del teorico</div></div>';
-  h += '<div class="kpi orange"><div class="kpi-label">Ec. Costi Cons.</div><div class="kpi-value">' + fmtK(ecCos) + '</div><div class="kpi-sub">' + pct(ecCos, costi) + ' del teorico</div></div>';
-  h += '<div class="kpi green"><div class="kpi-label">Ec. MOL Cons.</div><div class="kpi-value">' + fmtK(ecMol) + '</div><div class="kpi-sub">margine consuntivato</div></div>';
-  h += '<div class="kpi cyan"><div class="kpi-label">% Avanz. Ec. medio</div><div class="kpi-value">' + avgAvanzEc.toFixed(1) + '%</div><div class="kpi-sub">media commesse</div></div>';
-  h += '<div class="kpi purple"><div class="kpi-label">Ricavi Documentali</div><div class="kpi-value">' + fmtK(docRic) + '</div><div class="kpi-sub">fatturato registrato</div></div>';
-  h += '<div class="kpi pink"><div class="kpi-label">Costi Documentali</div><div class="kpi-value">' + fmtK(docCos) + '</div><div class="kpi-sub">costi registrati</div></div>';
-  h += '<div class="kpi green"><div class="kpi-label">MOL Documentale</div><div class="kpi-value">' + fmtK(docMol) + '</div><div class="kpi-sub">margine fatturato</div></div>';
-  h += '<div class="kpi blue"><div class="kpi-label">Fin. Incassi Tot.</div><div class="kpi-value">' + fmtK(finIn) + '</div><div class="kpi-sub">cassa entrate</div></div>';
-  h += '<div class="kpi orange"><div class="kpi-label">Fin. Uscite Tot.</div><div class="kpi-value">' + fmtK(finOut) + '</div><div class="kpi-sub">cassa uscite</div></div>';
-  h += '<div class="kpi ' + (finDelta >= 0 ? 'green' : 'pink') + '"><div class="kpi-label">Fin. Delta Tot.</div><div class="kpi-value">' + fmtK(finDelta) + '</div><div class="kpi-sub">netto cassa</div></div>';
+  /* 3 BOX AFFIANCATI */
+  h += '<div class="row3 econ-boxes">';
+  h += _ecBoxHtml('CONSUNTIVO', '#6366f1', '📐', [
+    { label: 'Ricavi',     val: fmtK(A.cons.r), sub: 'ec.RicaviCons' },
+    { label: 'Costi',      val: fmtK(A.cons.c), sub: 'ec.CostiCons' },
+    { label: 'MOL',        val: fmtK(A.cons.m), sub: consMargin.toFixed(1) + '% margine' },
+    { label: 'Avanz. medio', val: avzEc.toFixed(1) + '%', sub: 'media ' + A.avanzEc.n + ' commesse' }
+  ], 'Budget consuntivato a Qnet · stima');
+
+  h += _ecBoxHtml('DOCUMENTALE', '#8b5cf6', '📄', [
+    { label: 'Ricavi',     val: fmtK(A.doc.r), sub: pct(A.doc.r, A.cons.r) + ' del cons.' },
+    { label: 'Costi',      val: fmtK(A.doc.c), sub: pct(A.doc.c, A.cons.c) + ' del cons.' },
+    { label: 'MOL',        val: fmtK(A.doc.m), sub: docMargin.toFixed(1) + '% margine' },
+    { label: 'Δ vs Cons.', val: sign(dM),     sub: 'gap MOL fatt-cons' }
+  ], 'Fatture emesse · registrato in contabilità');
+
+  h += _ecBoxHtml('FINANZIARIO (Cassa)', '#10b981', '💸', [
+    { label: 'Incassi tot.',  val: fmtK(A.fin.in_), sub: pct(A.cassa.incassato, ricTot) + ' dei ricavi' },
+    { label: 'Uscite tot.',   val: fmtK(A.fin.out), sub: 'cassa uscite' },
+    { label: 'Delta cassa',   val: sign(A.fin.delta), sub: A.fin.delta >= 0 ? 'positivo' : 'negativo' },
+    { label: 'Già Incassato', val: fmtK(A.cassa.incassato), sub: incPct.toFixed(1) + '% dei ricavi' }
+  ], 'Movimenti reali di cassa · Qnet');
   h += '</div>';
 
-  // REDDITUALE
-  h += '<h4 style="font-size:13px;font-weight:700;color:var(--accent);margin:8px 0 10px 0;padding:4px 8px;border-left:3px solid var(--accent)">REDDITUALE (Conto Economico)</h4>';
-  h += '<div class="kpi-grid" style="padding:0 0 14px 0">';
-  h += '<div class="kpi blue"><div class="kpi-label">Ricavi Totali</div><div class="kpi-value">' + fmtK(ricavi) + '</div><div class="kpi-sub">' + fmtE(ricavi) + '</div></div>';
-  h += '<div class="kpi orange"><div class="kpi-label">Costi Totali</div><div class="kpi-value">' + fmtK(costi) + '</div><div class="kpi-sub">' + pct(costi, ricavi) + ' dei ricavi</div></div>';
-  h += '<div class="kpi green"><div class="kpi-label">MOL (Margine)</div><div class="kpi-value">' + fmtK(mol) + '</div><div class="kpi-sub">Margine: ' + marginePct.toFixed(1) + '%</div></div>';
+  /* SCOSTAMENTI CHIAVE — riga compatta che evidenzia i gap */
+  h += '<div class="card" style="margin-top:14px;padding:12px 16px">';
+  h += '<h4 style="margin:0 0 8px 0;font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:.5px">' +
+       '🎯 Scostamenti chiave Documentale − Consuntivo</h4>';
+  h += '<div style="display:flex;gap:24px;flex-wrap:wrap;font-size:13px">';
+  ['Ricavi:' + sign(dR), 'Costi:' + sign(dC), 'MOL:' + sign(dM)].forEach((s, i) => {
+    const v = [dR, dC, dM][i];
+    const col = i === 1 ? (v <= 0 ? '#10b981' : '#ef4444') : (v >= 0 ? '#10b981' : '#ef4444');
+    const label = s.split(':')[0];
+    const val = s.split(':')[1];
+    h += '<div><span style="color:var(--text2)">' + label + '</span> ' +
+         '<strong style="color:' + col + ';font-size:15px;margin-left:4px">' + val + '</strong></div>';
+  });
+  h += '</div></div>';
+
+  /* CHART comparativi */
+  h += '<div class="row2" style="margin-top:14px">';
+  h += '<div class="card"><h4>Confronto Ricavi: Cons. vs Documentale vs Cassa · Top 10 Società</h4>' +
+       '<div class="chart-wrap"><canvas id="chEconCompara"></canvas></div></div>';
+  h += '<div class="card"><h4>Incassato vs Da Incassare · Top 10 Società per credito aperto</h4>' +
+       '<div class="chart-wrap"><canvas id="chFinSoc"></canvas></div></div>';
   h += '</div>';
 
-  h += '<div class="row2">';
-  h += '<div class="card"><h4>Ricavi vs Costi vs MOL per Società</h4><div class="chart-wrap"><canvas id="chEconSoc"></canvas></div></div>';
-  h += '<div class="card"><h4>Margine % per Società (top 10)</h4><div class="chart-wrap"><canvas id="chEconMarg"></canvas></div></div>';
-  h += '</div>';
-
-  // FINANZIARIO
-  h += '<h4 style="font-size:13px;font-weight:700;color:var(--green);margin:20px 0 10px 0;padding:4px 8px;border-left:3px solid var(--green)">FINANZIARIO (Cassa)</h4>';
-  h += '<div class="kpi-grid" style="padding:0 0 14px 0">';
-  h += '<div class="kpi green"><div class="kpi-label">Già Incassato</div><div class="kpi-value">' + fmtK(incassato) + '</div><div class="kpi-sub">' + incassatoPct.toFixed(1) + '% dei ricavi</div></div>';
-  h += '<div class="kpi orange"><div class="kpi-label">Da Incassare</div><div class="kpi-value">' + fmtK(daIncassare) + '</div><div class="kpi-sub">' + daIncassarePct.toFixed(1) + '% · Ricavi − Incassato</div></div>';
-  h += '<div class="kpi pink"><div class="kpi-label">Esposizione</div><div class="kpi-value">' + fmtK(ricavi - incassato) + '</div><div class="kpi-sub">credito aperto</div></div>';
-  h += '</div>';
-
-  h += '<div class="row2">';
-  h += '<div class="card"><h4>Incassato vs Da Incassare per Società</h4><div class="chart-wrap"><canvas id="chFinSoc"></canvas></div></div>';
-  h += '<div class="card"><h4>Top 10 Clienti per Credito Aperto</h4><div class="chart-wrap"><canvas id="chFinCli"></canvas></div></div>';
-  h += '</div>';
-
-  h += '<div class="card" style="margin-top:14px"><h4>Riepilogo Economico-Finanziario per Società</h4>';
-  h += '<p style="color:var(--text3);font-size:11px;margin-bottom:8px">Clicca su una riga per il drill-down.</p>';
+  /* TABELLA unificata per Società con le 3 viste affiancate */
+  h += '<div class="card" style="margin-top:14px"><h4>Riepilogo per Società · Cons · Documentale · Cassa</h4>';
+  h += '<p style="color:var(--text3);font-size:11px;margin-bottom:8px">Clicca una riga per il drill-down sulle commesse della società.</p>';
   h += '<div class="tbl-scroll"><table id="tblEconFin"></table></div></div>';
 
-  h += '<div class="card" style="margin-top:14px"><h4>Riepilogo per Cliente</h4>';
+  /* TABELLA Clienti (compatta) */
+  h += '<div class="card" style="margin-top:14px"><h4>Riepilogo Clienti · ricavi, MOL, incasso, credito aperto</h4>';
   h += '<div class="tbl-scroll"><table id="tblEconCli"></table></div></div>';
+
   h += '</div>';
   el.innerHTML = h;
 
-  // Aggregati Società
+  /* Aggregati per Società */
   const socG = {};
   f.forEach(c => {
     const k = c.societa || 'N/D';
-    if (!socG[k]) socG[k] = { cnt: 0, ric: 0, cos: 0, mol: 0, inc: 0, dInc: 0 };
-    socG[k].cnt++;
-    socG[k].ric += (c.consulenza || 0);
-    socG[k].cos += (c.costi || 0);
-    socG[k].mol += (c.mol || 0);
-    socG[k].inc += (c.giaIncassato || 0);
-    socG[k].dInc += Math.max(0, (c.consulenza || 0) - (c.giaIncassato || 0));
+    if (!socG[k]) socG[k] = { cnt: 0, consR: 0, consC: 0, consM: 0, docR: 0, docC: 0, docM: 0, ric: 0, inc: 0, dInc: 0 };
+    const g = socG[k];
+    g.cnt++;
+    g.consR += (c.ecRicaviCons || 0);
+    g.consC += (c.ecCostiCons || 0);
+    g.consM += (c.ecMolCons || 0);
+    g.docR  += (c.ricaviDocum || 0);
+    g.docC  += (c.costiDocum || 0);
+    g.docM  += (c.molDocum || 0);
+    g.ric   += (c.consulenza || 0);
+    g.inc   += (c.giaIncassato || 0);
+    g.dInc  += Math.max(0, (c.consulenza || 0) - (c.giaIncassato || 0));
   });
   const socSorted = Object.entries(socG).sort((a, b) => b[1].ric - a[1].ric);
   const top10 = socSorted.slice(0, 10);
+  const lbl = s => s.length > 20 ? s.substring(0, 18) + '..' : s;
 
-  makeBarStacked('chEconSoc',
-    top10.map(e => e[0].length > 20 ? e[0].substring(0, 18) + '..' : e[0]),
+  makeBarStacked('chEconCompara',
+    top10.map(e => lbl(e[0])),
     [
-      { label: 'Costi', data: top10.map(e => e[1].cos), backgroundColor: '#ef4444cc', borderRadius: 4 },
-      { label: 'MOL', data: top10.map(e => e[1].mol), backgroundColor: '#10b981cc', borderRadius: 4 }
+      { label: 'Consuntivo',   data: top10.map(e => e[1].consR), backgroundColor: '#6366f1cc', borderRadius: 4 },
+      { label: 'Documentale',  data: top10.map(e => e[1].docR),  backgroundColor: '#8b5cf6cc', borderRadius: 4 },
+      { label: 'Cassa (inc.)', data: top10.map(e => e[1].inc),   backgroundColor: '#10b981cc', borderRadius: 4 }
     ]
   );
-  makeBar('chEconMarg',
-    top10.map(e => e[0].length > 20 ? e[0].substring(0, 18) + '..' : e[0]),
-    top10.map(e => e[1].ric ? (e[1].mol / e[1].ric * 100) : 0),
-    '#10b981', true);
+  /* Sblocca lo stacking sul confronto: vogliamo 3 barre affiancate, non sovrapposte. */
+  if (_charts['chEconCompara'] && _charts['chEconCompara'].options) {
+    _charts['chEconCompara'].options.scales.x.stacked = false;
+    _charts['chEconCompara'].options.scales.y.stacked = false;
+    _charts['chEconCompara'].update();
+  }
 
-  const byCredito = [...socSorted].sort((a, b) => (b[1].ric - b[1].inc) - (a[1].ric - a[1].inc)).slice(0, 10);
+  const byCredito = [...socSorted].sort((a, b) => b[1].dInc - a[1].dInc).slice(0, 10);
   makeBarStacked('chFinSoc',
-    byCredito.map(e => e[0].length > 20 ? e[0].substring(0, 18) + '..' : e[0]),
+    byCredito.map(e => lbl(e[0])),
     [
-      { label: 'Incassato', data: byCredito.map(e => e[1].inc), backgroundColor: '#10b981cc', borderRadius: 4 },
+      { label: 'Incassato',    data: byCredito.map(e => e[1].inc),  backgroundColor: '#10b981cc', borderRadius: 4 },
       { label: 'Da Incassare', data: byCredito.map(e => e[1].dInc), backgroundColor: '#f59e0bcc', borderRadius: 4 }
     ]
   );
 
-  // Top 10 Clienti per credito aperto
-  const cliG = {};
-  f.forEach(c => {
-    const k = c.cliente || 'N/D';
-    if (!cliG[k]) cliG[k] = { ric: 0, inc: 0 };
-    cliG[k].ric += (c.consulenza || 0);
-    cliG[k].inc += (c.giaIncassato || 0);
-  });
-  const cliSorted = Object.entries(cliG)
-    .map(([k, v]) => [k, { ...v, credito: v.ric - v.inc }])
-    .filter(e => e[1].credito > 0)
-    .sort((a, b) => b[1].credito - a[1].credito)
-    .slice(0, 10);
-  makeBar('chFinCli',
-    cliSorted.map(e => e[0].length > 25 ? e[0].substring(0, 23) + '..' : e[0]),
-    cliSorted.map(e => e[1].credito), '#ef4444', true);
-
+  /* Tabella unificata Società */
   buildTbl('tblEconFin',
-    ['Società', 'Comm.', 'Ricavi', 'Costi', 'MOL', 'Margine %', 'Incassato', 'Da Incassare', '% Inc.'],
+    ['Società', 'Comm.',
+      'Cons. Ric.', 'Cons. MOL',
+      'Doc. Ric.', 'Doc. MOL',
+      'Cassa Inc.', 'Da Inc.', '% Inc.'],
     socSorted.map(([k, v]) => [
-      { display: k.length > 40 ? k.substring(0, 38) + '..' : k, val: k },
+      { display: k.length > 35 ? k.substring(0, 33) + '..' : k, val: k },
       { display: fmt(v.cnt), val: v.cnt },
-      { display: fmtE(v.ric), val: v.ric },
-      { display: fmtE(v.cos), val: v.cos },
-      { display: fmtE(v.mol), val: v.mol },
-      { display: v.ric ? (v.mol / v.ric * 100).toFixed(1) + '%' : '-', val: v.ric ? v.mol / v.ric * 100 : 0 },
-      { display: fmtE(v.inc), val: v.inc },
-      { display: fmtE(v.dInc), val: v.dInc },
+      { display: fmtE(v.consR), val: v.consR },
+      { display: fmtE(v.consM), val: v.consM },
+      { display: fmtE(v.docR),  val: v.docR },
+      { display: fmtE(v.docM),  val: v.docM },
+      { display: fmtE(v.inc),   val: v.inc },
+      { display: fmtE(v.dInc),  val: v.dInc },
       { display: v.ric ? (v.inc / v.ric * 100).toFixed(1) + '%' : '-', val: v.ric ? v.inc / v.ric * 100 : 0 }
     ]),
     ['str', 'num', 'num', 'num', 'num', 'num', 'num', 'num', 'num'],
     { clickField: 'societa' }
   );
 
-  const cliFull = {};
+  /* Tabella Clienti */
+  const cliG = {};
   f.forEach(c => {
     const k = c.cliente || 'N/D';
-    if (!cliFull[k]) cliFull[k] = { cnt: 0, ric: 0, cos: 0, mol: 0, inc: 0, dInc: 0 };
-    cliFull[k].cnt++;
-    cliFull[k].ric += (c.consulenza || 0);
-    cliFull[k].cos += (c.costi || 0);
-    cliFull[k].mol += (c.mol || 0);
-    cliFull[k].inc += (c.giaIncassato || 0);
-    cliFull[k].dInc += Math.max(0, (c.consulenza || 0) - (c.giaIncassato || 0));
+    if (!cliG[k]) cliG[k] = { cnt: 0, ric: 0, mol: 0, inc: 0, dInc: 0 };
+    cliG[k].cnt++;
+    cliG[k].ric  += (c.consulenza || 0);
+    cliG[k].mol  += (c.mol || 0);
+    cliG[k].inc  += (c.giaIncassato || 0);
+    cliG[k].dInc += Math.max(0, (c.consulenza || 0) - (c.giaIncassato || 0));
   });
-  const cliFullSorted = Object.entries(cliFull).sort((a, b) => b[1].ric - a[1].ric);
+  const cliSorted = Object.entries(cliG).sort((a, b) => b[1].ric - a[1].ric);
   buildTbl('tblEconCli',
-    ['Cliente', 'Comm.', 'Ricavi', 'MOL', 'Margine %', 'Incassato', 'Da Incassare', 'Credito Aperto'],
-    cliFullSorted.map(([k, v]) => [
-      { display: k.length > 40 ? k.substring(0, 38) + '..' : k, val: k },
+    ['Cliente', 'Comm.', 'Ricavi', 'MOL', 'Margine %', 'Incassato', 'Da Incassare', '% Inc.'],
+    cliSorted.map(([k, v]) => [
+      { display: k.length > 45 ? k.substring(0, 43) + '..' : k, val: k },
       { display: fmt(v.cnt), val: v.cnt },
       { display: fmtE(v.ric), val: v.ric },
       { display: fmtE(v.mol), val: v.mol },
       { display: v.ric ? (v.mol / v.ric * 100).toFixed(1) + '%' : '-', val: v.ric ? v.mol / v.ric * 100 : 0 },
       { display: fmtE(v.inc), val: v.inc },
       { display: fmtE(v.dInc), val: v.dInc },
-      { display: fmtE(v.ric - v.inc), val: v.ric - v.inc }
+      { display: v.ric ? (v.inc / v.ric * 100).toFixed(1) + '%' : '-', val: v.ric ? v.inc / v.ric * 100 : 0 }
     ]),
     ['str', 'num', 'num', 'num', 'num', 'num', 'num', 'num'],
     { clickField: 'cliente' }

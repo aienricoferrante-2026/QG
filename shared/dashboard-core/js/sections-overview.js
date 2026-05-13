@@ -51,52 +51,58 @@ function renderExecutive() {
 
   const trend = _buildMonthlyTrendCore(f);
 
-  let h = '<div class="sec"><h3 class="sec-title">Executive Summary · ' + sectorLabel() + '</h3>';
-  h += '<p style="color:var(--text3);font-size:11px;margin-bottom:14px">Vista sintetica con KPI macro, alert prioritari e trend.</p>';
+  let h = '<div class="sec"><h3 class="sec-title">Sintesi · ' + sectorLabel() + '</h3>';
+  h += '<p style="color:var(--text3);font-size:11px;margin-bottom:14px">' +
+       '5 KPI macro + 4 grafici di overview. Per analisi flessibili usa <strong>🔍 Esplora</strong> nella sidebar.</p>';
 
-  // Macro KPI
+  /* KPI macro cliccabili: ogni numero apre il modale con il sottoinsieme
+     di commesse corrispondente. */
+  const clkExec = (title, pred) => 'onclick="drillFiltered(\'' + title.replace(/'/g, "\\'") + "', " + pred + ')" style="cursor:pointer" title="Clicca per vedere le commesse"';
+  const pAll   = "c => true";
+  const pOpen  = "c => isOpen(c)";
+  const pMolNeg = "c => (c.mol||0) < 0 && (c.consulenza||0) > 0";
+  const pCredito = "c => (c.consulenza||0) - (c.giaIncassato||0) > 0";
+  const pSenzaInc = "c => (c.giaIncassato||0) === 0 && (c.consulenza||0) > 0";
+
   h += '<div class="kpi-grid" style="padding:0 0 14px 0">';
-  h += '<div class="kpi blue"><div class="kpi-label">Commesse Totali</div><div class="kpi-value">' + fmt(cnt) + '</div><div class="kpi-sub">' + fmt(aperte) + ' aperte · ' + fmt(chiuse) + ' chiuse</div></div>';
-  h += '<div class="kpi green"><div class="kpi-label">Ricavi Totali</div><div class="kpi-value">' + fmtK(cons) + '</div><div class="kpi-sub">' + fmtE(cons) + '</div></div>';
-  h += '<div class="kpi cyan"><div class="kpi-label">Margine MOL</div><div class="kpi-value">' + margPct.toFixed(1) + '%</div><div class="kpi-sub">' + fmtK(mol) + ' su ' + fmtK(cons) + '</div></div>';
-  h += '<div class="kpi orange"><div class="kpi-label">% Incasso</div><div class="kpi-value">' + incPct.toFixed(1) + '%</div><div class="kpi-sub">' + fmtK(incassato) + ' incassati</div></div>';
-  h += '<div class="kpi pink"><div class="kpi-label">Esposizione</div><div class="kpi-value">' + fmtK(residuo) + '</div><div class="kpi-sub">credito aperto</div></div>';
+  h += '<div class="kpi blue" ' + clkExec('Commesse · ' + sectorLabel(), pAll) + '><div class="kpi-label">Commesse Totali ›</div><div class="kpi-value">' + fmt(cnt) + '</div><div class="kpi-sub">' + fmt(aperte) + ' aperte · ' + fmt(chiuse) + ' chiuse</div></div>';
+  h += '<div class="kpi green" ' + clkExec('Commesse aperte', pOpen) + '><div class="kpi-label">Ricavi Totali ›</div><div class="kpi-value">' + fmtK(cons) + '</div><div class="kpi-sub">' + fmtE(cons) + '</div></div>';
+  h += '<div class="kpi cyan" ' + clkExec('Commesse con MOL negativo', pMolNeg) + '><div class="kpi-label">Margine MOL</div><div class="kpi-value">' + margPct.toFixed(1) + '%</div><div class="kpi-sub">' + fmtK(mol) + ' su ' + fmtK(cons) + (molNeg.length ? ' · <span style="color:#ef4444">' + molNeg.length + ' negativi ›</span>' : '') + '</div></div>';
+  h += '<div class="kpi orange" ' + clkExec('Commesse senza incasso', pSenzaInc) + '><div class="kpi-label">% Incasso</div><div class="kpi-value">' + incPct.toFixed(1) + '%</div><div class="kpi-sub">' + fmtK(incassato) + ' incassati · ' + (senzaIncasso.length ? '<span style="color:#f59e0b">' + senzaIncasso.length + ' a 0 ›</span>' : 'tutto incassato') + '</div></div>';
+  h += '<div class="kpi pink" ' + clkExec('Credito aperto', pCredito) + '><div class="kpi-label">Esposizione ›</div><div class="kpi-value">' + fmtK(residuo) + '</div><div class="kpi-sub">credito aperto</div></div>';
   h += '</div>';
 
-  // Alert prioritari
-  h += '<h4 style="font-size:13px;font-weight:700;color:#ef4444;margin:14px 0 10px 0;padding:4px 8px;border-left:3px solid #ef4444">⚠️ ALERT PRIORITARI</h4>';
-  h += '<div class="row3" style="margin-bottom:14px">';
-  h += '<div class="card alert-card" onclick="drillDownCustom(\'MOL Negativo\', c=>c.mol<0&&c.consulenza>0)" style="cursor:pointer;border-left:3px solid #ef4444">' +
-       '<h4 style="color:#ef4444">MOL Negativo</h4>' +
-       '<div style="font-size:24px;font-weight:700">' + fmt(molNeg.length) + '</div>' +
-       '<div style="color:var(--text2);font-size:11px;margin-top:4px">Costi &gt; Ricavi · clicca per vedere</div></div>';
-  h += '<div class="card alert-card" onclick="setQuickFilter(\'noincasso\');showSec(\'analisiIncassi\')" style="cursor:pointer;border-left:3px solid #f59e0b">' +
-       '<h4 style="color:#f59e0b">Senza incasso</h4>' +
-       '<div style="font-size:24px;font-weight:700">' + fmt(senzaIncasso.length) + '</div>' +
-       '<div style="color:var(--text2);font-size:11px;margin-top:4px">€ 0 incassati su commesse con ricavi</div></div>';
-  h += '<div class="card alert-card" onclick="showSec(\'alert\')" style="cursor:pointer;border-left:3px solid #8b5cf6">' +
-       '<h4 style="color:#8b5cf6">Vai agli alert</h4>' +
-       '<div style="font-size:24px;font-weight:700">→</div>' +
-       '<div style="color:var(--text2);font-size:11px;margin-top:4px">Tabelle Top 10 alert</div></div>';
-  h += '</div>';
-
-  // Trend + Regioni
+  /* 4 chart riassuntivi · Trend + Regioni + Status + Stato Lav.
+     Niente "Alert prioritari" (sono in /alert) né chart Clienti/Società
+     (sono in Esplora coi preset). */
   h += '<div class="row2">';
-  h += '<div class="card"><h4>Trend Ricavi mensile (ultimi ' + trend.labels.length + ' mesi)</h4><div class="chart-wrap"><canvas id="chExTrend"></canvas></div></div>';
-  h += '<div class="card"><h4>Ricavi per Regione</h4><div class="chart-wrap"><canvas id="chExReg"></canvas></div></div>';
+  h += '<div class="card"><h4>Trend Ricavi mensile (ultimi ' + trend.labels.length + ' mesi)</h4>' +
+       '<div class="chart-wrap"><canvas id="chExTrend"></canvas></div></div>';
+  h += '<div class="card"><h4>Ricavi per Regione</h4>' +
+       '<div class="chart-wrap"><canvas id="chExReg"></canvas></div></div>';
   h += '</div>';
 
-  // Distribuzioni
   h += '<div class="row2" style="margin-top:14px">';
-  h += '<div class="card"><h4>Distribuzione per Status</h4><div class="chart-wrap"><canvas id="chExStatus"></canvas></div></div>';
-  h += '<div class="card"><h4>Distribuzione per Stato Lavorazione</h4><div class="chart-wrap"><canvas id="chExLav"></canvas></div></div>';
+  h += '<div class="card"><h4>Distribuzione per Status</h4>' +
+       '<div class="chart-wrap"><canvas id="chExStatus"></canvas></div></div>';
+  h += '<div class="card"><h4>Distribuzione per Stato Lavorazione</h4>' +
+       '<div class="chart-wrap"><canvas id="chExLav"></canvas></div></div>';
   h += '</div>';
 
-  // Clienti / Società
-  h += '<div class="row2">';
-  h += '<div class="card"><h4>Ricavi per Cliente</h4><div class="chart-wrap"><canvas id="chExClienti"></canvas></div></div>';
-  h += '<div class="card"><h4>Ricavi vs Costi vs MOL per Societa</h4><div class="chart-wrap"><canvas id="chExSocieta"></canvas></div></div>';
-  h += '</div>';
+  /* Mini-banner: link rapidi alle sezioni successive */
+  h += '<div class="card" style="margin-top:14px;padding:12px 16px;background:rgba(99,102,241,.05)">';
+  h += '<h4 style="margin:0 0 8px 0;font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:.5px">Continua l\'analisi</h4>';
+  h += '<div style="display:flex;gap:10px;flex-wrap:wrap;font-size:12px">';
+  h += '<a onclick="showSec(\'explore\')" style="cursor:pointer;color:var(--accent);text-decoration:underline">🔍 Esplora multi-livello</a>';
+  h += '<a onclick="showSec(\'econFin\')" style="cursor:pointer;color:var(--accent);text-decoration:underline">📊 Econ. &amp; Finanziario</a>';
+  h += '<a onclick="showSec(\'analisiIncassi\')" style="cursor:pointer;color:var(--accent);text-decoration:underline">💵 Incassi &amp; Crediti</a>';
+  h += '<a onclick="showSec(\'alert\')" style="cursor:pointer;color:var(--accent);text-decoration:underline">⚠️ Alert &amp; Anomalie</a>';
+  if (molNeg.length || senzaIncasso.length) {
+    h += '<span style="color:var(--text3)">·</span>';
+    if (molNeg.length) h += '<span style="color:#ef4444">' + molNeg.length + ' MOL negativo</span>';
+    if (senzaIncasso.length) h += '<span style="color:#f59e0b">' + senzaIncasso.length + ' senza incasso</span>';
+  }
+  h += '</div></div>';
 
   h += '</div>';
   el.innerHTML = h;
@@ -115,27 +121,6 @@ function renderExecutive() {
     makeDonut('chExLav', Object.keys(statoLavG), Object.values(statoLavG),
       Object.keys(statoLavG).map((_, i) => ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444', '#06b6d4', '#ec4899'][i % 7]));
   }
-
-  const cliG = {};
-  f.forEach(c => { const k = (c.cliente || 'N/D'); cliG[k] = (cliG[k] || 0) + (c.consulenza || 0); });
-  const cliSorted = Object.entries(cliG).sort((a, b) => b[1] - a[1]).slice(0, 15);
-  makeBar('chExClienti', cliSorted.map(e => e[0].length > 28 ? e[0].substring(0, 26) + '..' : e[0]),
-    cliSorted.map(e => e[1]), '#3b82f6', true);
-
-  const socG = {};
-  f.forEach(c => {
-    const k = c.societa || 'N/D';
-    if (!socG[k]) socG[k] = { ricavi: 0, costi: 0, mol: 0 };
-    socG[k].ricavi += (c.consulenza || 0);
-    socG[k].costi += (c.costi || 0);
-    socG[k].mol += (c.mol || 0);
-  });
-  const socSorted = Object.entries(socG).sort((a, b) => b[1].ricavi - a[1].ricavi).slice(0, 10);
-  const socLabels = socSorted.map(e => e[0].length > 25 ? e[0].substring(0, 23) + '..' : e[0]);
-  makeBarStacked('chExSocieta', socLabels, [
-    { label: 'Costi', data: socSorted.map(e => e[1].costi), backgroundColor: '#ef4444aa', borderRadius: 4 },
-    { label: 'MOL', data: socSorted.map(e => e[1].mol), backgroundColor: '#10b981aa', borderRadius: 4 }
-  ]);
 }
 
 /* ── Ricavi & MOL ── */

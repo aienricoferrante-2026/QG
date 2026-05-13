@@ -10,7 +10,7 @@ window.SECTOR_CONFIG = {
   "dataFile": "data/commesse_fia.json",
   "adminEmail": "fia@qualificagroup.it",
   "adminPassHash": "082c0e1b841029d4ef449f25e03f719e952368ac422703b3e151aa57df527f26",
-  "defaultSection": "executive",
+  "defaultSection": "explore",
   "partnersJsonUrl": "partners_fia/_links.json",
   "partnersBaseUrl": "partners_fia/view.html",
   "targetsFile": "data/targets.json"
