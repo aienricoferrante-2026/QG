@@ -141,6 +141,29 @@
   .creds-btn-mail:hover{background:rgba(16,185,129,.25); color:#fff}
   body.theme-light .creds-btn{color:#4f46e5; background:rgba(99,102,241,.08)}
   body.theme-light .creds-btn-mail{color:#047857; background:rgba(16,185,129,.08)}
+
+  /* ── Cross-settore (hub_cross.js) ── */
+  .hc-card{background:var(--card); border:1px solid var(--border); border-radius:10px; padding:18px 20px; margin-bottom:14px}
+  .hc-card h4{font-size:13px; color:var(--text2); text-transform:uppercase; letter-spacing:.4px; margin-bottom:14px; font-weight:600}
+  .hc-grid2{display:grid; grid-template-columns:1fr 1fr; gap:14px}
+  @media (max-width:880px){ .hc-grid2{grid-template-columns:1fr} }
+  .hc-table{width:100%; border-collapse:collapse; font-size:12px}
+  .hc-table th{
+    text-align:left; padding:9px 10px; border-bottom:1px solid var(--border); color:var(--text2);
+    font-weight:600; text-transform:uppercase; font-size:10px; letter-spacing:.3px; background:rgba(99,102,241,.05);
+  }
+  .hc-table th:hover{background:rgba(99,102,241,.15); color:var(--text)}
+  .hc-table td{padding:9px 10px; border-bottom:1px solid var(--border); color:var(--text)}
+  .hc-table tbody tr:hover{background:rgba(99,102,241,.06)}
+  .hc-table b.pos{color:#10b981}
+  .hc-table b.neg{color:#dc2626}
+  .hc-table b.warn{color:#f59e0b}
+  .hc-barrow{display:flex; align-items:center; gap:10px; margin-bottom:8px; font-size:12px}
+  .hc-barlbl{width:90px; color:var(--text); font-weight:600}
+  .hc-barbg{flex:1; background:rgba(100,116,139,.15); height:14px; border-radius:7px; overflow:hidden}
+  .hc-barfg{height:100%; border-radius:7px; transition:width .3s ease}
+  .hc-barval{width:80px; text-align:right; color:var(--text2); font-variant-numeric:tabular-nums}
+  .hc-pill{display:inline-block; padding:2px 6px; border-radius:3px; font-size:10px; font-weight:600; margin-right:3px}
 </style>
 </head>
 <body>
@@ -166,6 +189,9 @@
     <div class="kpi pink"><div class="lbl">Esposizione</div><div class="val" id="kEsp">…</div><div class="sub">Ricavi − Incassato</div></div>
     <div class="kpi purple"><div class="lbl">% Incasso</div><div class="val" id="kInc">…</div><div class="sub">media pesata</div></div>
   </div>
+
+  <h2 class="section">📊 Confronto cross-settore · ricavi, marginalità, clienti condivisi</h2>
+  <div id="crossSectorBody"><p style="color:var(--text3);font-size:12px">Carico dati cross-settore…</p></div>
 
   <h2 class="section">Settori — Commesse</h2>
   <div class="cards" id="sectorCards"></div>
@@ -411,6 +437,10 @@ async function loadGlobalKpis(){
       '<span>Clienti <b>' + fmt(a.clienti) + '</b></span>' +
       '<span>MOL <b>' + fmtK(a.mol) + '</b></span>';
   });
+
+  /* Espone i dati cross-settore (consumati da hub_cross.js per le viste comparative). */
+  window.crossSectorData = { aggr, fetched };
+  window.dispatchEvent(new Event('crossSectorDataReady'));
 }
 loadGlobalKpis().catch(()=>{});
 
@@ -642,5 +672,8 @@ document.getElementById('credsLoginBtn').addEventListener('click', (e) => {
 
 if (sessionStorage.getItem(CREDS_SESSION_KEY) === '1') credsRenderTable();
 </script>
+
+<!-- Vista cross-settore (consuma window.crossSectorData dopo loadGlobalKpis) -->
+<script src="hub_cross.js?v=1"></script>
 </body>
 </html>
