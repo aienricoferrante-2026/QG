@@ -8,32 +8,55 @@ body {
   min-height: 100vh;
 }
 
-/* Theme toggle (icona tonda, fissa in alto a destra) */
+/* Theme toggle (icona tonda) — integrato dentro #qg-logout-btn nell'header */
 .qg-theme-btn {
-  position: fixed;
-  top: 12px;
-  right: 14px;
-  z-index: 9998;
-  width: 32px;
-  height: 32px;
-  display: flex;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   background: rgba(99, 102, 241, .15);
   border: 1px solid rgba(99, 102, 241, .35);
   border-radius: 50%;
-  font-size: 16px;
+  font-size: 14px;
   line-height: 1;
   cursor: pointer;
   font-family: inherit;
-  backdrop-filter: blur(8px);
   transition: all .15s;
   padding: 0;
+  margin-left: 6px;
 }
 .qg-theme-btn:hover {
   background: rgba(99, 102, 241, .30);
   transform: rotate(15deg);
 }
+
+/* Logout chip integrato nell'header — non più fixed/blur */
+#qg-logout-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px;
+  border: 1px solid rgba(99, 102, 241, .25);
+  border-radius: 18px;
+  background: rgba(99, 102, 241, .08);
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-size: 11px;
+  color: #cbd5e1;
+}
+body.theme-light #qg-logout-btn { background: rgba(15, 23, 42, .04); color: #475569; border-color: rgba(15, 23, 42, .12); }
+#qg-logout-btn .qg-user-email { max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#qg-logout-btn > button {
+  background: transparent;
+  border: 1px solid #475569;
+  color: #cbd5e1;
+  padding: 3px 9px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 10px;
+}
+body.theme-light #qg-logout-btn > button { border-color: #cbd5e1; color: #475569; }
+#qg-logout-btn > button:hover { background: #ef4444; border-color: #ef4444; color: #fff; }
 
 /* Period Filter (range temporale globale) */
 .period-filter {
@@ -209,9 +232,14 @@ body.sidebar-collapsed .sidebar-toggle { left: 12px; }
   flex: 1;
   min-height: 100vh;
 }
-/* Header — uniforme con la sidebar (stesso colore e tipografia) */
+/* Header — uniforme con la sidebar (stesso colore e tipografia).
+   Sticky in cima alla pagina così la strip utente (logout + theme + toggle)
+   resta sempre visibile durante lo scroll. */
 .header {
-  padding: 18px 24px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  padding: 14px 24px;
   background: #1e293b;
   border-bottom: 1px solid rgba(99, 102, 241, .15);
   color: #cbd5e1;
@@ -223,6 +251,7 @@ body.sidebar-collapsed .sidebar-toggle { left: 12px; }
 }
 .header h1 { font-size: 18px; font-weight: 700; color: #f8fafc; letter-spacing: -.3px; }
 .header-sub { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+.header > *:last-child { margin-left: auto; }
 
 /* Toggle bar (Filtri / Numeri) — vive dentro #qg-logout-btn in top-right.
    Colore allineato alla mail utente e al bottone Esci (#cbd5e1 in scuro,

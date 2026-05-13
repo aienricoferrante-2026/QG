@@ -51,7 +51,7 @@ function renderExecutive() {
 
   const trend = _buildMonthlyTrendCore(f);
 
-  let h = '<div class="sec"><h3 class="sec-title">Sintesi · ' + sectorLabel() + '</h3>';
+  let h = '<div class="sec"><h3 class="sec-title">Executive Summary · ' + sectorLabel() + '</h3>';
   h += '<p style="color:var(--text3);font-size:11px;margin-bottom:14px">' +
        '5 KPI macro + 4 grafici di overview. Per analisi flessibili usa <strong>🔍 Esplora</strong> nella sidebar.</p>';
 

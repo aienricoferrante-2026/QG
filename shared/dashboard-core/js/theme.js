@@ -35,7 +35,13 @@
     btn.id = 'qg-theme-toggle';
     btn.className = 'qg-theme-btn';
     btn.onclick = window.qgToggleTheme;
-    document.body.appendChild(btn);
+    /* Preferito: dentro #qg-logout-btn (strip header in alto a destra).
+       Fallback: dentro .header. Ultimo fallback: body (legacy). */
+    const logout = document.getElementById('qg-logout-btn');
+    const header = document.querySelector('.header');
+    if (logout) logout.appendChild(btn);
+    else if (header) header.appendChild(btn);
+    else document.body.appendChild(btn);
     const cur = localStorage.getItem(KEY) === 'light' ? 'light' : 'dark';
     applyTheme(cur);
   }

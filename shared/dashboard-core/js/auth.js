@@ -138,30 +138,14 @@
     const userEmail = localStorage.getItem(STORAGE_USER) || '';
     const btn = document.createElement('div');
     btn.id = 'qg-logout-btn';
-    btn.innerHTML = `
-      <style>
-        #qg-logout-btn {
-          position: fixed; top: 12px; right: 56px; z-index: 9999;
-          display: flex; align-items: center; gap: 8px;
-          background: rgba(15,23,42,.75); backdrop-filter: blur(8px);
-          border: 1px solid rgba(99,102,241,.3);
-          padding: 6px 10px; border-radius: 18px;
-          font-family: 'Segoe UI', system-ui, sans-serif;
-          font-size: 11px; color: #cbd5e1;
-        }
-        body.theme-light #qg-logout-btn { background: rgba(255,255,255,.85); color: #475569; }
-        #qg-logout-btn .qg-user-email { max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        #qg-logout-btn button {
-          background: transparent; border: 1px solid #475569;
-          color: #cbd5e1; padding: 3px 9px; border-radius: 12px;
-          cursor: pointer; font-size: 10px;
-        }
-        #qg-logout-btn button:hover { background: #ef4444; border-color: #ef4444; color: white; }
-      </style>
-      <span class="qg-user-email">👤 ${userEmail}</span>
-      <button onclick="window.qgLogout()">Esci</button>
-    `;
-    document.body.appendChild(btn);
+    btn.innerHTML =
+      '<span class="qg-user-email">👤 ' + userEmail + '</span>' +
+      '<button onclick="window.qgLogout()">Esci</button>';
+    /* Si integra dentro .header (in-flow), così rimane in cima alla pagina
+       insieme al titolo invece di fluttuare sopra il contenuto. */
+    const header = document.querySelector('.header');
+    if (header) header.appendChild(btn);
+    else document.body.appendChild(btn);
   }
 
   window.qgLogout = function () { clearAuth(); location.reload(); };

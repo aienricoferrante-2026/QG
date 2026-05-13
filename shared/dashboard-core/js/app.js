@@ -91,7 +91,7 @@ function uiToggleKpis()    { _uiState().hideKpis    = !_uiState().hideKpis;    _
 
 function _uiInitToggles() {
   if (document.getElementById('ui-toggle-bar')) return;
-  /* Preferito: dentro l'overlay logout in top-right (a sinistra dell'email).
+  /* Toolbar Filtri/Numeri dentro #qg-logout-btn (header sticky in alto a dx).
      Fallback: nell'header del settore. */
   const logout = document.getElementById('qg-logout-btn');
   const bar = document.createElement('div');
@@ -101,8 +101,13 @@ function _uiInitToggles() {
     '<button id="ui-toggle-filters" class="ui-toggle-btn" title="Mostra/nascondi filtri (F)" onclick="uiToggleFilters()">&#9660; Filtri</button>' +
     '<button id="ui-toggle-kpis" class="ui-toggle-btn" title="Mostra/nascondi numeri / KPI globali (K)" onclick="uiToggleKpis()">&#9660; Numeri</button>';
   if (logout) {
-    /* Inserisce la toolbar in TESTA al logout-btn, prima dell'avatar utente. */
+    /* Toolbar in TESTA al logout-btn, prima dell'avatar utente. */
     logout.insertBefore(bar, logout.firstChild);
+    /* Riposiziono il theme toggle (luna/sole) dentro il logout-btn come
+       ultimo elemento, se theme.js lo ha appeso al body prima che il
+       logout-btn esistesse. Garantisce ordine: [Filtri][Numeri] · email · Esci · 🌙 */
+    const themeBtn = document.getElementById('qg-theme-toggle');
+    if (themeBtn && themeBtn.parentElement !== logout) logout.appendChild(themeBtn);
   } else {
     const header = document.querySelector('.header');
     if (header) header.appendChild(bar);
@@ -128,7 +133,7 @@ fetch(window.DATA_URL || _CORE_DATA_URL)
     if (typeof initQuickFilters === 'function') initQuickFilters();
     renderFilteredKpis();
     _uiInitToggles();
-    const startSection = (window.SECTOR_CONFIG && window.SECTOR_CONFIG.defaultSection) || 'executive';
+    const startSection = (window.SECTOR_CONFIG && window.SECTOR_CONFIG.defaultSection) || 'explore';
     showSec(startSection);
 
     // Aggiorna count nell'header se presente
