@@ -107,6 +107,32 @@ function renderPagamenti() {
       ['str', 'str', 'str', 'num', 'str']
     );
   }
+
+  /* 🚨 Anomalie ISO Pagamenti: Insoluto anno precedente senza accordo */
+  const anom = f.filter(c =>
+    /Insoluto|Giallo.*Rosso/i.test(c.isoStatoPagamentoTxt || '') &&
+    !(c.isoAccordoPagamenti && String(c.isoAccordoPagamenti).trim())
+  );
+  if (anom.length) {
+    const a = document.createElement('div');
+    a.className = 'card';
+    a.style.cssText = 'margin-top:14px;border-left:3px solid #dc2626';
+    a.innerHTML = '<h4 style="color:#dc2626">🚨 Anomalia · Insoluti anno precedente senza accordo pagamento (' + fmt(anom.length) + ')</h4>' +
+      '<p style="color:var(--text3);font-size:11px;margin-bottom:10px">Commesse con stato Giallo-Rosso o Insoluto, senza accordo di rientro formalizzato. Pratiche di recupero crediti da aprire.</p>' +
+      '<div class="tbl-scroll"><table id="tblIsoAnomPag"></table></div>';
+    el.appendChild(a);
+    buildTbl('tblIsoAnomPag',
+      ['Cliente', 'Stato Pag.', 'Ricavi', 'Da Incassare', 'Resp.', 'Qnet'],
+      anom.slice(0, 30).map(c => [
+        { display: (c.cliente || '—').substring(0, 35), val: c.cliente || '' },
+        { display: (c.isoStatoPagamentoTxt || '—').substring(0, 30), val: c.isoStatoPagamentoTxt || '' },
+        { display: fmtE(c.consulenza || 0), val: c.consulenza || 0 },
+        { display: '<b style="color:#dc2626">' + fmtE(Math.max(0, (c.consulenza || 0) - (c.giaIncassato || 0))) + '</b>', val: Math.max(0, (c.consulenza || 0) - (c.giaIncassato || 0)) },
+        { display: (c.responsabile || '—').substring(0, 18), val: c.responsabile || '' },
+        { display: qnetBtn(c), val: c.id }
+      ]),
+      ['str', 'str', 'num', 'num', 'str', 'str']);
+  }
 }
 
 function _isoDrillPag(bucket) {
