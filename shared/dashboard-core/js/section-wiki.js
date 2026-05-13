@@ -1,0 +1,143 @@
+/* ── Sezione Wiki / Manuale rapido (core kit) ──
+   Infografica del flusso d'uso della dashboard + Q&A "dove trovo X?" +
+   glossario dei campi/metriche. Tutto in HTML/CSS, niente immagini esterne. */
+
+/* Step del flusso. Ogni step ha un nome di sezione cliccabile (showSec). */
+const WIKI_FLOW = [
+  { n: 1, icon: '🔍', sec: 'explore',        title: 'ESPLORA',
+    desc: 'Punto di partenza. Scegli 1-3 dimensioni (Società › Regione › Cliente …) e una metrica primaria (Ricavi, MOL, % Inc., WIP, Output …). Vedi top N nel chart, tabella ad albero espandibile, drill-down sulle commesse.' },
+  { n: 2, icon: '📊', sec: 'executive',      title: 'EXECUTIVE SUMMARY',
+    desc: '5 KPI macro + 4 chart d\'insieme (trend mensile, regioni, status, stato lavorazione). I KPI sono cliccabili: aprono il drill-down sulle commesse corrispondenti.' },
+  { n: 3, icon: '💰', sec: 'econFin',        title: 'ECON. & FINANZIARIO',
+    desc: '3 box affiancati Consuntivo / Documentale / Cassa con scostamenti chiave. Vede dove la realtà diverge dal budget Qnet. Tabella unificata per Società.' },
+  { n: 4, icon: '💵', sec: 'analisiIncassi', title: 'ANALISI INCASSI',
+    desc: 'Distribuzione % incasso, commesse al 100% / 0% / con residuo (KPI cliccabili), top clienti per credito aperto.' },
+  { n: 5, icon: '⚠️', sec: 'alert',          title: 'ALERT & ANOMALIE',
+    desc: 'MOL negativo, stalled (avz < 50% e data fine passata), senza incasso, clienti a rischio (esp > 50K e %inc < 30%).' }
+];
+
+/* Q&A: domande tipiche → percorso suggerito. */
+const WIKI_QA = [
+  { q: 'Voglio vedere solo le commesse in lavorazione',
+    a: 'In testa alla pagina, sezione "Vista rapida": chip <strong>⚙️ Solo in lavorazione</strong>. È sticky (resta attivo cambiando sezione).',
+    sec: null },
+  { q: 'Voglio vedere solo le commesse di quest\'anno (o ultimi 30 giorni / mese scorso / ultimo trimestre)',
+    a: 'Quick filter <strong>📅 ' + new Date().getFullYear() + '</strong>, <strong>🗓️ Questo mese</strong>, <strong>⬅️ Mese scorso</strong>, <strong>📈 Ultimo trimestre</strong>. Sono <em>combinabili</em>: puoi mixare es. "In Lavorazione + Ultimo trimestre".',
+    sec: null },
+  { q: 'Quali commesse compongono il numero N che vedo in un KPI?',
+    a: 'Clicca direttamente sul KPI. Esempio: in Analisi Incassi, "Commesse al 100% › 11" apre il modale con quelle 11 commesse.',
+    sec: null },
+  { q: 'Quali clienti hanno il margine peggiore?',
+    a: 'Esplora · L1 = Cliente · Metrica = Margine %. Ordina la tabella per Margine ASC (clicca due volte sull\'intestazione).',
+    sec: 'explore' },
+  { q: 'Quante commesse ha il commerciale X / il tecnico Y?',
+    a: 'Esplora · preset 💼 Commerciale Output € o 🛠️ Tecnico WIP. In alternativa imposta L1 = Commerciale / Tecnico.',
+    sec: 'explore' },
+  { q: 'Voglio scaricare un Excel/CSV',
+    a: 'In Esplora ci sono <strong>CSV aggregato</strong> (vista corrente del tree) e <strong>CSV commesse</strong> (flat, una riga per commessa). Nel modale drill-down trovi un altro CSV col sottoinsieme.',
+    sec: 'explore' },
+  { q: 'Vedo "N/D" — cosa significa?',
+    a: 'Record senza valore valorizzato per quella dimensione. Es. N/D in Tecnico = commessa senza responsabile assegnato. Sono <strong>sempre inclusi</strong> nel totale, mai esclusi.',
+    sec: null },
+  { q: 'Voglio confrontare due periodi',
+    a: 'Esplora · Confronto: scegli "vs Periodo prec.", "vs Anno prec." o "A vs B (custom)". Appaiono 4 colonne extra in tabella + barre affiancate nel chart.',
+    sec: 'explore' },
+  { q: 'Voglio nascondere filtri / KPI per avere più spazio',
+    a: 'Nell\'header in alto a destra: bottoni <strong>▼ Filtri</strong> e <strong>▼ Numeri</strong> (scorciatoie F e K). Stato salvato per BU.',
+    sec: null }
+];
+
+/* Glossario campi e metriche. */
+const WIKI_GLOSSARY = [
+  { t: 'Tecnico (responsabile)', d: 'Persona che esegue la commessa. JSON: <code>c.responsabile</code>.' },
+  { t: 'Commerciale (agente)',   d: 'Persona che ha portato la commessa. JSON: <code>c.agente</code>.' },
+  { t: 'Segnalatore',            d: 'Rete commerciale esterna che ha segnalato il cliente. JSON: <code>c.segnalatore</code>.' },
+  { t: 'Status',                 d: 'Stato amministrativo macro: In Lavorazione · Chiusa · Da pianificare · Annullato. JSON: <code>c.status</code>.' },
+  { t: 'Stato Lavorazione',      d: 'Workflow interno granulare (es. "Richiesta documenti", "SOA_3.1_Conclusa Istruttoria"). JSON: <code>c.statoLav</code>.' },
+  { t: 'Ricavi (Consulenza)',    d: 'Importo Consulenza dal contratto. JSON: <code>c.consulenza</code>.' },
+  { t: 'MOL',                    d: 'Margine Operativo Lordo = Ricavi − Costi. JSON: <code>c.mol</code>.' },
+  { t: 'Margine %',              d: 'MOL ÷ Ricavi × 100. Salute economica della commessa/aggregato.' },
+  { t: '% Incasso',              d: 'Già Incassato ÷ Ricavi × 100. Quanto è entrato in cassa.' },
+  { t: 'Da Incassare / Esposizione', d: 'Math.max(0, Ricavi − Già Incassato). Credito ancora aperto. Mai dal campo Excel.' },
+  { t: 'WIP (Work In Progress)', d: 'Commesse aperte (Status ≠ Chiusa/Annullato). WIP € = somma dei loro Ricavi.' },
+  { t: 'Output',                 d: 'Commesse chiuse nel periodo. Output € = somma dei loro Ricavi.' },
+  { t: 'Backlog >60gg',          d: 'Commesse aperte con età > 60 giorni dalla data di assegnazione.' },
+  { t: 'Cons / Documentale / Cassa', d: '3 viste del Budget Commessa Qnet: <strong>Cons</strong> = stima budget (ec*Cons), <strong>Documentale</strong> = fatturato registrato (*Docum), <strong>Cassa</strong> = incassi/uscite reali (fin*Tot).' }
+];
+
+function _wikiFlowHtml() {
+  let h = '<div class="wiki-flow">';
+  WIKI_FLOW.forEach((s, i) => {
+    h += '<div class="wiki-step" onclick="showSec(\'' + s.sec + '\')" title="Vai alla sezione ' + s.title + '">';
+    h += '<div class="wiki-step-n">' + s.n + '</div>';
+    h += '<div class="wiki-step-icon">' + s.icon + '</div>';
+    h += '<div class="wiki-step-body">';
+    h += '<h4>' + s.title + '</h4>';
+    h += '<p>' + s.desc + '</p>';
+    h += '<span class="wiki-step-cta">Apri →</span>';
+    h += '</div></div>';
+    if (i < WIKI_FLOW.length - 1) h += '<div class="wiki-arrow">↓</div>';
+  });
+  h += '</div>';
+  return h;
+}
+
+function _wikiQaHtml() {
+  let h = '<div class="wiki-qa">';
+  WIKI_QA.forEach(qa => {
+    const cta = qa.sec ? '<span class="wiki-qa-cta" onclick="showSec(\'' + qa.sec + '\')">→ apri ' + qa.sec + '</span>' : '';
+    h += '<div class="wiki-qa-item">';
+    h += '<div class="wiki-qa-q">❓ ' + qa.q + '</div>';
+    h += '<div class="wiki-qa-a">' + qa.a + ' ' + cta + '</div>';
+    h += '</div>';
+  });
+  h += '</div>';
+  return h;
+}
+
+function _wikiGlossaryHtml() {
+  let h = '<div class="wiki-gloss">';
+  WIKI_GLOSSARY.forEach(g => {
+    h += '<div class="wiki-gloss-item"><strong>' + g.t + '</strong><span>' + g.d + '</span></div>';
+  });
+  h += '</div>';
+  return h;
+}
+
+function renderWiki() {
+  const el = document.getElementById('sec-wiki');
+  if (!el) return;
+  let h = '<div class="sec"><h3 class="sec-title">Manuale rapido · ' + sectorLabel() + '</h3>';
+  h += '<p style="color:var(--text3);font-size:11px;margin-bottom:16px">' +
+       'Come orientarsi nella dashboard, dove trovare cosa, glossario dei termini. ' +
+       'Tutte le sezioni sono cliccabili.</p>';
+
+  /* Banner di accesso veloce con le 3 azioni più frequenti */
+  h += '<div class="wiki-quick">';
+  h += '<div class="wiki-quick-card" onclick="showSec(\'explore\')">' +
+       '<div class="wiki-quick-icon">🔍</div>' +
+       '<div><strong>Esplora</strong><span>Analizza per qualunque dimensione + metrica + confronto</span></div></div>';
+  h += '<div class="wiki-quick-card" onclick="setQuickFilter(\'inLav\')">' +
+       '<div class="wiki-quick-icon">⚙️</div>' +
+       '<div><strong>Solo in lavorazione</strong><span>Attiva il quick filter sticky in un click</span></div></div>';
+  h += '<div class="wiki-quick-card" onclick="showSec(\'alert\')">' +
+       '<div class="wiki-quick-icon">⚠️</div>' +
+       '<div><strong>Alert</strong><span>MOL negativi, stalled, senza incasso, clienti a rischio</span></div></div>';
+  h += '</div>';
+
+  h += '<h4 class="wiki-section-h">📋 Flusso d\'uso suggerito</h4>';
+  h += _wikiFlowHtml();
+
+  h += '<h4 class="wiki-section-h">❓ Domande frequenti — dove trovo cosa</h4>';
+  h += _wikiQaHtml();
+
+  h += '<h4 class="wiki-section-h">📖 Glossario campi e metriche</h4>';
+  h += _wikiGlossaryHtml();
+
+  h += '<div class="wiki-footnote">' +
+       '<strong>Suggerimento:</strong> il quick filter "⚙️ Solo in lavorazione" è attivo di default al primo accesso. Lo trovi sempre in cima sotto al titolo del settore — è sticky e si combina con gli altri filtri rapidi.' +
+       '</div>';
+
+  h += '</div>';
+  el.innerHTML = h;
+}
