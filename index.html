@@ -520,15 +520,28 @@ document.getElementById('credsLoginForm').addEventListener('submit', async (e) =
   err.textContent = '';
   btn.disabled = true;
   btn.textContent = 'Verifico…';
-  const hash = await _credsSha256(p);
-  if (u === CREDS_MASTER_USER && hash === CREDS_MASTER_HASH) {
-    sessionStorage.setItem(CREDS_SESSION_KEY, '1');
-    credsRenderTable();
-  } else {
-    err.textContent = 'Credenziali non valide. Servono quelle Master.';
+  try {
+    if (!window.isSecureContext || !window.crypto || !crypto.subtle) {
+      throw new Error('Browser senza crypto.subtle: apri il sito via HTTPS (https://aienricoferrante-2026.github.io/QG/).');
+    }
+    const hash = await _credsSha256(p);
+    console.log('[creds] user=' + u + ' hashMatch=' + (hash === CREDS_MASTER_HASH) + ' userMatch=' + (u === CREDS_MASTER_USER));
+    if (u === CREDS_MASTER_USER && hash === CREDS_MASTER_HASH) {
+      sessionStorage.setItem(CREDS_SESSION_KEY, '1');
+      try { credsRenderTable(); } catch (re) { console.error('[creds] renderTable error', re); err.textContent = 'Errore tabella: ' + re.message; }
+    } else {
+      let msg = 'Credenziali non valide. ';
+      if (u !== CREDS_MASTER_USER) msg += 'L\'email deve essere ' + CREDS_MASTER_USER + ' (NON la mail settoriale).';
+      else msg += 'Password errata.';
+      err.textContent = msg;
+      document.getElementById('credsPass').select();
+    }
+  } catch (ex) {
+    console.error('[creds] login error', ex);
+    err.textContent = 'Errore: ' + ex.message;
+  } finally {
     btn.disabled = false;
     btn.textContent = 'Entra';
-    document.getElementById('credsPass').select();
   }
 });
 
