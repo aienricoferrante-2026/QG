@@ -13,5 +13,6 @@ window.SECTOR_CONFIG = {
   "defaultSection": "explore",
   "partnersJsonUrl": "partners_ist/_links.json",
   "partnersBaseUrl": "partners_ist/view.html",
-  "targetsFile": "data/targets.json"
+  "targetsFile": "data/targets.json",
+  "extraSections": ["istituti"]
 };

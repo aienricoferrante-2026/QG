@@ -32,12 +32,12 @@ Cartella locale: `/Users/enricoferrante/Desktop/STW/`
 | **SIC Sicurezza Lavoro** | 2.613 | `dashboard_SIC_CM/` | **+ 1 sezione Caso 2** (Tipologie & Aggiornamenti) |
 | **AVV Avvalimenti** | 328 | `dashboard_AVV_CM/` | **+ 1 sezione Caso 2** (Avvalimenti) |
 | **FIA Finanza Agevolata** | 276 | `dashboard_FIA_CM/` | **+ 1 sezione Caso 2** (Bandi & Fondi Pubblici) |
-| IST Istituti | 52 | `dashboard_IST_CM/` | base (no Caso 2) |
+| **IST Istituti** | 52 | `dashboard_IST_CM/` | **+ 1 sezione Caso 2** (Tipologie & Bandi DM) |
 | **ISO Certificazioni** | 6.185 | `dashboard_ISO_CM/` | **+ 2 sezioni Caso 2** (Enti, Audit) |
 | **SOA Attestazioni** | 613 | `dashboard_SOA_CM/` | **+ 5 sezioni Caso 2** (chat parallela) |
 | **GAR Gare d'appalto** | 325 | `dashboard_GAR_CM/` | **+ 1 sezione Caso 2** (Gare) |
 | **APL_PAL Politiche Attive** | 1.415 | `dashboard_APL_PAL_CM/` | **+ 1 sezione Caso 2** (GOL & Politiche Attive) |
-| APL_RES PAL Risorse | 154 | `dashboard_APL_RES_CM/` | base (no Caso 2) |
+| **APL_RES PAL Risorse** | 154 | `dashboard_APL_RES_CM/` | **+ 1 sezione Caso 2** (Ricerca & Selezione) |
 | **GDPR Privacy** | 695 | `dashboard_GDPR_CM/` | **+ 1 sezione Caso 2** (Pagamenti) |
 
 **Kit condiviso (`shared/dashboard-core/`)** — creato in Chat #1:
@@ -225,17 +225,19 @@ Obiettivi:
   in un funnel a 6 step. Copertura funnel: **90%** GOL classificate.
 - ✅ **FIA Finanza Agevolata** (276): 1 sezione — Bandi & Fondi
   Pubblici. Parser client-side classifica 7 bandi dal prefisso del
-  titolo: FNC (Fondo Nuove Competenze PNRR), FON (interprofessionali),
-  ISI (INAIL Sicurezza), FIN (incentivi), PID (Unioncamere Digitale),
-  INCENT (assunzioni), IND40 (Industria 4.0). Copertura: **94%**.
-  Focus su Pipeline pianificata (Status "Da pianificare") e Da
-  Incassare per bando (bandi pubblici liquidano a fine progetto).
+  titolo: FNC, FON, ISI, FIN, PID, INCENT, IND40. Copertura: **94%**.
+- ✅ **APL_RES PAL Risorse** (154): 1 sezione — Ricerca & Selezione.
+  4 tipologie (R&S, Segreteria Didattica, Proposte, Test). Funnel
+  R&S derivato da `statoLav` italiano semantico (Annuncio →
+  Screening → Shortlist → Colloquio → Contratto → Conclusa).
+  Copertura tipo 71%, funnel 32% (campo statoLav poco compilato).
+- ✅ **IST Istituti** (52): 1 sezione — Tipologie & Bandi DM. 6
+  tipologie (Mentoring, Scuola 4.0, Consulenza, Competenze, iScola,
+  Formazione) + bando ministeriale (DM170, DM19, DM66, DM88).
+  Regex tolleranti ai typo (MENTORIGN, MENTORIN, CORRUCULARI).
+  Copertura: **94%** (49/52).
 
-**Da fare** (sezione Caso 2 con grafici/tabelle dedicati):
-- **APL_RES** (154, 54 campi): Profilo Risorse, Requisiti, Variazione
-  Ricerca, Candidati Selezionati. Riempimento basso → bassa priorità.
-- **IST Istituti** (52): titoli con DM170/DM19 e IST_4.0 (PNRR scuola).
-  Volume piccolo → bassa priorità.
+**Stato: 11/11 dashboard hanno Caso 2 ✓ (lavoro chiuso)**.
 
 **Estensione ISO opzionale** (segnalata da utente 2026-05-13):
 - "Documenti Triennio" — il campo `isoDocTriennio` è 0% riempito
