@@ -185,7 +185,84 @@ function renderCrossSector() {
   }
   h += '</div>';
 
-  el.innerHTML = h;
+  // ── Audit completezza dati per BU ──
+  const AUDIT_FIELDS = [
+    { key: 'agente',         label: 'Commerciale',  group: 'Attori' },
+    { key: 'responsabile',   label: 'Tecnico',      group: 'Attori' },
+    { key: 'segnalatore',    label: 'Rete',         group: 'Attori' },
+    { key: 'funzione',       label: 'Funzione',     group: 'Attori' },
+    { key: 'consulenza',     label: 'Ricavi',       group: 'Econ' },
+    { key: 'mol',            label: 'MOL',          group: 'Econ' },
+    { key: 'costi',          label: 'Costi',        group: 'Econ' },
+    { key: 'giaIncassato',   label: 'Incassato',    group: 'Cash' },
+    { key: 'daIncassare',    label: 'Da Incassare', group: 'Cash' },
+    { key: 'statoPagamento', label: 'Stato Pag.',   group: 'Cash' },
+    { key: 'dataFine',       label: 'Data Fine',    group: 'Tempo' },
+    { key: 'statoLav',       label: 'StatoLav',     group: 'Workflow' },
+  ];
+  function _cov(items, key) {
+    if (!items.length) return 0;
+    const pop = items.filter(c => {
+      const v = c[key];
+      return v !== null && v !== undefined && v !== '' && v !== 0 && v !== '0' && v !== '***';
+    }).length;
+    return pop / items.length * 100;
+  }
+  function _covBg(pct) {
+    if (pct >= 80) return '#10b981';
+    if (pct >= 30) return '#f59e0b';
+    return '#dc2626';
+  }
+  // Compute coverage matrix
+  const matrix = {}; // code → { field: pct }
+  fetched.forEach(({ code, items }) => {
+    matrix[code] = {};
+    AUDIT_FIELDS.forEach(f => { matrix[code][f.key] = _cov(items, f.key); });
+  });
+  // Render audit card
+  let ah = '<div class="hc-card" style="margin-top:24px"><h4>🔍 Audit completezza dati per BU</h4>';
+  ah += '<p style="color:var(--text3);font-size:11px;margin-bottom:12px">' +
+        'Popolamento dei campi chiave per ogni BU (in % di commesse). ' +
+        '<span style="color:#10b981">■ ≥80%</span> analizzabile, ' +
+        '<span style="color:#f59e0b">■ 30-79%</span> parziale, ' +
+        '<span style="color:#dc2626">■ &lt;30%</span> non analizzabile. ' +
+        'Le sezioni delle dashboard che dipendono da questi campi si adatteranno automaticamente.</p>';
+  ah += '<div style="overflow-x:auto"><table class="hc-table" style="min-width:780px"><thead><tr><th>BU</th>';
+  AUDIT_FIELDS.forEach(f => { ah += '<th title="' + f.group + '" style="text-align:center;font-size:10px;writing-mode:vertical-rl;white-space:nowrap;padding:8px 4px">' + f.label + '</th>'; });
+  ah += '</tr></thead><tbody>';
+  Object.keys(HUB_BU_META).filter(c => matrix[c]).forEach(code => {
+    const meta = HUB_BU_META[code];
+    ah += '<tr><td><a href="dashboard_' + code + '_CM/" style="color:var(--text);text-decoration:none">' +
+          meta.icon + ' ' + code + '</a></td>';
+    AUDIT_FIELDS.forEach(f => {
+      const pct = matrix[code][f.key];
+      const bg = _covBg(pct);
+      ah += '<td style="text-align:center;padding:4px;background:' + bg + '22"><b style="color:' + bg + ';font-size:11px">' + pct.toFixed(0) + '%</b></td>';
+    });
+    ah += '</tr>';
+  });
+  ah += '</tbody></table></div>';
+  // Top gap section: i 5 gap più gravi cross-BU
+  const gaps = [];
+  Object.keys(matrix).forEach(code => {
+    AUDIT_FIELDS.forEach(f => {
+      const pct = matrix[code][f.key];
+      if (pct < 30) gaps.push({ code, field: f.label, pct, key: f.key });
+    });
+  });
+  gaps.sort((a, b) => a.pct - b.pct);
+  if (gaps.length) {
+    ah += '<div style="margin-top:14px;padding:10px;background:rgba(220,38,38,.05);border-left:3px solid #dc2626;border-radius:4px">' +
+          '<b style="color:#dc2626;font-size:11px">⚠ Top gap (&lt;30% popolamento, ' + gaps.length + ' totali):</b>' +
+          '<ul style="margin:6px 0 0 18px;font-size:11px;color:var(--text2)">';
+    gaps.slice(0, 8).forEach(g => {
+      ah += '<li><b>' + g.code + ' · ' + g.field + '</b> (<code>' + g.key + '</code>): ' + g.pct.toFixed(1) + '% — popolare in Qnet per abilitare le analisi correlate</li>';
+    });
+    if (gaps.length > 8) ah += '<li style="list-style:none;color:var(--text3)">…e altri ' + (gaps.length - 8) + ' gap</li>';
+    ah += '</ul></div>';
+  }
+  ah += '</div>';
+  el.innerHTML += ah;
 }
 
 function _hcSetSort(idx) {
