@@ -34,6 +34,10 @@
     <a class="nav-item" data-sec="ricavi" onclick="showSec('ricavi')"><span class="nav-icon">&#8364;</span>Trend Ricavi</a>
   </div>
   <div class="nav-group">
+    <div class="nav-group-label">&#127919; Bandi</div>
+    <a class="nav-item" data-sec="bandi" onclick="showSec('bandi')"><span class="nav-icon">&#127919;</span>Bandi &amp; Fondi Pubblici</a>
+  </div>
+  <div class="nav-group">
     <div class="nav-group-label">Finanza</div>
     <a class="nav-item" data-sec="econFin" onclick="showSec('econFin')"><span class="nav-icon">&#128202;</span>Econ. &amp; Finanziario</a>
     <a class="nav-item" data-sec="analisiIncassi" onclick="showSec('analisiIncassi')"><span class="nav-icon">&#128181;</span>Analisi Incassi</a>
@@ -81,6 +85,7 @@
   <div id="filteredKpis" class="kpi-grid"></div>
 
   <div id="sec-executive"></div>
+  <div id="sec-bandi" class="hidden"></div>
   <div id="sec-ricavi" class="hidden"></div>
   <div id="sec-econFin" class="hidden"></div>
   <div id="sec-analisiIncassi" class="hidden"></div>
@@ -131,6 +136,9 @@
 <script src="../shared/dashboard-core/js/upload-config-common.js?v=1"></script>
 <script src="../shared/upload.js?v=1"></script>
 <script src="../shared/dashboard-core/js/app.js?v=1"></script>
+
+<!-- Sezione Caso 2 FIA -->
+<script src="js/section-bandi.js?v=1"></script>
 
 </body>
 </html>

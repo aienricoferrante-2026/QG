@@ -31,7 +31,7 @@ Cartella locale: `/Users/enricoferrante/Desktop/STW/`
 |---|---:|---|---|
 | **SIC Sicurezza Lavoro** | 2.613 | `dashboard_SIC_CM/` | **+ 1 sezione Caso 2** (Tipologie & Aggiornamenti) |
 | **AVV Avvalimenti** | 328 | `dashboard_AVV_CM/` | **+ 1 sezione Caso 2** (Avvalimenti) |
-| FIA Finanza Agevolata | 276 | `dashboard_FIA_CM/` | base (no Caso 2) |
+| **FIA Finanza Agevolata** | 276 | `dashboard_FIA_CM/` | **+ 1 sezione Caso 2** (Bandi & Fondi Pubblici) |
 | IST Istituti | 52 | `dashboard_IST_CM/` | base (no Caso 2) |
 | **ISO Certificazioni** | 6.185 | `dashboard_ISO_CM/` | **+ 2 sezioni Caso 2** (Enti, Audit) |
 | **SOA Attestazioni** | 613 | `dashboard_SOA_CM/` | **+ 5 sezioni Caso 2** (chat parallela) |
@@ -222,15 +222,16 @@ Obiettivi:
 - ✅ **APL_PAL Politiche Attive** (1.415): 1 sezione — GOL &
   Politiche Attive. APL_PAL è essenzialmente GOL (94%, 1.328 rec).
   Parser client-side aggrega le 23 fasi distinte di `statoLav`
-  (PAL_1.x → 2.x → 3.x → 4.x → TIROCINI) in un funnel a 6 step
-  (Avvio / Documenti / Pagamento / Concluso PAL / Tirocinio attivo
-  / Tirocinio concluso). Estrazione città+beneficiario dal titolo.
-  Copertura funnel: **90%** GOL classificate.
+  in un funnel a 6 step. Copertura funnel: **90%** GOL classificate.
+- ✅ **FIA Finanza Agevolata** (276): 1 sezione — Bandi & Fondi
+  Pubblici. Parser client-side classifica 7 bandi dal prefisso del
+  titolo: FNC (Fondo Nuove Competenze PNRR), FON (interprofessionali),
+  ISI (INAIL Sicurezza), FIN (incentivi), PID (Unioncamere Digitale),
+  INCENT (assunzioni), IND40 (Industria 4.0). Copertura: **94%**.
+  Focus su Pipeline pianificata (Status "Da pianificare") e Da
+  Incassare per bando (bandi pubblici liquidano a fine progetto).
 
 **Da fare** (sezione Caso 2 con grafici/tabelle dedicati):
-- **FIA Finanza Agevolata** (276): titoli super strutturati per bando
-  (FNC Fondo Nuove Competenze, ISI INAIL, FON, FIN, NEXT PID
-  UNIONCAMERE). Buona priorità — pattern simile a SIC.
 - **APL_RES** (154, 54 campi): Profilo Risorse, Requisiti, Variazione
   Ricerca, Candidati Selezionati. Riempimento basso → bassa priorità.
 - **IST Istituti** (52): titoli con DM170/DM19 e IST_4.0 (PNRR scuola).
