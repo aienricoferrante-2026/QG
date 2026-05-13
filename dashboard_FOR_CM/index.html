@@ -21,6 +21,10 @@
 <nav class="sidebar">
   <div class="sidebar-brand"><h2>Qualifica Group</h2><p>Dashboard Formazione v1</p></div>
   <div class="nav-group">
+    <div class="nav-group-label">🔍 Esplora</div>
+    <a class="nav-item" data-sec="explore" onclick="showSec('explore')"><span class="nav-icon">&#9881;</span>Esplora</a>
+  </div>
+  <div class="nav-group">
     <div class="nav-group-label">📋 Overview</div>
     <a class="nav-item active" data-sec="executive" onclick="showSec('executive')"><span class="nav-icon">&#9632;</span>Executive Summary</a>
     <a class="nav-item" data-sec="ricavi" onclick="showSec('ricavi')"><span class="nav-icon">&#8364;</span>Ricavi & MOL</a>
@@ -105,6 +109,7 @@
   <div id="sec-specEcon" class="hidden"></div>
   <div id="sec-wiki" class="hidden"></div>
   <div id="sec-linkPartner" class="hidden"></div>
+  <div id="sec-explore" class="hidden"></div>
 </main>
 
 <!-- Drill-Down Modal -->
@@ -138,6 +143,11 @@
 <script src="js/section-spec-econ.js?v=3"></script>
 <script src="js/section-wiki.js?v=1"></script>
 <script src="js/section-link-partner.js?v=2"></script>
+<!-- Sezione Esplora — riusa i 3 file del kit + estensioni FOR-specifiche -->
+<script src="../shared/dashboard-core/js/section-explore-metrics.js?v=1"></script>
+<script src="../shared/dashboard-core/js/section-explore-tree.js?v=1"></script>
+<script src="../shared/dashboard-core/js/section-explore.js?v=1"></script>
+<script src="js/section-explore-for.js?v=1"></script>
 <script src="js/upload-config.js?v=2"></script>
 <script src="../shared/upload.js"></script>
 <script src="js/app.js?v=11"></script>
