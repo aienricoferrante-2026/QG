@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="../shared/dashboard-core/css/tables.css">
   <link rel="stylesheet" href="../shared/dashboard-core/css/modal.css">
   <link rel="stylesheet" href="../shared/upload.css">
+  <link rel="stylesheet" href="../shared/dashboard-core/css/manuale.css">
 </head>
 <body>
 
@@ -56,7 +57,8 @@
   </div>
   <div class="nav-group">
     <div class="nav-group-label">&#128214; Aiuto</div>
-    <a class="nav-item" data-sec="wiki" onclick="showSec('wiki')"><span class="nav-icon">&#128214;</span>Manuale / Wiki</a>
+    <a class="nav-item" data-sec="manuale" onclick="showSec('manuale')"><span class="nav-icon">&#128214;</span>Manuale d'Uso</a>
+    <a class="nav-item" data-sec="wiki" onclick="showSec('wiki')"><span class="nav-icon">&#128214;</span>Wiki / Q&amp;A</a>
   </div>
   <div class="nav-group">
     <div class="nav-group-label">&#128202; Performance</div>
@@ -104,6 +106,7 @@
   <div id="sec-linkPartner" class="hidden"></div>
   <div id="sec-explore" class="hidden"></div>
   <div id="sec-produttivita" class="hidden"></div>
+  <div id="sec-manuale" class="hidden"></div>
   <div id="sec-wiki" class="hidden"></div>
 </main>
 
@@ -145,6 +148,8 @@
 <script src="../shared/dashboard-core/js/info-tooltip.js?v=1"></script>
 <script src="../shared/dashboard-core/js/upload-config-common.js?v=1"></script>
 <script src="../shared/upload.js?v=1"></script>
+<script src="../shared/dashboard-core/js/section-manuale.js?v=1"></script>
+<script src="js/manuale-data.js?v=1"></script>
 <script src="../shared/dashboard-core/js/app.js?v=1"></script>
 
 <!-- Sezione Caso 2 APL_RES -->

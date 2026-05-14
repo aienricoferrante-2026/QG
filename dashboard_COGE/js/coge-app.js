@@ -12,6 +12,7 @@ const COGE_SECTIONS = {
   segnatempo:  renderCogeSegnatempo,
   hr:          renderCogeHr,
   indiretti:   renderCogeIndiretti,
+  manuale:     renderCogeManuale,
 };
 
 const MESI_NOMI = ['Anno intero', 'Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
