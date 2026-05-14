@@ -17,7 +17,8 @@ const SECTIONS_DEFAULT = {
   linkPartner: () => typeof renderLinkPartner === 'function' && renderLinkPartner(),
   explore: () => typeof renderExplore === 'function' && renderExplore(),
   wiki: () => typeof renderWiki === 'function' && renderWiki(),
-  produttivita: () => typeof renderProduttivita === 'function' && renderProduttivita()
+  produttivita: () => typeof renderProduttivita === 'function' && renderProduttivita(),
+  manuale: () => typeof renderManuale === 'function' && renderManuale()
 };
 
 function _sections() {

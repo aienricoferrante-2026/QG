@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="../shared/dashboard-core/css/layout.css">
   <link rel="stylesheet" href="../shared/dashboard-core/css/tables.css">
   <link rel="stylesheet" href="../shared/dashboard-core/css/modal.css">
+  <link rel="stylesheet" href="../shared/dashboard-core/css/manuale.css">
   <style>
     /* CSS specifico COGE — tabella conto economico */
     .coge-tbl{width:100%;border-collapse:collapse;font-size:12px}
@@ -45,6 +46,10 @@
     <a class="nav-item" data-sec="hr" onclick="cogeShowSec('hr')"><span class="nav-icon">👥</span>Personale (HR)</a>
     <a class="nav-item" data-sec="indiretti" onclick="cogeShowSec('indiretti')"><span class="nav-icon">🏢</span>Costi indiretti</a>
   </div>
+  <div class="nav-group">
+    <div class="nav-group-label">📖 Aiuto</div>
+    <a class="nav-item" data-sec="manuale" onclick="cogeShowSec('manuale')"><span class="nav-icon">📖</span>Manuale d'Uso</a>
+  </div>
 </nav>
 
 <main class="main">
@@ -67,6 +72,7 @@
   <div id="sec-segnatempo" class="hidden"></div>
   <div id="sec-hr" class="hidden"></div>
   <div id="sec-indiretti" class="hidden"></div>
+  <div id="sec-manuale" class="hidden"></div>
 </main>
 
 <script src="config.js"></script>
@@ -77,6 +83,7 @@
 <script src="js/coge-segnatempo.js"></script>
 <script src="js/coge-hr.js"></script>
 <script src="js/coge-indiretti.js"></script>
+<script src="js/coge-manuale.js"></script>
 <script src="js/coge-app.js"></script>
 
 </body>
