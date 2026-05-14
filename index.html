@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Qualifica Group · Hub Dashboard</title>
+<link rel="stylesheet" href="manuale-style.css">
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
   :root{
@@ -174,6 +175,7 @@
     <div class="meta">Analisi commesse multi-settore · agg. <span id="hub-date">…</span></div>
   </div>
   <div class="topbar-actions">
+    <a href="#manuale" style="color:#94a3b8;font-size:11px;text-decoration:none;padding:6px 10px;border:1px solid #1e293b;border-radius:6px">📖 Manuale d'Uso</a>
     <button class="theme-btn" id="themeBtn" title="Cambia tema" onclick="qgToggleTheme()">🌙</button>
   </div>
 </div>
@@ -189,6 +191,21 @@
     <div class="kpi pink"><div class="lbl">Esposizione</div><div class="val" id="kEsp">…</div><div class="sub">Ricavi − Incassato</div></div>
     <div class="kpi purple"><div class="lbl">% Incasso</div><div class="val" id="kInc">…</div><div class="sub">media pesata</div></div>
   </div>
+
+  <!-- ── Manuale d'Uso ────────────────────────────────────────────── -->
+  <section id="manuale" style="margin-top:32px">
+    <div class="manu-header">
+      <h2>📖 Manuale d'Uso · cosa trovi in ogni dashboard</h2>
+      <span class="manu-count" id="manuale-count">…</span>
+      <input type="search" id="manuale-search" class="manu-search" placeholder="🔍 Cerca sezione, parola chiave, BU…" autocomplete="off">
+    </div>
+    <p style="color:var(--text3);font-size:12px;margin-bottom:14px">
+      Guida visiva a tutte le dashboard di Qualifica Group. Ogni card spiega cosa fa una BU, a chi serve, cosa puoi farci.
+      Clicca una card per aprire la dashboard, oppure usa la ricerca per trovare una funzionalità specifica.
+    </p>
+    <div class="manu-chips" id="manuale-chips"></div>
+    <div id="manuale-body"><p style="color:var(--text3);font-size:12px">Caricamento manuale…</p></div>
+  </section>
 
   <h2 class="section">📊 Confronto cross-settore · ricavi, marginalità, clienti condivisi</h2>
   <div id="crossSectorBody"><p style="color:var(--text3);font-size:12px">Carico dati cross-settore…</p></div>
@@ -685,5 +702,9 @@ if (sessionStorage.getItem(CREDS_SESSION_KEY) === '1') credsRenderTable();
 
 <!-- Vista cross-settore (consuma window.crossSectorData dopo loadGlobalKpis) -->
 <script src="hub_cross.js?v=1"></script>
+
+<!-- Manuale d'Uso (guida visiva con card descrittive) -->
+<script src="manuale-data.js?v=1"></script>
+<script src="manuale-render.js?v=1"></script>
 </body>
 </html>

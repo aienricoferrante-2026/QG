@@ -1,0 +1,167 @@
+/* ── Manuale d'Uso · CSS dedicato ─────────────────────────────────
+ * Pattern "Guida visiva": card con border-left accent + icon box +
+ * descrizione lunga in muted + bullets + footer path + hover lift.
+ *
+ * Palette accent semantica (vedi manuale-data.js):
+ *   blue · emerald · amber · purple · cyan · rose · slate
+ *
+ * Variabili CSS riusate da variables.css del kit:
+ *   --bg, --card, --border, --text, --text2, --text3, --accent
+ */
+
+/* ── Header ── */
+.manu-header {
+  display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
+  margin-bottom: 14px;
+}
+.manu-header h2 { font-size: 18px; color: var(--text); margin-right: auto; font-weight: 700; }
+.manu-count {
+  color: var(--text3); font-size: 11px; text-transform: uppercase;
+  letter-spacing: .4px; font-weight: 600;
+}
+.manu-search {
+  background: var(--card); color: var(--text); border: 1px solid var(--border);
+  border-radius: 6px; padding: 6px 12px; font-size: 12px;
+  min-width: 240px;
+}
+.manu-search:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+
+/* ── Chips area ── */
+.manu-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; }
+.manu-chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 5px 10px; border-radius: 14px;
+  background: rgba(99,102,241,.08); border: 1px solid var(--border);
+  color: var(--text); font-size: 11px; text-decoration: none;
+  transition: all .15s;
+}
+.manu-chip:hover { background: rgba(99,102,241,.18); border-color: var(--accent); }
+.manu-chip-off { opacity: .35; pointer-events: none; }
+.manu-chip-count {
+  background: rgba(0,0,0,.15); color: var(--text2); padding: 1px 7px;
+  border-radius: 8px; font-size: 10px; font-weight: 600;
+}
+body.theme-light .manu-chip-count { background: rgba(0,0,0,.06); }
+
+/* ── Area heading ── */
+.manu-area { margin-bottom: 28px; }
+.manu-area-head { margin-bottom: 12px; }
+.manu-area-head h3 {
+  font-size: 14px; color: var(--text); margin-bottom: 4px;
+  font-weight: 700; letter-spacing: .2px;
+}
+.manu-area-desc { color: var(--text3); font-size: 11px; margin: 0; }
+
+/* ── Grid card ── */
+.manu-grid {
+  display: grid; gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+}
+
+/* ── Card ── */
+.manu-card {
+  display: flex; flex-direction: column; gap: 10px;
+  background: var(--card); border: 1px solid var(--border);
+  border-left: 4px solid #6366f1;
+  border-radius: 10px; padding: 16px 18px;
+  text-decoration: none; color: var(--text);
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+.manu-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(0,0,0,.18);
+}
+body.theme-light .manu-card:hover { box-shadow: 0 8px 22px rgba(15,23,42,.10); }
+
+.manu-card-head { display: flex; align-items: flex-start; gap: 12px; }
+.manu-card-titles { flex: 1; min-width: 0; }
+.manu-card-titles h4 {
+  font-size: 14px; font-weight: 600; color: var(--text);
+  margin: 0; line-height: 1.3; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+}
+
+.manu-icon {
+  width: 38px; height: 38px; flex-shrink: 0;
+  border-radius: 8px; display: flex; align-items: center; justify-content: center;
+  font-size: 19px;
+}
+
+/* ── Description in muted (chiave!) ── */
+.manu-desc {
+  color: var(--text2); font-size: 12.5px; line-height: 1.5;
+  margin: 0;
+}
+
+/* ── Bullets "cosa puoi fare" ── */
+.manu-bullets {
+  margin: 4px 0 0 0; padding: 0 0 0 16px;
+  color: var(--text2); font-size: 11.5px; line-height: 1.55;
+}
+.manu-bullets li { margin-bottom: 2px; }
+
+/* ── Footer ── */
+.manu-card-foot {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: 4px; padding-top: 10px;
+  border-top: 1px dashed var(--border);
+}
+.manu-path {
+  font-family: 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 10px; color: var(--text3);
+  background: rgba(99,102,241,.04); padding: 2px 6px; border-radius: 4px;
+}
+.manu-arrow {
+  color: var(--accent); font-size: 11px; font-weight: 600;
+  letter-spacing: .3px;
+}
+
+/* ── Badge ── */
+.manu-badge {
+  display: inline-block; padding: 1px 6px;
+  border-radius: 4px; font-size: 9px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .4px;
+}
+
+/* ── Empty state ── */
+.manu-empty {
+  text-align: center; padding: 40px 20px;
+  background: var(--card); border: 1px dashed var(--border); border-radius: 10px;
+  color: var(--text2);
+}
+.manu-empty p { margin-bottom: 14px; font-size: 13px; }
+.manu-clear {
+  background: rgba(99,102,241,.12); color: var(--accent);
+  border: 1px solid var(--accent); padding: 6px 14px;
+  border-radius: 6px; cursor: pointer; font-size: 11px;
+}
+
+/* ── Accent variants ────────────────────────────────────────────── */
+.manu-card-blue    { border-left-color: #3b82f6; }
+.manu-card-emerald { border-left-color: #10b981; }
+.manu-card-amber   { border-left-color: #f59e0b; }
+.manu-card-purple  { border-left-color: #8b5cf6; }
+.manu-card-cyan    { border-left-color: #06b6d4; }
+.manu-card-rose    { border-left-color: #ec4899; }
+.manu-card-slate   { border-left-color: #64748b; }
+
+.manu-icon-blue    { background: rgba(59,130,246,.15);  color: #3b82f6; }
+.manu-icon-emerald { background: rgba(16,185,129,.15);  color: #10b981; }
+.manu-icon-amber   { background: rgba(245,158,11,.15);  color: #f59e0b; }
+.manu-icon-purple  { background: rgba(139,92,246,.15);  color: #8b5cf6; }
+.manu-icon-cyan    { background: rgba(6,182,212,.15);   color: #06b6d4; }
+.manu-icon-rose    { background: rgba(236,72,153,.15);  color: #ec4899; }
+.manu-icon-slate   { background: rgba(100,116,139,.15); color: #64748b; }
+
+.manu-badge-blue    { background: rgba(59,130,246,.18);  color: #3b82f6; }
+.manu-badge-emerald { background: rgba(16,185,129,.18);  color: #10b981; }
+.manu-badge-amber   { background: rgba(245,158,11,.18);  color: #f59e0b; }
+.manu-badge-purple  { background: rgba(139,92,246,.18);  color: #8b5cf6; }
+.manu-badge-cyan    { background: rgba(6,182,212,.18);   color: #06b6d4; }
+.manu-badge-rose    { background: rgba(236,72,153,.18);  color: #ec4899; }
+.manu-badge-slate   { background: rgba(100,116,139,.18); color: #64748b; }
+
+@media (max-width: 700px) {
+  .manu-grid { grid-template-columns: 1fr; }
+  .manu-search { min-width: 0; width: 100%; }
+  .manu-header { flex-direction: column; align-items: stretch; }
+}
