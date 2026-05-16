@@ -274,5 +274,114 @@ function _hcSetSort(idx) {
   renderCrossSector();
 }
 
+/* ── Stato globale dei campi (Punto 2) ──
+ * Carica data/fields-usage.json (generato da tools/audit_fields.py) e
+ * mostra una vista "data steward" con: nome campo · BU dove è popolato ·
+ * popolamento medio % · in quanti file JS è usato · primi file. Filtri:
+ *   - Tutti
+ *   - Popolato ma non usato (campi sprecati)
+ *   - Usato ma poco popolato (blocker analisi)
+ *   - Usato e ben popolato (sani)
+ */
+
+let _fsFilter = 'all';
+let _fsSearch = '';
+
+function renderFieldsStatus() {
+  const root = document.getElementById('fieldsStatusBody');
+  if (!root) return;
+  fetch('data/fields-usage.json').then(r => r.json()).then(data => {
+    _fsRender(root, data);
+  }).catch(() => {
+    root.innerHTML = '<p style="color:var(--text3);font-size:11px;padding:14px">' +
+      'data/fields-usage.json non disponibile. Esegui <code>python3 tools/audit_fields.py</code> per generarlo.</p>';
+  });
+}
+
+function _fsRender(root, data) {
+  const all = data.fields || [];
+  const total = all.length;
+  const usedAndPop = all.filter(f => f.usedIn > 0 && f.avgPct >= 30);
+  const popUnused = all.filter(f => f.inJson && f.usedIn === 0);
+  const usedLowPop = all.filter(f => f.usedIn > 0 && f.avgPct < 30 && f.inJson);
+  const notInJson = all.filter(f => !f.inJson && f.usedIn > 0);
+
+  const filterFn = {
+    all: () => all.filter(f => f.inJson || f.usedIn > 0),
+    usedAndPop: () => usedAndPop,
+    popUnused: () => popUnused,
+    usedLowPop: () => usedLowPop,
+    notInJson: () => notInJson,
+  };
+
+  const q = _fsSearch.trim().toLowerCase();
+  const filtered = (filterFn[_fsFilter] || filterFn.all)()
+    .filter(f => !q || f.name.toLowerCase().includes(q));
+
+  const tabs = [
+    { id: 'all',         label: '🔬 Tutti',         count: all.filter(f => f.inJson || f.usedIn > 0).length, color: '#6366f1' },
+    { id: 'usedAndPop',  label: '✅ Sani',          count: usedAndPop.length, color: '#10b981' },
+    { id: 'usedLowPop',  label: '⚠ Da popolare',    count: usedLowPop.length, color: '#f59e0b' },
+    { id: 'popUnused',   label: '📦 Mai usati',     count: popUnused.length, color: '#64748b' },
+    { id: 'notInJson',   label: '❓ Non in JSON',   count: notInJson.length, color: '#dc2626' },
+  ];
+
+  let h = '<p style="color:var(--text3);font-size:11px;margin-bottom:12px">' +
+       'Mappa di tutti i ' + total + ' campi presenti nei JSON delle BU + accessi nel codice. ' +
+       'Aggiornato il <code>' + (data.generatedAt || '?').substring(0, 10) + '</code>. ' +
+       'Per rigenerare: <code>python3 tools/audit_fields.py</code>.</p>';
+
+  // Tabs filter
+  h += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">';
+  tabs.forEach(t => {
+    const active = _fsFilter === t.id;
+    h += '<button onclick="_fsSetFilter(\'' + t.id + '\')" style="padding:6px 12px;border-radius:5px;font-size:11px;cursor:pointer;border:1px solid ' +
+      (active ? t.color : 'var(--border)') + ';background:' + (active ? t.color + '22' : 'var(--card)') +
+      ';color:var(--text);font-weight:' + (active ? '600' : '400') + '">' +
+      t.label + ' <span style="opacity:.7">' + t.count + '</span></button>';
+  });
+  h += '<input type="search" placeholder="🔍 nome campo…" oninput="_fsSetSearch(this.value)" value="' + q.replace(/"/g, '&quot;') + '" ' +
+    'style="margin-left:auto;padding:6px 10px;border:1px solid var(--border);border-radius:5px;background:var(--card);color:var(--text);font-size:11px;min-width:180px">';
+  h += '</div>';
+
+  if (!filtered.length) {
+    h += '<p style="color:var(--text3);text-align:center;padding:20px">Nessun campo nel filtro corrente.</p>';
+    root.innerHTML = h;
+    return;
+  }
+
+  h += '<div style="overflow-x:auto"><table class="hc-table" style="min-width:780px"><thead><tr>';
+  h += '<th>Campo</th><th style="text-align:right">Pop. media %</th>';
+  h += '<th style="text-align:right">N° BU</th><th style="text-align:right">Usato in N file</th>';
+  h += '<th>Primi file JS</th><th>Stato</th></tr></thead><tbody>';
+  filtered.sort((a, b) => b.avgPct - a.avgPct).slice(0, 80).forEach(f => {
+    let stato, statoCol;
+    if (!f.inJson && f.usedIn > 0) { stato = '❓ Riferito ma non in JSON'; statoCol = '#dc2626'; }
+    else if (f.inJson && f.usedIn === 0) { stato = '📦 Mai usato'; statoCol = '#64748b'; }
+    else if (f.usedIn > 0 && f.avgPct < 30) { stato = '⚠ Da popolare'; statoCol = '#f59e0b'; }
+    else if (f.usedIn > 0 && f.avgPct >= 30) { stato = '✅ Sano'; statoCol = '#10b981'; }
+    else { stato = '—'; statoCol = '#94a3b8'; }
+    h += '<tr>';
+    h += '<td><code style="font-size:11px;color:var(--text)">' + f.name + '</code></td>';
+    h += '<td style="text-align:right">' + (f.inJson ? f.avgPct.toFixed(1) + '%' : '—') + '</td>';
+    h += '<td style="text-align:right">' + (f.inBus || '—') + '</td>';
+    h += '<td style="text-align:right">' + f.usedIn + '</td>';
+    h += '<td style="color:var(--text3);font-size:10px">' + (f.files || []).slice(0, 3).join(', ') + '</td>';
+    h += '<td><span style="color:' + statoCol + ';font-weight:600">' + stato + '</span></td>';
+    h += '</tr>';
+  });
+  h += '</tbody></table></div>';
+  if (filtered.length > 80) {
+    h += '<p style="color:var(--text3);font-size:11px;margin-top:6px;text-align:center">Mostrati i primi 80. Filtra o cerca per restringere.</p>';
+  }
+  root.innerHTML = h;
+}
+
+function _fsSetFilter(f) { _fsFilter = f; renderFieldsStatus(); }
+function _fsSetSearch(v) { _fsSearch = v || ''; renderFieldsStatus(); }
+
 /* Auto-render quando i dati hub sono pronti */
-window.addEventListener('crossSectorDataReady', renderCrossSector);
+window.addEventListener('crossSectorDataReady', () => {
+  renderCrossSector();
+  renderFieldsStatus();
+});
