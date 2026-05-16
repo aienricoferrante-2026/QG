@@ -1,0 +1,3038 @@
+{
+  "generatedAt": "2026-05-16T05:50:21",
+  "fields": [
+    {
+      "name": "agente",
+      "inJson": true,
+      "inBus": 11,
+      "avgPct": 64.2,
+      "usedIn": 8,
+      "files": [
+        "drilldown.js",
+        "sections-overview.js",
+        "drilldown.js",
+        "sections-offerte.js",
+        "sections-overview.js",
+        "section-briefing.js"
+      ],
+      "pctByBu": {
+        "AVV": 75.0,
+        "SIC": 95.1,
+        "APL_RES": 14.9,
+        "APL_PAL": 24.8,
+        "GAR": 85.8,
+        "IST": 75.0,
+        "ISO": 94.5,
+        "FOR": 0.0,
+        "GDPR": 64.3,
+        "FIA": 91.3,
+        "SOA": 85.6
+      }
+    },
+    {
+      "name": "aggSettimanale",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 0.0,
+      "usedIn": 1,
+      "files": [
+        "section-soa-aggsett.js"
+      ],
+      "pctByBu": {
+        "SOA": 0.0
+      }
+    },
+    {
+      "name": "anno",
+      "inJson": false,
+      "inBus": 0,
+      "avgPct": 0,
+      "usedIn": 2,
+      "files": [
+        "sections-offerte.js",
+        "upload-config.js"
+      ],
+      "pctByBu": {}
+    },
+    {
+      "name": "anticipoDataAccredito",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 0.1,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "FOR": 0.1
+      }
+    },
+    {
+      "name": "anticipoDataRichiesta",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 6.1,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "FOR": 6.1
+      }
+    },
+    {
+      "name": "anticipoDecreto",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 6.4,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "FOR": 6.4
+      }
+    },
+    {
+      "name": "anticipoDecretoNum",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 0.0,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "FOR": 0.0
+      }
+    },
+    {
+      "name": "anticipoIdRichiesta",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 5.9,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "FOR": 5.9
+      }
+    },
+    {
+      "name": "anticipoImporto",
+      "inJson": true,
+      "inBus": 11,
+      "avgPct": 0.6,
+      "usedIn": 2,
+      "files": [
+        "section-analisi-incassi.js",
+        "section-econfin.js"
+      ],
+      "pctByBu": {
+        "AVV": 0.0,
+        "SIC": 0.0,
+        "APL_RES": 0.0,
+        "APL_PAL": 0.0,
+        "GAR": 0.0,
+        "IST": 0.0,
+        "ISO": 0.0,
+        "FOR": 6.1,
+        "GDPR": 0.0,
+        "FIA": 0.0,
+        "SOA": 0.0
+      }
+    },
+    {
+      "name": "aplCandidati",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 0.0,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "APL_RES": 0.0
+      }
+    },
+    {
+      "name": "aplDataFineLav",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 0.6,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "APL_RES": 0.6
+      }
+    },
+    {
+      "name": "aplDataInizioLav",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 1.3,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "APL_RES": 1.3
+      }
+    },
+    {
+      "name": "aplDataRichiamo",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 0.0,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "APL_RES": 0.0
+      }
+    },
+    {
+      "name": "aplNumeroRisorse",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 0.6,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "APL_RES": 0.6
+      }
+    },
+    {
+      "name": "aplProfilo",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 0.6,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "APL_RES": 0.6
+      }
+    },
+    {
+      "name": "aplRequisiti",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 0.0,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "APL_RES": 0.0
+      }
+    },
+    {
+      "name": "aplVariazioneRicerca",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 0.0,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "APL_RES": 0.0
+      }
+    },
+    {
+      "name": "avanzamento",
+      "inJson": true,
+      "inBus": 11,
+      "avgPct": 32.9,
+      "usedIn": 21,
+      "files": [
+        "drilldown.js",
+        "export-cessione.js",
+        "filters.js",
+        "kpis.js",
+        "section-spec-econ.js",
+        "sections-finance.js"
+      ],
+      "pctByBu": {
+        "AVV": 21.6,
+        "SIC": 40.2,
+        "APL_RES": 8.4,
+        "APL_PAL": 79.4,
+        "GAR": 12.9,
+        "IST": 84.6,
+        "ISO": 8.5,
+        "FOR": 10.8,
+        "GDPR": 7.6,
+        "FIA": 29.7,
+        "SOA": 57.7
+      }
+    },
+    {
+      "name": "avanzamentoRaw",
+      "inJson": true,
+      "inBus": 11,
+      "avgPct": 100.0,
+      "usedIn": 3,
+      "files": [
+        "upload-config.js",
+        "upload-config.js",
+        "upload-config-common.js"
+      ],
+      "pctByBu": {
+        "AVV": 100.0,
+        "SIC": 100.0,
+        "APL_RES": 100.0,
+        "APL_PAL": 100.0,
+        "GAR": 100.0,
+        "IST": 100.0,
+        "ISO": 100.0,
+        "FOR": 100.0,
+        "GDPR": 100.0,
+        "FIA": 100.0,
+        "SOA": 100.0
+      }
+    },
+    {
+      "name": "avvAnno",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 39.0,
+      "usedIn": 1,
+      "files": [
+        "section-avvalimenti.js"
+      ],
+      "pctByBu": {
+        "AVV": 39.0
+      }
+    },
+    {
+      "name": "avvCIG",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 6.1,
+      "usedIn": 1,
+      "files": [
+        "section-avvalimenti.js"
+      ],
+      "pctByBu": {
+        "AVV": 6.1
+      }
+    },
+    {
+      "name": "avvCategoria",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 14.6,
+      "usedIn": 1,
+      "files": [
+        "section-avvalimenti.js"
+      ],
+      "pctByBu": {
+        "AVV": 14.6
+      }
+    },
+    {
+      "name": "avvCategorie",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 100.0,
+      "usedIn": 1,
+      "files": [
+        "section-avvalimenti.js"
+      ],
+      "pctByBu": {
+        "AVV": 100.0
+      }
+    },
+    {
+      "name": "avvClassifica",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 0.6,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "AVV": 0.6
+      }
+    },
+    {
+      "name": "avvClassifiche",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 100.0,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "AVV": 100.0
+      }
+    },
+    {
+      "name": "avvTipo",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 94.8,
+      "usedIn": 1,
+      "files": [
+        "section-avvalimenti.js"
+      ],
+      "pctByBu": {
+        "AVV": 94.8
+      }
+    },
+    {
+      "name": "categoria",
+      "inJson": false,
+      "inBus": 0,
+      "avgPct": 0,
+      "usedIn": 3,
+      "files": [
+        "drilldown.js",
+        "sections-offerte.js",
+        "sections-overview.js"
+      ],
+      "pctByBu": {}
+    },
+    {
+      "name": "chAuditTrend",
+      "inJson": false,
+      "inBus": 0,
+      "avgPct": 0,
+      "usedIn": 1,
+      "files": [
+        "section-audit.js"
+      ],
+      "pctByBu": {}
+    },
+    {
+      "name": "chEconCompara",
+      "inJson": false,
+      "inBus": 0,
+      "avgPct": 0,
+      "usedIn": 1,
+      "files": [
+        "section-econfin.js"
+      ],
+      "pctByBu": {}
+    },
+    {
+      "name": "chExplore",
+      "inJson": false,
+      "inBus": 0,
+      "avgPct": 0,
+      "usedIn": 1,
+      "files": [
+        "section-explore-tree.js"
+      ],
+      "pctByBu": {}
+    },
+    {
+      "name": "chRicTrend",
+      "inJson": false,
+      "inBus": 0,
+      "avgPct": 0,
+      "usedIn": 1,
+      "files": [
+        "sections-overview.js"
+      ],
+      "pctByBu": {}
+    },
+    {
+      "name": "citta",
+      "inJson": true,
+      "inBus": 11,
+      "avgPct": 76.7,
+      "usedIn": 5,
+      "files": [
+        "upload-config.js",
+        "drilldown.js",
+        "sections-overview.js",
+        "sections-soa.js",
+        "upload-config-common.js"
+      ],
+      "pctByBu": {
+        "AVV": 98.2,
+        "SIC": 99.5,
+        "APL_RES": 87.7,
+        "APL_PAL": 1.3,
+        "GAR": 97.5,
+        "IST": 69.2,
+        "ISO": 99.4,
+        "FOR": 0.2,
+        "GDPR": 95.1,
+        "FIA": 97.1,
+        "SOA": 98.0
+      }
+    },
+    {
+      "name": "cliente",
+      "inJson": true,
+      "inBus": 11,
+      "avgPct": 99.7,
+      "usedIn": 31,
+      "files": [
+        "section-recsel.js",
+        "section-avvalimenti.js",
+        "drilldown.js",
+        "export-cessione.js",
+        "info-tooltip.js",
+        "section-analisi-incassi.js"
+      ],
+      "pctByBu": {
+        "AVV": 99.4,
+        "SIC": 100.0,
+        "APL_RES": 99.4,
+        "APL_PAL": 100.0,
+        "GAR": 100.0,
+        "IST": 100.0,
+        "ISO": 99.8,
+        "FOR": 100.0,
+        "GDPR": 100.0,
+        "FIA": 99.6,
+        "SOA": 99.0
+      }
+    },
+    {
+      "name": "cnt",
+      "inJson": false,
+      "inBus": 0,
+      "avgPct": 0,
+      "usedIn": 2,
+      "files": [
+        "sections-finance.js",
+        "sections-finance.js"
+      ],
+      "pctByBu": {}
+    },
+    {
+      "name": "codClasse",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 67.1,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "FOR": 67.1
+      }
+    },
+    {
+      "name": "commesse",
+      "inJson": false,
+      "inBus": 0,
+      "avgPct": 0,
+      "usedIn": 1,
+      "files": [
+        "coge-riepilogo.js"
+      ],
+      "pctByBu": {}
+    },
+    {
+      "name": "consorzio",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 0.3,
+      "usedIn": 1,
+      "files": [
+        "section-soa-consorzio.js"
+      ],
+      "pctByBu": {
+        "SOA": 0.3
+      }
+    },
+    {
+      "name": "consorzioFlag",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 0.3,
+      "usedIn": 1,
+      "files": [
+        "section-soa-consorzio.js"
+      ],
+      "pctByBu": {
+        "SOA": 0.3
+      }
+    },
+    {
+      "name": "consulenza",
+      "inJson": true,
+      "inBus": 11,
+      "avgPct": 77.5,
+      "usedIn": 40,
+      "files": [
+        "section-gol.js",
+        "section-recsel.js",
+        "section-avvalimenti.js",
+        "coge-data.js",
+        "section-bandi.js",
+        "drilldown.js"
+      ],
+      "pctByBu": {
+        "AVV": 74.4,
+        "SIC": 91.1,
+        "APL_RES": 87.7,
+        "APL_PAL": 88.6,
+        "GAR": 85.8,
+        "IST": 94.2,
+        "ISO": 38.9,
+        "FOR": 99.8,
+        "GDPR": 46.6,
+        "FIA": 57.2,
+        "SOA": 87.8
+      }
+    },
+    {
+      "name": "contatto",
+      "inJson": true,
+      "inBus": 11,
+      "avgPct": 0.0,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "AVV": 0.0,
+        "SIC": 0.0,
+        "APL_RES": 0.0,
+        "APL_PAL": 0.0,
+        "GAR": 0.0,
+        "IST": 0.0,
+        "ISO": 0.0,
+        "FOR": 0.0,
+        "GDPR": 0.0,
+        "FIA": 0.0,
+        "SOA": 0.0
+      }
+    },
+    {
+      "name": "contratto",
+      "inJson": true,
+      "inBus": 11,
+      "avgPct": 100.0,
+      "usedIn": 7,
+      "files": [
+        "drilldown.js",
+        "export-cessione.js",
+        "drilldown.js",
+        "drilldown.js",
+        "section-analisi-incassi.js",
+        "section-explore-tree.js"
+      ],
+      "pctByBu": {
+        "AVV": 100.0,
+        "SIC": 100.0,
+        "APL_RES": 100.0,
+        "APL_PAL": 100.0,
+        "GAR": 100.0,
+        "IST": 100.0,
+        "ISO": 100.0,
+        "FOR": 99.9,
+        "GDPR": 100.0,
+        "FIA": 100.0,
+        "SOA": 100.0
+      }
+    },
+    {
+      "name": "corso",
+      "inJson": true,
+      "inBus": 11,
+      "avgPct": 6.1,
+      "usedIn": 13,
+      "files": [
+        "drilldown.js",
+        "export-cessione.js",
+        "info-tooltip.js",
+        "section-analisi-incassi.js",
+        "section-spec-econ.js",
+        "sections-corsi.js"
+      ],
+      "pctByBu": {
+        "AVV": 0.0,
+        "SIC": 0.0,
+        "APL_RES": 0.0,
+        "APL_PAL": 0.0,
+        "GAR": 0.0,
+        "IST": 0.0,
+        "ISO": 0.0,
+        "FOR": 67.1,
+        "GDPR": 0.0,
+        "FIA": 0.0,
+        "SOA": 0.0
+      }
+    },
+    {
+      "name": "costi",
+      "inJson": true,
+      "inBus": 11,
+      "avgPct": 15.9,
+      "usedIn": 19,
+      "files": [
+        "coge-data.js",
+        "drilldown.js",
+        "export-cessione.js",
+        "info-tooltip.js",
+        "kpis.js",
+        "section-econfin.js"
+      ],
+      "pctByBu": {
+        "AVV": 13.1,
+        "SIC": 2.9,
+        "APL_RES": 0.0,
+        "APL_PAL": 0.1,
+        "GAR": 8.9,
+        "IST": 50.0,
+        "ISO": 4.5,
+        "FOR": 94.9,
+        "GDPR": 0.3,
+        "FIA": 0.4,
+        "SOA": 0.0
+      }
+    },
+    {
+      "name": "costiCommessa",
+      "inJson": false,
+      "inBus": 0,
+      "avgPct": 0,
+      "usedIn": 1,
+      "files": [
+        "coge-riepilogo.js"
+      ],
+      "pctByBu": {}
+    },
+    {
+      "name": "costiDocum",
+      "inJson": true,
+      "inBus": 11,
+      "avgPct": 0.0,
+      "usedIn": 2,
+      "files": [
+        "section-econfin.js",
+        "section-econfin.js"
+      ],
+      "pctByBu": {
+        "AVV": 0.0,
+        "SIC": 0.0,
+        "APL_RES": 0.0,
+        "APL_PAL": 0.0,
+        "GAR": 0.0,
+        "IST": 0.0,
+        "ISO": 0.0,
+        "FOR": 0.0,
+        "GDPR": 0.0,
+        "FIA": 0.0,
+        "SOA": 0.0
+      }
+    },
+    {
+      "name": "costiIndiretti",
+      "inJson": false,
+      "inBus": 0,
+      "avgPct": 0,
+      "usedIn": 1,
+      "files": [
+        "coge-riepilogo.js"
+      ],
+      "pctByBu": {}
+    },
+    {
+      "name": "costoBuSpalmato",
+      "inJson": false,
+      "inBus": 0,
+      "avgPct": 0,
+      "usedIn": 1,
+      "files": [
+        "coge-imputazione-logic.js"
+      ],
+      "pctByBu": {}
+    },
+    {
+      "name": "costoDiretto",
+      "inJson": false,
+      "inBus": 0,
+      "avgPct": 0,
+      "usedIn": 1,
+      "files": [
+        "coge-imputazione-logic.js"
+      ],
+      "pctByBu": {}
+    },
+    {
+      "name": "costoHr",
+      "inJson": false,
+      "inBus": 0,
+      "avgPct": 0,
+      "usedIn": 1,
+      "files": [
+        "coge-riepilogo.js"
+      ],
+      "pctByBu": {}
+    },
+    {
+      "name": "cpi",
+      "inJson": false,
+      "inBus": 0,
+      "avgPct": 0,
+      "usedIn": 2,
+      "files": [
+        "drilldown.js",
+        "sections-opp.js"
+      ],
+      "pctByBu": {}
+    },
+    {
+      "name": "daIncassare",
+      "inJson": true,
+      "inBus": 11,
+      "avgPct": 58.1,
+      "usedIn": 3,
+      "files": [
+        "section-bandi.js",
+        "export-cessione.js",
+        "section-produttivita.js"
+      ],
+      "pctByBu": {
+        "AVV": 37.5,
+        "SIC": 47.9,
+        "APL_RES": 87.7,
+        "APL_PAL": 88.6,
+        "GAR": 60.9,
+        "IST": 94.2,
+        "ISO": 30.1,
+        "FOR": 13.3,
+        "GDPR": 40.7,
+        "FIA": 54.7,
+        "SOA": 83.7
+      }
+    },
+    {
+      "name": "data",
+      "inJson": false,
+      "inBus": 0,
+      "avgPct": 0,
+      "usedIn": 3,
+      "files": [
+        "coge-segnatempo.js",
+        "drilldown.js",
+        "upload-config.js"
+      ],
+      "pctByBu": {}
+    },
+    {
+      "name": "dataAssegnazione",
+      "inJson": true,
+      "inBus": 11,
+      "avgPct": 77.8,
+      "usedIn": 2,
+      "files": [
+        "section-explore-metrics.js",
+        "section-wiki-calcs.js"
+      ],
+      "pctByBu": {
+        "AVV": 91.8,
+        "SIC": 89.5,
+        "APL_RES": 68.8,
+        "APL_PAL": 94.5,
+        "GAR": 82.8,
+        "IST": 100.0,
+        "ISO": 66.7,
+        "FOR": 67.2,
+        "GDPR": 64.6,
+        "FIA": 64.9,
+        "SOA": 65.3
+      }
+    },
+    {
+      "name": "dataEsame",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 14.2,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "FOR": 14.2
+      }
+    },
+    {
+      "name": "dataFine",
+      "inJson": true,
+      "inBus": 11,
+      "avgPct": 50.5,
+      "usedIn": 9,
+      "files": [
+        "export-cessione.js",
+        "filters.js",
+        "section-spec-econ.js",
+        "sections-finance.js",
+        "sections-overview.js",
+        "filters.js"
+      ],
+      "pctByBu": {
+        "AVV": 60.4,
+        "SIC": 84.6,
+        "APL_RES": 11.7,
+        "APL_PAL": 26.5,
+        "GAR": 49.2,
+        "IST": 76.9,
+        "ISO": 47.8,
+        "FOR": 66.3,
+        "GDPR": 47.1,
+        "FIA": 47.1,
+        "SOA": 37.5
+      }
+    },
+    {
+      "name": "dataFirmaContratto",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 0.0,
+      "usedIn": 1,
+      "files": [
+        "section-soa-firma.js"
+      ],
+      "pctByBu": {
+        "SOA": 0.0
+      }
+    },
+    {
+      "name": "dataInizio",
+      "inJson": true,
+      "inBus": 11,
+      "avgPct": 97.0,
+      "usedIn": 17,
+      "files": [
+        "section-gol.js",
+        "coge-data.js",
+        "section-bandi.js",
+        "export-cessione.js",
+        "filters.js",
+        "section-spec-econ.js"
+      ],
+      "pctByBu": {
+        "AVV": 100.0,
+        "SIC": 100.0,
+        "APL_RES": 100.0,
+        "APL_PAL": 100.0,
+        "GAR": 100.0,
+        "IST": 100.0,
+        "ISO": 100.0,
+        "FOR": 66.6,
+        "GDPR": 100.0,
+        "FIA": 100.0,
+        "SOA": 100.0
+      }
+    },
+    {
+      "name": "dataPianInizio",
+      "inJson": true,
+      "inBus": 11,
+      "avgPct": 100.0,
+      "usedIn": 13,
+      "files": [
+        "section-gol.js",
+        "coge-data.js",
+        "section-bandi.js",
+        "filters.js",
+        "section-sicurezza.js",
+        "section-soa-firma.js"
+      ],
+      "pctByBu": {
+        "AVV": 100.0,
+        "SIC": 100.0,
+        "APL_RES": 100.0,
+        "APL_PAL": 100.0,
+        "GAR": 100.0,
+        "IST": 100.0,
+        "ISO": 100.0,
+        "FOR": 100.0,
+        "GDPR": 100.0,
+        "FIA": 100.0,
+        "SOA": 100.0
+      }
+    },
+    {
+      "name": "dataUltimaNota",
+      "inJson": true,
+      "inBus": 11,
+      "avgPct": 47.9,
+      "usedIn": 1,
+      "files": [
+        "section-soa-aggsett.js"
+      ],
+      "pctByBu": {
+        "AVV": 35.4,
+        "SIC": 91.7,
+        "APL_RES": 29.9,
+        "APL_PAL": 24.7,
+        "GAR": 32.6,
+        "IST": 57.7,
+        "ISO": 60.5,
+        "FOR": 0.4,
+        "GDPR": 64.5,
+        "FIA": 53.6,
+        "SOA": 75.7
+      }
+    },
+    {
+      "name": "data_full",
+      "inJson": false,
+      "inBus": 0,
+      "avgPct": 0,
+      "usedIn": 3,
+      "files": [
+        "drilldown.js",
+        "sections-offerte.js",
+        "upload-config.js"
+      ],
+      "pctByBu": {}
+    },
+    {
+      "name": "descrizione",
+      "inJson": true,
+      "inBus": 11,
+      "avgPct": 0.0,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "AVV": 0.0,
+        "SIC": 0.0,
+        "APL_RES": 0.0,
+        "APL_PAL": 0.0,
+        "GAR": 0.0,
+        "IST": 0.0,
+        "ISO": 0.0,
+        "FOR": 0.0,
+        "GDPR": 0.0,
+        "FIA": 0.0,
+        "SOA": 0.0
+      }
+    },
+    {
+      "name": "dipendente",
+      "inJson": false,
+      "inBus": 0,
+      "avgPct": 0,
+      "usedIn": 2,
+      "files": [
+        "coge-hr.js",
+        "coge-segnatempo.js"
+      ],
+      "pctByBu": {}
+    },
+    {
+      "name": "dipendenti",
+      "inJson": false,
+      "inBus": 0,
+      "avgPct": 0,
+      "usedIn": 1,
+      "files": [
+        "coge-imputazione-logic.js"
+      ],
+      "pctByBu": {}
+    },
+    {
+      "name": "discenti",
+      "inJson": true,
+      "inBus": 11,
+      "avgPct": 0.0,
+      "usedIn": 2,
+      "files": [
+        "section-explore-for.js",
+        "section-wiki-calcs.js"
+      ],
+      "pctByBu": {
+        "AVV": 0.0,
+        "SIC": 0.0,
+        "APL_RES": 0.0,
+        "APL_PAL": 0.0,
+        "GAR": 0.0,
+        "IST": 0.0,
+        "ISO": 0.0,
+        "FOR": 0.0,
+        "GDPR": 0.0,
+        "FIA": 0.0,
+        "SOA": 0.0
+      }
+    },
+    {
+      "name": "ecCostiCons",
+      "inJson": true,
+      "inBus": 11,
+      "avgPct": 15.9,
+      "usedIn": 2,
+      "files": [
+        "section-econfin.js",
+        "section-econfin.js"
+      ],
+      "pctByBu": {
+        "AVV": 13.1,
+        "SIC": 2.9,
+        "APL_RES": 0.0,
+        "APL_PAL": 0.1,
+        "GAR": 8.9,
+        "IST": 50.0,
+        "ISO": 4.5,
+        "FOR": 94.9,
+        "GDPR": 0.3,
+        "FIA": 0.4,
+        "SOA": 0.0
+      }
+    },
+    {
+      "name": "ecMolCons",
+      "inJson": true,
+      "inBus": 11,
+      "avgPct": 78.6,
+      "usedIn": 2,
+      "files": [
+        "section-econfin.js",
+        "section-econfin.js"
+      ],
+      "pctByBu": {
+        "AVV": 83.2,
+        "SIC": 91.2,
+        "APL_RES": 87.7,
+        "APL_PAL": 88.6,
+        "GAR": 85.8,
+        "IST": 94.2,
+        "ISO": 42.4,
+        "FOR": 99.8,
+        "GDPR": 46.6,
+        "FIA": 57.2,
+        "SOA": 87.8
+      }
+    },
+    {
+      "name": "ecRicaviCons",
+      "inJson": true,
+      "inBus": 11,
+      "avgPct": 77.6,
+      "usedIn": 2,
+      "files": [
+        "section-econfin.js",
+        "section-econfin.js"
+      ],
+      "pctByBu": {
+        "AVV": 72.0,
+        "SIC": 91.1,
+        "APL_RES": 87.7,
+        "APL_PAL": 88.6,
+        "GAR": 85.8,
+        "IST": 94.2,
+        "ISO": 42.4,
+        "FOR": 99.8,
+        "GDPR": 46.6,
+        "FIA": 57.2,
+        "SOA": 87.8
+      }
+    },
+    {
+      "name": "ed",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 67.5,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "FOR": 67.5
+      }
+    },
+    {
+      "name": "ente",
+      "inJson": true,
+      "inBus": 11,
+      "avgPct": 9.9,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "AVV": 0.0,
+        "SIC": 0.0,
+        "APL_RES": 0.0,
+        "APL_PAL": 0.0,
+        "GAR": 0.0,
+        "IST": 0.0,
+        "ISO": 29.8,
+        "FOR": 0.0,
+        "GDPR": 0.0,
+        "FIA": 0.0,
+        "SOA": 78.8
+      }
+    },
+    {
+      "name": "enteCert9001",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 5.5,
+      "usedIn": 2,
+      "files": [
+        "section-soa-enti.js",
+        "sections-soa.js"
+      ],
+      "pctByBu": {
+        "SOA": 5.5
+      }
+    },
+    {
+      "name": "erpLink",
+      "inJson": true,
+      "inBus": 11,
+      "avgPct": 100.0,
+      "usedIn": 6,
+      "files": [
+        "drilldown.js",
+        "upload-config.js",
+        "utils.js",
+        "drilldown.js",
+        "upload-config-common.js",
+        "utils.js"
+      ],
+      "pctByBu": {
+        "AVV": 100.0,
+        "SIC": 100.0,
+        "APL_RES": 100.0,
+        "APL_PAL": 100.0,
+        "GAR": 100.0,
+        "IST": 100.0,
+        "ISO": 100.0,
+        "FOR": 100.0,
+        "GDPR": 100.0,
+        "FIA": 100.0,
+        "SOA": 100.0
+      }
+    },
+    {
+      "name": "euroResiduo",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 0.0,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "FOR": 0.0
+      }
+    },
+    {
+      "name": "finDeltaTot",
+      "inJson": true,
+      "inBus": 11,
+      "avgPct": 13.8,
+      "usedIn": 2,
+      "files": [
+        "section-econfin.js",
+        "section-econfin.js"
+      ],
+      "pctByBu": {
+        "AVV": 34.8,
+        "SIC": 47.1,
+        "APL_RES": 0.0,
+        "APL_PAL": 0.0,
+        "GAR": 27.4,
+        "IST": 0.0,
+        "ISO": 17.6,
+        "FOR": 4.2,
+        "GDPR": 14.2,
+        "FIA": 2.5,
+        "SOA": 4.1
+      }
+    },
+    {
+      "name": "finIncassiTot",
+      "inJson": true,
+      "inBus": 11,
+      "avgPct": 14.3,
+      "usedIn": 4,
+      "files": [
+        "section-econfin.js",
+        "upload-config.js",
+        "section-econfin.js",
+        "upload-config-common.js"
+      ],
+      "pctByBu": {
+        "AVV": 34.8,
+        "SIC": 47.1,
+        "APL_RES": 0.0,
+        "APL_PAL": 0.0,
+        "GAR": 27.4,
+        "IST": 0.0,
+        "ISO": 17.6,
+        "FOR": 9.7,
+        "GDPR": 14.2,
+        "FIA": 2.5,
+        "SOA": 4.1
+      }
+    },
+    {
+      "name": "finUsciteTot",
+      "inJson": true,
+      "inBus": 11,
+      "avgPct": 0.0,
+      "usedIn": 2,
+      "files": [
+        "section-econfin.js",
+        "section-econfin.js"
+      ],
+      "pctByBu": {
+        "AVV": 0.0,
+        "SIC": 0.0,
+        "APL_RES": 0.0,
+        "APL_PAL": 0.0,
+        "GAR": 0.0,
+        "IST": 0.0,
+        "ISO": 0.0,
+        "FOR": 0.0,
+        "GDPR": 0.0,
+        "FIA": 0.0,
+        "SOA": 0.0
+      }
+    },
+    {
+      "name": "funzione",
+      "inJson": true,
+      "inBus": 11,
+      "avgPct": 49.7,
+      "usedIn": 1,
+      "files": [
+        "section-explore-tree.js"
+      ],
+      "pctByBu": {
+        "AVV": 14.3,
+        "SIC": 7.5,
+        "APL_RES": 3.2,
+        "APL_PAL": 94.3,
+        "GAR": 22.2,
+        "IST": 7.7,
+        "ISO": 97.4,
+        "FOR": 99.2,
+        "GDPR": 97.6,
+        "FIA": 5.1,
+        "SOA": 98.4
+      }
+    },
+    {
+      "name": "garAggiudicataria",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 0.3,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "GAR": 0.3
+      }
+    },
+    {
+      "name": "garAggiudicatariaPunti",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 0.3,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "GAR": 0.3
+      }
+    },
+    {
+      "name": "garAggiudicatariaRibasso",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 0.3,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "GAR": 0.3
+      }
+    },
+    {
+      "name": "garAggiudicatariaRibassoPct",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 0.3,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "GAR": 0.3
+      }
+    },
+    {
+      "name": "garCIG",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 7.7,
+      "usedIn": 1,
+      "files": [
+        "section-gare.js"
+      ],
+      "pctByBu": {
+        "GAR": 7.7
+      }
+    },
+    {
+      "name": "garCategoria",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 1.8,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "GAR": 1.8
+      }
+    },
+    {
+      "name": "garDataInserimento",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 8.3,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "GAR": 8.3
+      }
+    },
+    {
+      "name": "garDataScadenza",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 7.1,
+      "usedIn": 1,
+      "files": [
+        "section-gare.js"
+      ],
+      "pctByBu": {
+        "GAR": 7.1
+      }
+    },
+    {
+      "name": "garEnte",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 6.8,
+      "usedIn": 1,
+      "files": [
+        "section-gare.js"
+      ],
+      "pctByBu": {
+        "GAR": 6.8
+      }
+    },
+    {
+      "name": "garEsito",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 2.2,
+      "usedIn": 1,
+      "files": [
+        "section-gare.js"
+      ],
+      "pctByBu": {
+        "GAR": 2.2
+      }
+    },
+    {
+      "name": "garImponibile",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 0.3,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "GAR": 0.3
+      }
+    },
+    {
+      "name": "garImporto",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 5.8,
+      "usedIn": 1,
+      "files": [
+        "section-gare.js"
+      ],
+      "pctByBu": {
+        "GAR": 5.8
+      }
+    },
+    {
+      "name": "garNoteEsito",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 1.8,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "GAR": 1.8
+      }
+    },
+    {
+      "name": "garOfferta",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 0.0,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "GAR": 0.0
+      }
+    },
+    {
+      "name": "garOggetto",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 8.6,
+      "usedIn": 1,
+      "files": [
+        "section-gare.js"
+      ],
+      "pctByBu": {
+        "GAR": 8.6
+      }
+    },
+    {
+      "name": "garOraScadenza",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 1.5,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "GAR": 1.5
+      }
+    },
+    {
+      "name": "garProtocollo",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 0.0,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "GAR": 0.0
+      }
+    },
+    {
+      "name": "garRibasso",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 0.3,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "GAR": 0.3
+      }
+    },
+    {
+      "name": "garRibassoPct",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 0.3,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "GAR": 0.3
+      }
+    },
+    {
+      "name": "gdprAccordo",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 0.6,
+      "usedIn": 1,
+      "files": [
+        "section-pagamenti-gdpr.js"
+      ],
+      "pctByBu": {
+        "GDPR": 0.6
+      }
+    },
+    {
+      "name": "gdprDataUltimaChiamata",
+      "inJson": true,
+      "inBus": 2,
+      "avgPct": 0.0,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "APL_RES": 0.0,
+        "GDPR": 0.0
+      }
+    },
+    {
+      "name": "gdprDataUltimoRichiamo",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 0.0,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "GDPR": 0.0
+      }
+    },
+    {
+      "name": "gdprInsoluti",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 100.0,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "GDPR": 100.0
+      }
+    },
+    {
+      "name": "gdprStatoPag",
+      "inJson": true,
+      "inBus": 2,
+      "avgPct": 70.4,
+      "usedIn": 1,
+      "files": [
+        "section-pagamenti-gdpr.js"
+      ],
+      "pctByBu": {
+        "GDPR": 64.6,
+        "SOA": 76.2
+      }
+    },
+    {
+      "name": "generali",
+      "inJson": false,
+      "inBus": 0,
+      "avgPct": 0,
+      "usedIn": 1,
+      "files": [
+        "coge-imputazioni.js"
+      ],
+      "pctByBu": {}
+    },
+    {
+      "name": "giaIncassato",
+      "inJson": true,
+      "inBus": 11,
+      "avgPct": 14.6,
+      "usedIn": 27,
+      "files": [
+        "section-gol.js",
+        "coge-data.js",
+        "section-bandi.js",
+        "export-cessione.js",
+        "filters.js",
+        "info-tooltip.js"
+      ],
+      "pctByBu": {
+        "AVV": 34.8,
+        "SIC": 47.1,
+        "APL_RES": 0.0,
+        "APL_PAL": 0.0,
+        "GAR": 27.4,
+        "IST": 0.0,
+        "ISO": 17.6,
+        "FOR": 13.3,
+        "GDPR": 14.2,
+        "FIA": 2.5,
+        "SOA": 4.1
+      }
+    },
+    {
+      "name": "groupField",
+      "inJson": false,
+      "inBus": 0,
+      "avgPct": 0,
+      "usedIn": 1,
+      "files": [
+        "drilldown.js"
+      ],
+      "pctByBu": {}
+    },
+    {
+      "name": "id",
+      "inJson": true,
+      "inBus": 11,
+      "avgPct": 100.0,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "AVV": 100.0,
+        "SIC": 100.0,
+        "APL_RES": 100.0,
+        "APL_PAL": 100.0,
+        "GAR": 100.0,
+        "IST": 100.0,
+        "ISO": 100.0,
+        "FOR": 100.0,
+        "GDPR": 100.0,
+        "FIA": 100.0,
+        "SOA": 100.0
+      }
+    },
+    {
+      "name": "idContratto",
+      "inJson": true,
+      "inBus": 11,
+      "avgPct": 100.0,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "AVV": 100.0,
+        "SIC": 100.0,
+        "APL_RES": 100.0,
+        "APL_PAL": 100.0,
+        "GAR": 100.0,
+        "IST": 100.0,
+        "ISO": 100.0,
+        "FOR": 100.0,
+        "GDPR": 100.0,
+        "FIA": 100.0,
+        "SOA": 100.0
+      }
+    },
+    {
+      "name": "importoEnte",
+      "inJson": false,
+      "inBus": 0,
+      "avgPct": 0,
+      "usedIn": 4,
+      "files": [
+        "drilldown.js",
+        "kpis.js",
+        "sections-overview.js",
+        "sections-soa.js"
+      ],
+      "pctByBu": {}
+    },
+    {
+      "name": "indirizzo",
+      "inJson": true,
+      "inBus": 11,
+      "avgPct": 77.2,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "AVV": 99.4,
+        "SIC": 99.7,
+        "APL_RES": 87.7,
+        "APL_PAL": 1.3,
+        "GAR": 99.4,
+        "IST": 69.2,
+        "ISO": 99.5,
+        "FOR": 0.2,
+        "GDPR": 96.4,
+        "FIA": 97.8,
+        "SOA": 98.4
+      }
+    },
+    {
+      "name": "invioContratto",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 0.0,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "SOA": 0.0
+      }
+    },
+    {
+      "name": "isoAccordoPagamenti",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 16.6,
+      "usedIn": 1,
+      "files": [
+        "section-pagamenti.js"
+      ],
+      "pctByBu": {
+        "ISO": 16.6
+      }
+    },
+    {
+      "name": "isoDataFineLav",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 36.6,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "ISO": 36.6
+      }
+    },
+    {
+      "name": "isoDataInizioLav",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 39.6,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "ISO": 39.6
+      }
+    },
+    {
+      "name": "isoDataProssimaConsulenza",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 0.0,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "ISO": 0.0
+      }
+    },
+    {
+      "name": "isoDataUltimaChiamata",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 8.0,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "ISO": 8.0
+      }
+    },
+    {
+      "name": "isoDataUltimoAudit",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 0.3,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "ISO": 0.3
+      }
+    },
+    {
+      "name": "isoDataUltimoRichiamo",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 0.0,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "ISO": 0.0
+      }
+    },
+    {
+      "name": "isoDataUrgenza",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 0.0,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "ISO": 0.0
+      }
+    },
+    {
+      "name": "isoDataVerifica",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 48.5,
+      "usedIn": 1,
+      "files": [
+        "section-audit.js"
+      ],
+      "pctByBu": {
+        "ISO": 48.5
+      }
+    },
+    {
+      "name": "isoDataVerificaEff",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 4.0,
+      "usedIn": 1,
+      "files": [
+        "section-audit.js"
+      ],
+      "pctByBu": {
+        "ISO": 4.0
+      }
+    },
+    {
+      "name": "isoDocTriennio",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 0.0,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "ISO": 0.0
+      }
+    },
+    {
+      "name": "isoEnte",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 51.1,
+      "usedIn": 3,
+      "files": [
+        "section-audit.js",
+        "section-certificati.js",
+        "section-enti.js"
+      ],
+      "pctByBu": {
+        "ISO": 51.1
+      }
+    },
+    {
+      "name": "isoInsoluti",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 0.0,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "ISO": 0.0
+      }
+    },
+    {
+      "name": "isoIntervistaSede",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 41.5,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "ISO": 41.5
+      }
+    },
+    {
+      "name": "isoOreLav",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 38.7,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "ISO": 38.7
+      }
+    },
+    {
+      "name": "isoScopoProposto",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 54.2,
+      "usedIn": 1,
+      "files": [
+        "section-scopo.js"
+      ],
+      "pctByBu": {
+        "ISO": 54.2
+      }
+    },
+    {
+      "name": "isoScopoUscita",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 1.7,
+      "usedIn": 1,
+      "files": [
+        "section-scopo.js"
+      ],
+      "pctByBu": {
+        "ISO": 1.7
+      }
+    },
+    {
+      "name": "isoSettore",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 0.7,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "ISO": 0.7
+      }
+    },
+    {
+      "name": "isoStandard",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 88.2,
+      "usedIn": 3,
+      "files": [
+        "section-audit.js",
+        "section-enti.js",
+        "section-scopo.js"
+      ],
+      "pctByBu": {
+        "ISO": 88.2
+      }
+    },
+    {
+      "name": "isoStandards",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 100.0,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "ISO": 100.0
+      }
+    },
+    {
+      "name": "isoStatoCert",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 55.6,
+      "usedIn": 1,
+      "files": [
+        "section-certificati.js"
+      ],
+      "pctByBu": {
+        "ISO": 55.6
+      }
+    },
+    {
+      "name": "isoStatoPagamentoTxt",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 66.6,
+      "usedIn": 1,
+      "files": [
+        "section-pagamenti.js"
+      ],
+      "pctByBu": {
+        "ISO": 66.6
+      }
+    },
+    {
+      "name": "isoTipoAudit",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 72.4,
+      "usedIn": 2,
+      "files": [
+        "section-audit.js",
+        "section-enti.js"
+      ],
+      "pctByBu": {
+        "ISO": 72.4
+      }
+    },
+    {
+      "name": "isoTipoAuditList",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 100.0,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "ISO": 100.0
+      }
+    },
+    {
+      "name": "isoUrgenza",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 12.2,
+      "usedIn": 1,
+      "files": [
+        "section-audit.js"
+      ],
+      "pctByBu": {
+        "ISO": 12.2
+      }
+    },
+    {
+      "name": "mai",
+      "inJson": false,
+      "inBus": 0,
+      "avgPct": 0,
+      "usedIn": 1,
+      "files": [
+        "section-soa-aggsett.js"
+      ],
+      "pctByBu": {}
+    },
+    {
+      "name": "mol",
+      "inJson": true,
+      "inBus": 11,
+      "avgPct": 78.8,
+      "usedIn": 28,
+      "files": [
+        "coge-data.js",
+        "coge-riepilogo.js",
+        "drilldown.js",
+        "export-cessione.js",
+        "filters.js",
+        "info-tooltip.js"
+      ],
+      "pctByBu": {
+        "AVV": 85.7,
+        "SIC": 91.2,
+        "APL_RES": 87.7,
+        "APL_PAL": 88.6,
+        "GAR": 85.8,
+        "IST": 94.2,
+        "ISO": 42.4,
+        "FOR": 99.8,
+        "GDPR": 46.6,
+        "FIA": 57.2,
+        "SOA": 87.8
+      }
+    },
+    {
+      "name": "molDocum",
+      "inJson": true,
+      "inBus": 11,
+      "avgPct": 38.5,
+      "usedIn": 2,
+      "files": [
+        "section-econfin.js",
+        "section-econfin.js"
+      ],
+      "pctByBu": {
+        "AVV": 48.8,
+        "SIC": 65.5,
+        "APL_RES": 16.2,
+        "APL_PAL": 29.7,
+        "GAR": 44.0,
+        "IST": 30.8,
+        "ISO": 26.3,
+        "FOR": 99.0,
+        "GDPR": 23.2,
+        "FIA": 29.7,
+        "SOA": 10.8
+      }
+    },
+    {
+      "name": "nBu",
+      "inJson": false,
+      "inBus": 0,
+      "avgPct": 0,
+      "usedIn": 1,
+      "files": [
+        "coge-riepilogo.js"
+      ],
+      "pctByBu": {}
+    },
+    {
+      "name": "nSedi",
+      "inJson": false,
+      "inBus": 0,
+      "avgPct": 0,
+      "usedIn": 1,
+      "files": [
+        "coge-riepilogo.js"
+      ],
+      "pctByBu": {}
+    },
+    {
+      "name": "nSocieta",
+      "inJson": false,
+      "inBus": 0,
+      "avgPct": 0,
+      "usedIn": 1,
+      "files": [
+        "coge-riepilogo.js"
+      ],
+      "pctByBu": {}
+    },
+    {
+      "name": "note",
+      "inJson": true,
+      "inBus": 11,
+      "avgPct": 10.7,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "AVV": 3.0,
+        "SIC": 14.0,
+        "APL_RES": 0.0,
+        "APL_PAL": 1.3,
+        "GAR": 2.2,
+        "IST": 1.9,
+        "ISO": 9.3,
+        "FOR": 0.0,
+        "GDPR": 39.9,
+        "FIA": 14.9,
+        "SOA": 31.5
+      }
+    },
+    {
+      "name": "operatore",
+      "inJson": false,
+      "inBus": 0,
+      "avgPct": 0,
+      "usedIn": 2,
+      "files": [
+        "drilldown.js",
+        "sections-opp.js"
+      ],
+      "pctByBu": {}
+    },
+    {
+      "name": "ore",
+      "inJson": true,
+      "inBus": 11,
+      "avgPct": 6.1,
+      "usedIn": 11,
+      "files": [
+        "coge-segnatempo.js",
+        "drilldown.js",
+        "info-tooltip.js",
+        "kpis.js",
+        "section-econfin.js",
+        "section-explore-for.js"
+      ],
+      "pctByBu": {
+        "AVV": 0.0,
+        "SIC": 0.0,
+        "APL_RES": 0.0,
+        "APL_PAL": 0.0,
+        "GAR": 0.0,
+        "IST": 0.0,
+        "ISO": 0.0,
+        "FOR": 67.1,
+        "GDPR": 0.0,
+        "FIA": 0.0,
+        "SOA": 0.0
+      }
+    },
+    {
+      "name": "oreTotali",
+      "inJson": false,
+      "inBus": 0,
+      "avgPct": 0,
+      "usedIn": 1,
+      "files": [
+        "coge-imputazioni.js"
+      ],
+      "pctByBu": {}
+    },
+    {
+      "name": "page",
+      "inJson": false,
+      "inBus": 0,
+      "avgPct": 0,
+      "usedIn": 1,
+      "files": [
+        "drilldown.js"
+      ],
+      "pctByBu": {}
+    },
+    {
+      "name": "pctAvanzEc",
+      "inJson": true,
+      "inBus": 11,
+      "avgPct": 32.9,
+      "usedIn": 2,
+      "files": [
+        "section-econfin.js",
+        "section-econfin.js"
+      ],
+      "pctByBu": {
+        "AVV": 21.6,
+        "SIC": 40.2,
+        "APL_RES": 8.4,
+        "APL_PAL": 79.4,
+        "GAR": 12.9,
+        "IST": 84.6,
+        "ISO": 8.5,
+        "FOR": 10.8,
+        "GDPR": 7.6,
+        "FIA": 29.7,
+        "SOA": 57.7
+      }
+    },
+    {
+      "name": "pctCostiEc",
+      "inJson": true,
+      "inBus": 11,
+      "avgPct": 6.1,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "AVV": 1.8,
+        "SIC": 0.0,
+        "APL_RES": 0.0,
+        "APL_PAL": 0.1,
+        "GAR": 3.4,
+        "IST": 50.0,
+        "ISO": 0.9,
+        "FOR": 10.7,
+        "GDPR": 0.0,
+        "FIA": 0.4,
+        "SOA": 0.0
+      }
+    },
+    {
+      "name": "pctMolEc",
+      "inJson": true,
+      "inBus": 11,
+      "avgPct": 30.1,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "AVV": 18.9,
+        "SIC": 37.9,
+        "APL_RES": 6.5,
+        "APL_PAL": 71.0,
+        "GAR": 11.1,
+        "IST": 82.7,
+        "ISO": 6.2,
+        "FOR": 10.7,
+        "GDPR": 5.8,
+        "FIA": 25.7,
+        "SOA": 54.8
+      }
+    },
+    {
+      "name": "pctRicaviEc",
+      "inJson": true,
+      "inBus": 11,
+      "avgPct": 30.0,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "AVV": 17.1,
+        "SIC": 37.9,
+        "APL_RES": 6.5,
+        "APL_PAL": 71.0,
+        "GAR": 11.1,
+        "IST": 82.7,
+        "ISO": 6.2,
+        "FOR": 10.7,
+        "GDPR": 5.8,
+        "FIA": 25.7,
+        "SOA": 54.8
+      }
+    },
+    {
+      "name": "perCommessa",
+      "inJson": false,
+      "inBus": 0,
+      "avgPct": 0,
+      "usedIn": 2,
+      "files": [
+        "coge-imputazione-logic.js",
+        "coge-imputazioni.js"
+      ],
+      "pctByBu": {}
+    },
+    {
+      "name": "poolBu",
+      "inJson": false,
+      "inBus": 0,
+      "avgPct": 0,
+      "usedIn": 1,
+      "files": [
+        "coge-imputazioni.js"
+      ],
+      "pctByBu": {}
+    },
+    {
+      "name": "qnetLink",
+      "inJson": true,
+      "inBus": 11,
+      "avgPct": 100.0,
+      "usedIn": 4,
+      "files": [
+        "upload-config.js",
+        "utils.js",
+        "upload-config-common.js",
+        "utils.js"
+      ],
+      "pctByBu": {
+        "AVV": 100.0,
+        "SIC": 100.0,
+        "APL_RES": 100.0,
+        "APL_PAL": 100.0,
+        "GAR": 100.0,
+        "IST": 100.0,
+        "ISO": 100.0,
+        "FOR": 100.0,
+        "GDPR": 100.0,
+        "FIA": 100.0,
+        "SOA": 100.0
+      }
+    },
+    {
+      "name": "regione",
+      "inJson": true,
+      "inBus": 11,
+      "avgPct": 99.9,
+      "usedIn": 4,
+      "files": [
+        "coge-data.js",
+        "sections-overview.js",
+        "section-explore-tree.js",
+        "sections-overview.js"
+      ],
+      "pctByBu": {
+        "AVV": 100.0,
+        "SIC": 100.0,
+        "APL_RES": 100.0,
+        "APL_PAL": 99.9,
+        "GAR": 99.1,
+        "IST": 100.0,
+        "ISO": 100.0,
+        "FOR": 99.9,
+        "GDPR": 100.0,
+        "FIA": 100.0,
+        "SOA": 100.0
+      }
+    },
+    {
+      "name": "rendicontazione",
+      "inJson": false,
+      "inBus": 0,
+      "avgPct": 0,
+      "usedIn": 2,
+      "files": [
+        "drilldown.js",
+        "sections-opp.js"
+      ],
+      "pctByBu": {}
+    },
+    {
+      "name": "responsabile",
+      "inJson": true,
+      "inBus": 11,
+      "avgPct": 77.8,
+      "usedIn": 16,
+      "files": [
+        "section-gol.js",
+        "drilldown.js",
+        "export-cessione.js",
+        "sections-corsi.js",
+        "section-pagamenti-gdpr.js",
+        "section-audit.js"
+      ],
+      "pctByBu": {
+        "AVV": 91.8,
+        "SIC": 89.5,
+        "APL_RES": 68.8,
+        "APL_PAL": 94.5,
+        "GAR": 82.8,
+        "IST": 100.0,
+        "ISO": 66.6,
+        "FOR": 67.2,
+        "GDPR": 64.6,
+        "FIA": 64.9,
+        "SOA": 65.3
+      }
+    },
+    {
+      "name": "ric",
+      "inJson": false,
+      "inBus": 0,
+      "avgPct": 0,
+      "usedIn": 2,
+      "files": [
+        "sections-finance.js",
+        "sections-finance.js"
+      ],
+      "pctByBu": {}
+    },
+    {
+      "name": "ricavi",
+      "inJson": true,
+      "inBus": 11,
+      "avgPct": 77.8,
+      "usedIn": 1,
+      "files": [
+        "coge-riepilogo.js"
+      ],
+      "pctByBu": {
+        "AVV": 74.4,
+        "SIC": 91.1,
+        "APL_RES": 87.7,
+        "APL_PAL": 88.6,
+        "GAR": 85.8,
+        "IST": 94.2,
+        "ISO": 42.4,
+        "FOR": 99.8,
+        "GDPR": 46.6,
+        "FIA": 57.2,
+        "SOA": 87.8
+      }
+    },
+    {
+      "name": "ricaviDocum",
+      "inJson": true,
+      "inBus": 11,
+      "avgPct": 38.5,
+      "usedIn": 2,
+      "files": [
+        "section-econfin.js",
+        "section-econfin.js"
+      ],
+      "pctByBu": {
+        "AVV": 48.8,
+        "SIC": 65.5,
+        "APL_RES": 16.2,
+        "APL_PAL": 29.7,
+        "GAR": 44.0,
+        "IST": 30.8,
+        "ISO": 26.3,
+        "FOR": 99.0,
+        "GDPR": 23.2,
+        "FIA": 29.7,
+        "SOA": 10.8
+      }
+    },
+    {
+      "name": "risultato",
+      "inJson": false,
+      "inBus": 0,
+      "avgPct": 0,
+      "usedIn": 1,
+      "files": [
+        "coge-riepilogo.js"
+      ],
+      "pctByBu": {}
+    },
+    {
+      "name": "saldoDataAccredito",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 0.1,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "FOR": 0.1
+      }
+    },
+    {
+      "name": "saldoDataRichiesta",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 11.1,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "FOR": 11.1
+      }
+    },
+    {
+      "name": "saldoDecreto",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 16.0,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "FOR": 16.0
+      }
+    },
+    {
+      "name": "saldoDecretoNum",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 0.3,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "FOR": 0.3
+      }
+    },
+    {
+      "name": "saldoIdRichiesta",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 15.8,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "FOR": 15.8
+      }
+    },
+    {
+      "name": "saldoImporto",
+      "inJson": true,
+      "inBus": 11,
+      "avgPct": 0.9,
+      "usedIn": 1,
+      "files": [
+        "section-econfin.js"
+      ],
+      "pctByBu": {
+        "AVV": 0.0,
+        "SIC": 0.0,
+        "APL_RES": 0.0,
+        "APL_PAL": 0.0,
+        "GAR": 0.0,
+        "IST": 0.0,
+        "ISO": 0.0,
+        "FOR": 10.0,
+        "GDPR": 0.0,
+        "FIA": 0.0,
+        "SOA": 0.0
+      }
+    },
+    {
+      "name": "scadenzaCert",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 5.1,
+      "usedIn": 1,
+      "files": [
+        "section-soa-enti.js"
+      ],
+      "pctByBu": {
+        "SOA": 5.1
+      }
+    },
+    {
+      "name": "sector",
+      "inJson": true,
+      "inBus": 10,
+      "avgPct": 100.0,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "AVV": 100.0,
+        "SIC": 100.0,
+        "APL_RES": 100.0,
+        "APL_PAL": 100.0,
+        "GAR": 100.0,
+        "IST": 100.0,
+        "ISO": 100.0,
+        "GDPR": 100.0,
+        "FIA": 100.0,
+        "SOA": 100.0
+      }
+    },
+    {
+      "name": "sede",
+      "inJson": true,
+      "inBus": 11,
+      "avgPct": 100.0,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "AVV": 100.0,
+        "SIC": 100.0,
+        "APL_RES": 100.0,
+        "APL_PAL": 99.9,
+        "GAR": 100.0,
+        "IST": 100.0,
+        "ISO": 100.0,
+        "FOR": 99.9,
+        "GDPR": 100.0,
+        "FIA": 100.0,
+        "SOA": 100.0
+      }
+    },
+    {
+      "name": "sedeNorm",
+      "inJson": true,
+      "inBus": 11,
+      "avgPct": 100.0,
+      "usedIn": 8,
+      "files": [
+        "coge-data.js",
+        "section-analisi-incassi.js",
+        "sections-finance.js",
+        "upload-config.js",
+        "section-analisi-incassi.js",
+        "section-explore-tree.js"
+      ],
+      "pctByBu": {
+        "AVV": 100.0,
+        "SIC": 100.0,
+        "APL_RES": 100.0,
+        "APL_PAL": 100.0,
+        "GAR": 100.0,
+        "IST": 100.0,
+        "ISO": 100.0,
+        "FOR": 100.0,
+        "GDPR": 100.0,
+        "FIA": 100.0,
+        "SOA": 100.0
+      }
+    },
+    {
+      "name": "sedeOp",
+      "inJson": true,
+      "inBus": 11,
+      "avgPct": 100.0,
+      "usedIn": 12,
+      "files": [
+        "coge-data.js",
+        "drilldown.js",
+        "export-cessione.js",
+        "section-analisi-incassi.js",
+        "sections-corsi.js",
+        "sections-finance.js"
+      ],
+      "pctByBu": {
+        "AVV": 100.0,
+        "SIC": 100.0,
+        "APL_RES": 100.0,
+        "APL_PAL": 100.0,
+        "GAR": 100.0,
+        "IST": 100.0,
+        "ISO": 100.0,
+        "FOR": 100.0,
+        "GDPR": 100.0,
+        "FIA": 100.0,
+        "SOA": 100.0
+      }
+    },
+    {
+      "name": "sede_op",
+      "inJson": false,
+      "inBus": 0,
+      "avgPct": 0,
+      "usedIn": 2,
+      "files": [
+        "drilldown.js",
+        "sections-offerte.js"
+      ],
+      "pctByBu": {}
+    },
+    {
+      "name": "segnalatore",
+      "inJson": true,
+      "inBus": 11,
+      "avgPct": 4.3,
+      "usedIn": 2,
+      "files": [
+        "section-explore-tree.js",
+        "section-wiki.js"
+      ],
+      "pctByBu": {
+        "AVV": 0.9,
+        "SIC": 4.3,
+        "APL_RES": 1.9,
+        "APL_PAL": 0.6,
+        "GAR": 0.0,
+        "IST": 7.7,
+        "ISO": 4.6,
+        "FOR": 0.0,
+        "GDPR": 5.0,
+        "FIA": 19.9,
+        "SOA": 2.3
+      }
+    },
+    {
+      "name": "senzaDip",
+      "inJson": false,
+      "inBus": 0,
+      "avgPct": 0,
+      "usedIn": 1,
+      "files": [
+        "coge-imputazioni.js"
+      ],
+      "pctByBu": {}
+    },
+    {
+      "name": "soaAttestante",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 61.3,
+      "usedIn": 4,
+      "files": [
+        "section-soa-attestanti.js",
+        "drilldown.js",
+        "sections-overview.js",
+        "sections-soa.js"
+      ],
+      "pctByBu": {
+        "SOA": 61.3
+      }
+    },
+    {
+      "name": "societa",
+      "inJson": true,
+      "inBus": 11,
+      "avgPct": 100.0,
+      "usedIn": 15,
+      "files": [
+        "coge-data.js",
+        "drilldown.js",
+        "export-cessione.js",
+        "info-tooltip.js",
+        "section-econfin.js",
+        "sections-corsi.js"
+      ],
+      "pctByBu": {
+        "AVV": 100.0,
+        "SIC": 100.0,
+        "APL_RES": 100.0,
+        "APL_PAL": 99.9,
+        "GAR": 100.0,
+        "IST": 100.0,
+        "ISO": 100.0,
+        "FOR": 99.9,
+        "GDPR": 100.0,
+        "FIA": 100.0,
+        "SOA": 100.0
+      }
+    },
+    {
+      "name": "statoClasse",
+      "inJson": true,
+      "inBus": 11,
+      "avgPct": 5.5,
+      "usedIn": 2,
+      "files": [
+        "sections-finance.js",
+        "sections-finance.js"
+      ],
+      "pctByBu": {
+        "AVV": 0.0,
+        "SIC": 0.0,
+        "APL_RES": 0.0,
+        "APL_PAL": 0.0,
+        "GAR": 0.0,
+        "IST": 0.0,
+        "ISO": 0.0,
+        "FOR": 61.0,
+        "GDPR": 0.0,
+        "FIA": 0.0,
+        "SOA": 0.0
+      }
+    },
+    {
+      "name": "statoCorso",
+      "inJson": true,
+      "inBus": 11,
+      "avgPct": 5.6,
+      "usedIn": 10,
+      "files": [
+        "drilldown.js",
+        "export-cessione.js",
+        "filters.js",
+        "kpis.js",
+        "section-explore-for.js",
+        "sections-corsi.js"
+      ],
+      "pctByBu": {
+        "AVV": 0.0,
+        "SIC": 0.0,
+        "APL_RES": 0.0,
+        "APL_PAL": 0.0,
+        "GAR": 0.0,
+        "IST": 0.0,
+        "ISO": 0.0,
+        "FOR": 61.1,
+        "GDPR": 0.0,
+        "FIA": 0.0,
+        "SOA": 0.0
+      }
+    },
+    {
+      "name": "statoLav",
+      "inJson": true,
+      "inBus": 11,
+      "avgPct": 46.8,
+      "usedIn": 14,
+      "files": [
+        "section-gol.js",
+        "section-recsel.js",
+        "section-soa-aggsett.js",
+        "section-soa-firma.js",
+        "drilldown.js",
+        "kpis.js"
+      ],
+      "pctByBu": {
+        "AVV": 64.9,
+        "SIC": 10.9,
+        "APL_RES": 40.9,
+        "APL_PAL": 89.4,
+        "GAR": 35.7,
+        "IST": 92.3,
+        "ISO": 64.7,
+        "FOR": 0.1,
+        "GDPR": 39.7,
+        "FIA": 0.4,
+        "SOA": 75.5
+      }
+    },
+    {
+      "name": "statoPagamento",
+      "inJson": true,
+      "inBus": 11,
+      "avgPct": 50.8,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "AVV": 72.9,
+        "SIC": 72.6,
+        "APL_RES": 18.8,
+        "APL_PAL": 30.0,
+        "GAR": 55.1,
+        "IST": 50.0,
+        "ISO": 32.6,
+        "FOR": 99.2,
+        "GDPR": 28.6,
+        "FIA": 79.0,
+        "SOA": 20.2
+      }
+    },
+    {
+      "name": "statoPrev",
+      "inJson": false,
+      "inBus": 0,
+      "avgPct": 0,
+      "usedIn": 2,
+      "files": [
+        "drilldown.js",
+        "sections-overview.js"
+      ],
+      "pctByBu": {}
+    },
+    {
+      "name": "status",
+      "inJson": true,
+      "inBus": 11,
+      "avgPct": 100.0,
+      "usedIn": 37,
+      "files": [
+        "section-gol.js",
+        "section-recsel.js",
+        "section-bandi.js",
+        "drilldown.js",
+        "export-cessione.js",
+        "filters.js"
+      ],
+      "pctByBu": {
+        "AVV": 100.0,
+        "SIC": 100.0,
+        "APL_RES": 100.0,
+        "APL_PAL": 100.0,
+        "GAR": 100.0,
+        "IST": 100.0,
+        "ISO": 100.0,
+        "FOR": 100.0,
+        "GDPR": 100.0,
+        "FIA": 100.0,
+        "SOA": 100.0
+      }
+    },
+    {
+      "name": "tipo",
+      "inJson": false,
+      "inBus": 0,
+      "avgPct": 0,
+      "usedIn": 2,
+      "files": [
+        "drilldown.js",
+        "sections-offerte.js"
+      ],
+      "pctByBu": {}
+    },
+    {
+      "name": "tipoCommessa",
+      "inJson": true,
+      "inBus": 11,
+      "avgPct": 100.0,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "AVV": 100.0,
+        "SIC": 100.0,
+        "APL_RES": 100.0,
+        "APL_PAL": 100.0,
+        "GAR": 100.0,
+        "IST": 100.0,
+        "ISO": 100.0,
+        "FOR": 100.0,
+        "GDPR": 100.0,
+        "FIA": 100.0,
+        "SOA": 100.0
+      }
+    },
+    {
+      "name": "tipologiaCorso",
+      "inJson": false,
+      "inBus": 0,
+      "avgPct": 0,
+      "usedIn": 3,
+      "files": [
+        "drilldown.js",
+        "sections-opp.js",
+        "sections-overview.js"
+      ],
+      "pctByBu": {}
+    },
+    {
+      "name": "titolo",
+      "inJson": true,
+      "inBus": 11,
+      "avgPct": 100.0,
+      "usedIn": 21,
+      "files": [
+        "section-gol.js",
+        "section-recsel.js",
+        "section-avvalimenti.js",
+        "section-bandi.js",
+        "drilldown.js",
+        "export-cessione.js"
+      ],
+      "pctByBu": {
+        "AVV": 100.0,
+        "SIC": 100.0,
+        "APL_RES": 100.0,
+        "APL_PAL": 100.0,
+        "GAR": 100.0,
+        "IST": 100.0,
+        "ISO": 100.0,
+        "FOR": 100.0,
+        "GDPR": 100.0,
+        "FIA": 100.0,
+        "SOA": 100.0
+      }
+    },
+    {
+      "name": "totRicavo",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 8.8,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "FOR": 8.8
+      }
+    },
+    {
+      "name": "totRicevutoRegione",
+      "inJson": true,
+      "inBus": 11,
+      "avgPct": 0.8,
+      "usedIn": 3,
+      "files": [
+        "section-econfin.js",
+        "upload-config.js",
+        "upload-config-common.js"
+      ],
+      "pctByBu": {
+        "AVV": 0.0,
+        "SIC": 0.0,
+        "APL_RES": 0.0,
+        "APL_PAL": 0.0,
+        "GAR": 0.0,
+        "IST": 0.0,
+        "ISO": 0.0,
+        "FOR": 8.8,
+        "GDPR": 0.0,
+        "FIA": 0.0,
+        "SOA": 0.0
+      }
+    },
+    {
+      "name": "totale",
+      "inJson": false,
+      "inBus": 0,
+      "avgPct": 0,
+      "usedIn": 4,
+      "files": [
+        "drilldown.js",
+        "kpis.js",
+        "sections-offerte.js",
+        "sections-overview.js"
+      ],
+      "pctByBu": {}
+    },
+    {
+      "name": "ultimaChiamata",
+      "inJson": true,
+      "inBus": 1,
+      "avgPct": 0.0,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "SOA": 0.0
+      }
+    },
+    {
+      "name": "ultimaNota",
+      "inJson": true,
+      "inBus": 11,
+      "avgPct": 0.0,
+      "usedIn": 0,
+      "files": [],
+      "pctByBu": {
+        "AVV": 0.0,
+        "SIC": 0.0,
+        "APL_RES": 0.0,
+        "APL_PAL": 0.0,
+        "GAR": 0.0,
+        "IST": 0.0,
+        "ISO": 0.0,
+        "FOR": 0.0,
+        "GDPR": 0.0,
+        "FIA": 0.0,
+        "SOA": 0.0
+      }
+    }
+  ]
+}
