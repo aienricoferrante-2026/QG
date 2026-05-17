@@ -1,0 +1,91 @@
+/* STW Admin · Centralina Import Massivo */
+:root {
+  --bg:#0f172a; --card:#1e293b; --border:#334155; --text:#f1f5f9; --text2:#94a3b8; --text3:#64748b; --accent:#6366f1;
+}
+body.theme-light {
+  --bg:#f8fafc; --card:#ffffff; --border:#e2e8f0; --text:#0f172a; --text2:#475569; --text3:#94a3b8;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  min-height: 100vh;
+}
+.topbar {
+  background: #0f172a; border-bottom: 1px solid #1e293b;
+  padding: 14px 28px; display: flex; align-items: center; justify-content: space-between;
+  color: #f1f5f9;
+}
+.topbar h1 { font-size: 18px; font-weight: 700; }
+.topbar .meta { color: #94a3b8; font-size: 11px; margin-top: 2px; }
+.topbar a { color: #94a3b8; font-size: 11px; text-decoration: none; }
+.topbar a:hover { color: #f1f5f9; }
+.btn-logout {
+  background: rgba(220,38,38,.12); color: #fb7185; border: 1px solid rgba(220,38,38,.4);
+  padding: 6px 14px; border-radius: 5px; cursor: pointer; font-size: 11px;
+}
+
+.wrap { max-width: 1100px; margin: 0 auto; padding: 28px; }
+
+.card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+  padding: 22px 26px; margin-bottom: 18px;
+}
+.card h2 { font-size: 14px; color: var(--text2); text-transform: uppercase; letter-spacing:.4px; margin-bottom: 14px; font-weight: 600; }
+.card p { color: var(--text2); font-size: 12.5px; line-height: 1.6; margin-bottom: 8px; }
+
+/* Login */
+.login-box {
+  max-width: 380px; margin: 80px auto;
+  background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+  padding: 30px;
+}
+.login-box h2 { font-size: 16px; margin-bottom: 4px; }
+.login-box .sub { color: var(--text3); font-size: 12px; margin-bottom: 18px; }
+.login-box label { display: block; color: var(--text2); font-size: 11px; text-transform: uppercase; letter-spacing:.4px; margin: 12px 0 4px; }
+.login-box input {
+  width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: 5px;
+  background: var(--bg); color: var(--text); font-size: 13px;
+}
+.login-box button {
+  width: 100%; padding: 10px; margin-top: 14px;
+  background: var(--accent); color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 13px; font-weight: 600;
+}
+.login-box .err { color: #fb7185; font-size: 11px; margin-top: 8px; min-height: 16px; }
+.login-box .warn {
+  background: rgba(245,158,11,.08); border: 1px solid rgba(245,158,11,.3);
+  color: #fbbf24; padding: 8px 12px; border-radius: 5px; font-size: 11px; margin-top: 12px;
+}
+
+/* Stats */
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.stat { background: rgba(99,102,241,.06); border-left: 3px solid var(--accent); border-radius: 6px; padding: 12px 16px; }
+.stat .lbl { color: var(--text3); font-size: 10px; text-transform: uppercase; letter-spacing:.4px; }
+.stat .val { font-size: 24px; font-weight: 700; color: var(--text); margin-top: 4px; }
+
+/* Drop zone */
+.drop-zone {
+  border: 2px dashed var(--border); border-radius: 10px;
+  padding: 50px 20px; text-align: center;
+  background: rgba(99,102,241,.03);
+  transition: all .15s;
+  cursor: pointer;
+}
+.drop-zone.dz-over { border-color: var(--accent); background: rgba(99,102,241,.1); }
+.drop-zone .icon { font-size: 48px; margin-bottom: 12px; }
+.drop-zone .hint { color: var(--text2); font-size: 13px; margin-bottom: 4px; }
+.drop-zone .sub { color: var(--text3); font-size: 11px; }
+.drop-zone input { display: none; }
+.drop-zone .btn-pick {
+  display: inline-block; margin-top: 14px; padding: 8px 18px;
+  background: var(--accent); color: white; border-radius: 5px; cursor: pointer; font-size: 12px; font-weight: 600;
+}
+
+ul#uploadStatus { list-style: none; padding: 0; margin-top: 16px; }
+ul#uploadStatus li { padding: 6px 10px; background: rgba(99,102,241,.04); border-radius: 4px; }
+
+/* Routing table */
+.routing { width: 100%; border-collapse: collapse; font-size: 11.5px; margin-top: 8px; }
+.routing th, .routing td { padding: 6px 10px; text-align: left; border-bottom: 1px solid var(--border); color: var(--text); }
+.routing th { color: var(--text2); text-transform: uppercase; font-size: 10px; letter-spacing:.4px; font-weight: 600; }
+.routing code { background: rgba(99,102,241,.08); padding: 1px 5px; border-radius: 3px; font-size: 10px; color: var(--accent); }
