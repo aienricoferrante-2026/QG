@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Qualifica Group · Hub Dashboard</title>
 <link rel="stylesheet" href="manuale-style.css">
+<link rel="stylesheet" href="hub-import-style.css">
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
   :root{
@@ -175,6 +176,7 @@
     <div class="meta">Analisi commesse multi-settore · agg. <span id="hub-date">…</span></div>
   </div>
   <div class="topbar-actions">
+    <a href="#hubImport" title="Centralina Import Excel" style="color:#94a3b8;font-size:16px;text-decoration:none;padding:5px 10px;border:1px solid #1e293b;border-radius:6px">📥</a>
     <a href="#manuale" style="color:#94a3b8;font-size:11px;text-decoration:none;padding:6px 10px;border:1px solid #1e293b;border-radius:6px">📖 Manuale d'Uso</a>
     <button class="theme-btn" id="themeBtn" title="Cambia tema" onclick="qgToggleTheme()">🌙</button>
   </div>
@@ -191,6 +193,12 @@
     <div class="kpi pink"><div class="lbl">Esposizione</div><div class="val" id="kEsp">…</div><div class="sub">Ricavi − Incassato</div></div>
     <div class="kpi purple"><div class="lbl">% Incasso</div><div class="val" id="kInc">…</div><div class="sub">media pesata</div></div>
   </div>
+
+  <!-- ── Centralina Import Excel ────────────────────────────────────── -->
+  <section id="hubImport" style="margin-top:8px">
+    <h2 class="section">📥 Centralina Import · ultimo dato per BU + accesso diretto all'upload</h2>
+    <div id="hubImportBody"><p style="color:var(--text3);font-size:12px">Carico centralina…</p></div>
+  </section>
 
   <!-- ── Accesso rapido (card cliccabili) ──────────────────────────── -->
   <h2 class="section">Settori — Commesse</h2>
@@ -710,5 +718,8 @@ if (sessionStorage.getItem(CREDS_SESSION_KEY) === '1') credsRenderTable();
 <!-- Manuale d'Uso (guida visiva con card descrittive) -->
 <script src="manuale-data.js?v=1"></script>
 <script src="manuale-render.js?v=1"></script>
+
+<!-- Centralina Import Excel -->
+<script src="hub-import.js?v=1"></script>
 </body>
 </html>

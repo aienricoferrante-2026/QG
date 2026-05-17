@@ -46,6 +46,7 @@ function applyFilters() {
   rebuildFilterCounts();
   renderFilteredKpis();
   renderActiveFilters();
+  if (typeof renderOppBriefing === 'function') renderOppBriefing();
   renderCurrentSection();
 }
 
