@@ -1,0 +1,29 @@
+/* ── Centralina Import · stile ── */
+.hub-import-grid {
+  display: grid; gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+.hi-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 10px; padding: 14px 16px;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.hi-head { display: flex; align-items: center; gap: 10px; }
+.hi-icon {
+  width: 36px; height: 36px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;
+}
+.hi-titles { flex: 1; min-width: 0; }
+.hi-titles h4 { font-size: 13px; color: var(--text); margin: 0; font-weight: 600; }
+.hi-code { color: var(--text3); font-size: 10px; text-transform: uppercase; letter-spacing: .4px; }
+.hi-stats { display: flex; flex-direction: column; gap: 3px; color: var(--text2); font-size: 11px; min-height: 50px; }
+.hi-stat b { color: var(--text); font-weight: 600; }
+.hi-actions { display: flex; gap: 6px; margin-top: 4px; }
+.hi-btn {
+  padding: 6px 10px; border-radius: 5px; font-size: 11px; text-decoration: none;
+  border: 1px solid; flex: 1; text-align: center; transition: all .15s;
+}
+.hi-btn-primary { background: rgba(99,102,241,.12); color: var(--text); border-color: var(--accent); }
+.hi-btn-primary:hover { background: rgba(99,102,241,.22); }
+.hi-btn-secondary { background: transparent; color: var(--text3); border-color: var(--border); }
+.hi-btn-secondary:hover { color: var(--text); border-color: var(--accent); }
