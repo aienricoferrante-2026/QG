@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>STW Admin · Centralina Import Massivo</title>
+  <link rel="stylesheet" href="css/admin.css">
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+
+<div class="topbar">
+  <div>
+    <h1>📥 STW · Centralina Import Massivo</h1>
+    <div class="meta">Upload Excel multi-BU verso Supabase · accesso Master</div>
+  </div>
+  <div>
+    <a href="../index.html">&larr; Torna all'Hub</a>
+    <button id="logoutBtn" class="btn-logout" style="display:none;margin-left:10px">Esci</button>
+  </div>
+</div>
+
+<!-- LOGIN BOX -->
+<div id="loginBox" class="login-box" style="display:none">
+  <h2>🔑 Login Master</h2>
+  <p class="sub">Accesso riservato al Master di Qualifica Group.</p>
+  <form id="loginForm">
+    <label for="loginUser">Email Master</label>
+    <input id="loginUser" type="email" placeholder="direzione@qualificagroup.it" required autocomplete="username">
+    <label for="loginPass">Password</label>
+    <input id="loginPass" type="password" required autocomplete="current-password">
+    <button type="submit">Entra</button>
+    <div class="err" id="loginErr"></div>
+  </form>
+  <div class="warn">
+    ⚠ <b>Avvertenza:</b> questa pagina scrive direttamente su Supabase con SERVICE_ROLE key.
+    L'auth Master è una protezione "casual" — non sicurezza vera. Da rinforzare con proxy server-side.
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" class="wrap" style="display:none">
+
+  <div class="card">
+    <h2>📊 Stato Supabase qualifica-stw</h2>
+    <div class="stats">
+      <div class="stat"><div class="lbl">Commesse totali</div><div class="val" id="statCommesse">…</div></div>
+      <div class="stat"><div class="lbl">Offerte</div><div class="val" id="statOfferte">…</div></div>
+      <div class="stat"><div class="lbl">Opportunità FOR</div><div class="val" id="statOpp">…</div></div>
+    </div>
+    <p style="margin-top:14px;color:var(--text3);font-size:11px">
+      Dati live da <code>odjwvqabxkkpyblghruv.supabase.co</code>. Le dashboard sul sito leggono ancora i JSON committati;
+      Supabase è la fonte vera da cui un futuro script rigenererà i JSON.
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>📥 Upload Excel massivo</h2>
+    <p>Trascina qui i file Excel (o CSV) di una o più BU contemporaneamente.
+       Il sistema riconosce la BU dal <b>nome file</b> e fa upsert su Supabase.</p>
+    <div class="drop-zone" id="dropZone">
+      <div class="icon">📥</div>
+      <div class="hint">Trascina qui i file Excel/CSV (selezione multipla supportata)</div>
+      <div class="sub">.xlsx · .xls · .csv</div>
+      <label class="btn-pick" for="fileInput">Scegli file…</label>
+      <input id="fileInput" type="file" accept=".xlsx,.xls,.csv" multiple>
+    </div>
+    <ul id="uploadStatus"></ul>
+    <p id="uploadSummary" style="margin-top:12px;color:var(--text2);font-size:12px"></p>
+  </div>
+
+  <div class="card">
+    <h2>🧭 Naming convention file</h2>
+    <p>Per il riconoscimento automatico della BU, il nome file deve contenere il prefisso noto.
+       Esempi:</p>
+    <table class="routing">
+      <thead><tr><th>Pattern nel filename</th><th>→ Tabella</th><th>→ BU</th></tr></thead>
+      <tbody>
+        <tr><td><code>commesse_for*.xlsx</code></td><td>commesse</td><td>FOR</td></tr>
+        <tr><td><code>commesse_iso*.xlsx</code></td><td>commesse</td><td>ISO</td></tr>
+        <tr><td><code>commesse_sic*.xlsx</code></td><td>commesse</td><td>SIC</td></tr>
+        <tr><td><code>commesse_apl_pal*.xlsx</code></td><td>commesse</td><td>APL_PAL</td></tr>
+        <tr><td><code>commesse_apl_res*.xlsx</code></td><td>commesse</td><td>APL_RES</td></tr>
+        <tr><td><code>commesse_gdpr*.xlsx</code></td><td>commesse</td><td>GDPR</td></tr>
+        <tr><td><code>commesse_soa*.xlsx</code></td><td>commesse</td><td>SOA</td></tr>
+        <tr><td><code>commesse_avv*.xlsx</code></td><td>commesse</td><td>AVV</td></tr>
+        <tr><td><code>commesse_gar*.xlsx</code></td><td>commesse</td><td>GAR</td></tr>
+        <tr><td><code>commesse_fia*.xlsx</code></td><td>commesse</td><td>FIA</td></tr>
+        <tr><td><code>commesse_ist*.xlsx</code></td><td>commesse</td><td>IST</td></tr>
+        <tr><td><code>offerte*.xlsx</code></td><td>offerte</td><td>—</td></tr>
+        <tr><td><code>opportunita_for*.xlsx</code></td><td>opportunita_for</td><td>—</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<script src="config.js"></script>
+<script src="js/admin-app.js"></script>
+
+</body>
+</html>

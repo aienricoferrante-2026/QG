@@ -140,6 +140,15 @@ const MANUALE_SECTIONS = [
 
   /* ── Strumenti direzionali ── */
   {
+    href: 'dashboard_ADMIN/', title: 'STW Admin · Import Massivo', icon: '📥', accent: 'rose', area: 'direzione', badge: 'NUOVO',
+    desc: 'Centralina che permette di caricare con drag&drop gli Excel di tutte le 11 BU + Offerte + Opportunità FOR in un colpo solo. Riconosce la BU dal nome file e fa upsert su Supabase (qualifica-stw). Accesso protetto da login Master.',
+    bullets: [
+      'Caricare più Excel/CSV insieme (auto-detect BU)',
+      'Vedere il totale record presenti in Supabase',
+      'Sostituire l\'upload manuale dashboard-per-dashboard',
+    ],
+  },
+  {
     href: 'dashboard_COGE/', title: 'COGE — Conto Economico', icon: '📊', accent: 'purple', area: 'direzione', badge: 'NUOVO',
     desc: 'Vista direzionale Società × Sede × BU per il conto economico operativo. Aggrega ricavi dalle 11 BU + costi dipendenti (da WeA HR + Segnatempo cascata L1/L2/L3) + costi indiretti per Sede. Pensata per generare report da inviare ai partner di sede.',
     bullets: [
