@@ -298,6 +298,8 @@ function renderSicurezza() {
     th += '</tbody>';
     tblEl.innerHTML = th;
   }
+
+  _sicRenderAudit();
 }
 
 /* Aggancia onClick a un chart già creato da makeDonut/makeBar.
@@ -311,6 +313,20 @@ function _sicAttachChartClick(chartId, cb) {
   };
   c.canvas.style.cursor = 'pointer';
   c.update();
+}
+
+/* Audit copertura parser — vedi shared/dashboard-core/js/parser-audit.js */
+function _sicRenderAudit() {
+  if (typeof buildParserAuditCard !== 'function') return;
+  buildParserAuditCard({
+    containerId: 'sec-sicurezza',
+    classify: c => _sicClassify(c.titolo),
+    filtered: filtered,
+    buLabel: 'SIC',
+    knownSigle: SIC_TIPI.map(t => t.id),
+    paramName: 'Tipologia Sicurezza',
+    hint: 'Aggiungi la sigla in SIC_TIPI dentro dashboard_SIC_CM/js/section-sicurezza.js con la sua macro-area (Documentazione, Formazione, Emergenze, Visite Mediche, Specialistico, Pacchetto).',
+  });
 }
 
 function _sicDrillArea(area) {

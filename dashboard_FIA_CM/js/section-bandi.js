@@ -155,6 +155,24 @@ function renderBandi() {
       ];
     }),
     ['str', 'num', 'num', 'num', 'num', 'num', 'num']);
+
+  _fiaRenderAudit();
+}
+
+function _fiaRenderAudit() {
+  if (typeof buildParserAuditCard !== 'function') return;
+  buildParserAuditCard({
+    containerId: 'sec-bandi',
+    classify: c => {
+      const b = _fiaBando(c);
+      return { tipi: b === 'Altro' ? [] : [b], aree: b === 'Altro' ? [] : [b] };
+    },
+    filtered: filtered,
+    buLabel: 'FIA',
+    knownSigle: FIA_BANDI.map(b => b.id),
+    paramName: 'Bando Pubblico',
+    hint: 'Aggiungi un bando nuovo nel array FIA_BANDI dentro dashboard_FIA_CM/js/section-bandi.js (id, label, color, test regex).',
+  });
 }
 
 function _fiaDrillB(bando) {

@@ -135,6 +135,24 @@ function renderIstituti() {
     ['Titolo', 'Tipo', 'Bando', 'Cliente', 'Status', 'Ricavi', 'Qnet'],
     rows,
     ['str', 'str', 'str', 'str', 'str', 'num', 'str']);
+
+  _istRenderAudit();
+}
+
+function _istRenderAudit() {
+  if (typeof buildParserAuditCard !== 'function') return;
+  buildParserAuditCard({
+    containerId: 'sec-istituti',
+    classify: c => {
+      const t = _istTipo(c);
+      return { tipi: t === 'Altro' ? [] : [t], aree: t === 'Altro' ? [] : [t] };
+    },
+    filtered: filtered,
+    buLabel: 'IST',
+    knownSigle: IST_TIPI.map(t => t.id),
+    paramName: 'Tipologia Servizio Scuola',
+    hint: 'Aggiungi una tipologia nuova in IST_TIPI dentro dashboard_IST_CM/js/section-istituti.js. Regex tolleranti ai typo (es. MENTORIGN, CORRUCULARI).',
+  });
 }
 
 function _istDrillT(tipo) {

@@ -139,6 +139,24 @@ function renderRecsel() {
     ['Titolo', 'Tipo', 'Fase', 'StatoLav', 'Status', 'Cliente', 'Ricavi', 'Qnet'],
     rows,
     ['str', 'str', 'str', 'str', 'str', 'str', 'num', 'str']);
+
+  _resRenderAudit();
+}
+
+function _resRenderAudit() {
+  if (typeof buildParserAuditCard !== 'function') return;
+  buildParserAuditCard({
+    containerId: 'sec-recsel',
+    classify: c => {
+      const t = _resTipo(c);
+      return { tipi: t === 'Altro' ? [] : [t], aree: t === 'Altro' ? [] : [t] };
+    },
+    filtered: filtered,
+    buLabel: 'APL_RES',
+    knownSigle: RES_TIPI.map(t => t.id),
+    paramName: 'Tipologia R&S',
+    hint: 'Aggiungi una tipologia nuova in RES_TIPI dentro dashboard_APL_RES_CM/js/section-recsel.js. Ricorda: l\'ordine conta (SEGR_DID prima di RICERCA per non assorbire "RS_SEGRETERIA").',
+  });
 }
 
 function _resDrillT(tipo) {
