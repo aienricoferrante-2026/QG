@@ -124,7 +124,7 @@ const KIT_BASE_SECTIONS = [
     ],
   },
   {
-    sec: 'produttivita', area: 'tools', accent: 'purple', icon: '📈', title: 'Produttività attori',
+    sec: 'produttivita', area: 'tools', accent: 'purple', icon: '📈', title: 'Produttività Collaboratori',
     desc: 'Tabelle ordinabili Top Commerciali (`agente`), Tecnici (`responsabile`), Rete (`segnalatore`). Per ogni attore: commesse, ricavi, MOL, margine %, da incassare, clienti distinti, ticket medio. Banner colorato di copertura dato.',
     bullets: [
       'Vedere top commerciali per ricavi',

@@ -62,8 +62,19 @@ function renderAnalisiIncassi() {
   h += '<div class="card" style="margin-top:14px"><h4>Top 20 commesse per credito aperto</h4>';
   h += '<div class="tbl-scroll"><table id="tblIncTopCm"></table></div></div>';
 
-  h += '<div class="card" style="margin-top:14px"><h4>Riepilogo Incassi per Sede</h4>';
-  h += '<div class="tbl-scroll"><table id="tblIncSede"></table></div></div>';
+  // Determina se mostrare la sezione "Nostra Sede QG" (autohide se 1 sola sede)
+  const _sediQgSet = new Set(f.map(c => (c.sede || '').trim()).filter(Boolean));
+  const _hasMultiSediQg = _sediQgSet.size > 1;
+
+  h += '<div class="card" style="margin-top:14px"><h4>Riepilogo Incassi per Città Cliente</h4>';
+  h += '<p style="color:var(--text3);font-size:11px;margin-bottom:8px">Raggruppato per <code>citta</code> del cliente (Title Case, normalizzato per consolidare "NAPOLI"/"napoli"/"Napoli" in "Napoli").</p>';
+  h += '<div class="tbl-scroll"><table id="tblIncCitta"></table></div></div>';
+
+  if (_hasMultiSediQg) {
+    h += '<div class="card" style="margin-top:14px"><h4>Riepilogo Incassi per Nostra Sede QG</h4>';
+    h += '<p style="color:var(--text3);font-size:11px;margin-bottom:8px">Raggruppato per <code>sede</code> di Qualifica Group che ha lavorato la commessa. ' + _sediQgSet.size + ' sedi QG distinte.</p>';
+    h += '<div class="tbl-scroll"><table id="tblIncSedeQg"></table></div></div>';
+  }
 
   h += '<div class="card" style="margin-top:14px"><h4>Riepilogo Incassi per Cliente</h4>';
   h += '<div class="tbl-scroll"><table id="tblIncCli"></table></div></div>';
@@ -83,13 +94,21 @@ function renderAnalisiIncassi() {
     .filter(c => c._credito > 0 && (c.consulenza || 0) > 0)
     .sort((a, b) => b._credito - a._credito)
     .slice(0, 20);
+  // Helper: normalizza città cliente (Title Case + trim) per consolidare
+  // "NAPOLI"/"napoli"/"Napoli" in "Napoli". Tooltip preserva la sede QG come info.
+  const _normCitta = c => {
+    const v = (c.citta || '').trim();
+    if (!v) return 'N/D';
+    return v.toLowerCase().replace(/\b\w/g, ch => ch.toUpperCase());
+  };
+
   buildTbl('tblIncTopCm',
-    ['ID', 'Titolo', 'Cliente', 'Sede', 'Ricavi', 'Incassato', 'Credito', '% Inc.', 'Qnet'],
+    ['ID', 'Titolo', 'Cliente', 'Città Cliente', 'Ricavi', 'Incassato', 'Credito', '% Inc.', 'Qnet'],
     cmRanked.map(c => [
       c.id || '',
       { display: ((c.titolo || c.contratto || '') + '').substring(0, 50), val: c.titolo },
       { display: (c.cliente || '').substring(0, 30), val: c.cliente },
-      { display: (c.sedeNorm || c.sedeOp || '').split(' - ')[0], val: c.sedeNorm },
+      { display: _normCitta(c), val: _normCitta(c) },
       { display: fmtE(c.consulenza || 0), val: c.consulenza || 0 },
       { display: fmtE(c.giaIncassato || 0), val: c.giaIncassato || 0 },
       { display: fmtE(c._credito), val: c._credito },
@@ -99,26 +118,27 @@ function renderAnalisiIncassi() {
     ['num', 'str', 'str', 'str', 'num', 'num', 'num', 'num', 'str']
   );
 
-  const sedeG = {};
+  // Riepilogo per CITTÀ CLIENTE
+  const cittaG = {};
   f.forEach(c => {
-    const k = c.sedeNorm || c.sedeOp || 'N/D';
-    if (!sedeG[k]) sedeG[k] = { cnt: 0, ric: 0, inc: 0, res: 0 };
-    sedeG[k].cnt++;
-    sedeG[k].ric += (c.consulenza || 0);
-    sedeG[k].inc += (c.giaIncassato || 0);
-    sedeG[k].res += Math.max(0, (c.consulenza || 0) - (c.giaIncassato || 0));
+    const k = _normCitta(c);
+    if (!cittaG[k]) cittaG[k] = { cnt: 0, ric: 0, inc: 0, res: 0 };
+    cittaG[k].cnt++;
+    cittaG[k].ric += (c.consulenza || 0);
+    cittaG[k].inc += (c.giaIncassato || 0);
+    cittaG[k].res += Math.max(0, (c.consulenza || 0) - (c.giaIncassato || 0));
   });
-  const sediSorted = Object.entries(sedeG)
+  const cittaSorted = Object.entries(cittaG)
     .map(([k, v]) => ({
       k, ...v,
       pctInc: v.ric ? v.inc / v.ric * 100 : 0,
       pctRes: v.ric ? v.res / v.ric * 100 : 0
     }))
     .sort((a, b) => b.res - a.res);
-  buildTbl('tblIncSede',
-    ['Sede', 'Comm.', 'Ricavi', 'Incassato', '% Inc.', 'Residuo', '% Res.'],
-    sediSorted.map(v => [
-      { display: v.k.length > 50 ? v.k.substring(0, 48) + '..' : v.k, val: v.k },
+  buildTbl('tblIncCitta',
+    ['Città Cliente', 'Comm.', 'Ricavi', 'Incassato', '% Inc.', 'Residuo', '% Res.'],
+    cittaSorted.map(v => [
+      { display: v.k, val: v.k },
       { display: fmt(v.cnt), val: v.cnt },
       { display: fmtE(v.ric), val: v.ric },
       { display: fmtE(v.inc), val: v.inc },
@@ -127,8 +147,40 @@ function renderAnalisiIncassi() {
       { display: v.pctRes.toFixed(1) + '%', val: v.pctRes }
     ]),
     ['str', 'num', 'num', 'num', 'num', 'num', 'num'],
-    { clickField: 'sedeNorm' }
+    { clickField: 'citta' }
   );
+
+  // Riepilogo per NOSTRA SEDE QG (solo se più di 1)
+  if (_hasMultiSediQg) {
+    const sedeQgG = {};
+    f.forEach(c => {
+      const k = (c.sede || '').trim() || 'N/D';
+      if (!sedeQgG[k]) sedeQgG[k] = { cnt: 0, ric: 0, inc: 0, res: 0 };
+      sedeQgG[k].cnt++;
+      sedeQgG[k].ric += (c.consulenza || 0);
+      sedeQgG[k].inc += (c.giaIncassato || 0);
+      sedeQgG[k].res += Math.max(0, (c.consulenza || 0) - (c.giaIncassato || 0));
+    });
+    const sedeQgSorted = Object.entries(sedeQgG)
+      .map(([k, v]) => ({ k, ...v,
+        pctInc: v.ric ? v.inc / v.ric * 100 : 0,
+        pctRes: v.ric ? v.res / v.ric * 100 : 0 }))
+      .sort((a, b) => b.res - a.res);
+    buildTbl('tblIncSedeQg',
+      ['Sede QG', 'Comm.', 'Ricavi', 'Incassato', '% Inc.', 'Residuo', '% Res.'],
+      sedeQgSorted.map(v => [
+        { display: v.k.length > 50 ? v.k.substring(0, 48) + '..' : v.k, val: v.k },
+        { display: fmt(v.cnt), val: v.cnt },
+        { display: fmtE(v.ric), val: v.ric },
+        { display: fmtE(v.inc), val: v.inc },
+        { display: v.pctInc.toFixed(1) + '%', val: v.pctInc },
+        { display: fmtE(v.res), val: v.res },
+        { display: v.pctRes.toFixed(1) + '%', val: v.pctRes }
+      ]),
+      ['str', 'num', 'num', 'num', 'num', 'num', 'num'],
+      { clickField: 'sede' }
+    );
+  }
 
   const cliG = {};
   f.forEach(c => {

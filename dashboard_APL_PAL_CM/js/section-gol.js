@@ -257,6 +257,26 @@ function renderGol() {
       ]),
       ['str', 'str', 'str', 'num', 'str', 'str']);
   }
+
+  _golRenderAudit();
+}
+
+function _golRenderAudit() {
+  if (typeof buildParserAuditCard !== 'function') return;
+  buildParserAuditCard({
+    containerId: 'sec-gol',
+    classify: c => {
+      // Una commessa è "classificata" se è GOL E ha una fase nota (non Indef.)
+      if (!_golIsGol(c)) return { tipi: [], aree: [] };
+      const f = _golFase(c);
+      return { tipi: f === 'Indefinito' ? [] : [f], aree: f === 'Indefinito' ? [] : [f] };
+    },
+    filtered: filtered,
+    buLabel: 'APL_PAL',
+    knownSigle: GOL_FUNNEL.map(s => s.id),
+    paramName: 'Fase Funnel GOL',
+    hint: 'Aggiungi una fase nuova in GOL_FUNNEL dentro dashboard_APL_PAL_CM/js/section-gol.js (regex su statoLav). Le non-GOL e gli "Indefinito" finiscono in Altro.',
+  });
 }
 
 function _golDrill(fase) {

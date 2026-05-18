@@ -150,10 +150,30 @@ function renderAvvalimenti() {
     rows,
     ['str', 'str', 'str', 'str', 'num', 'str', 'num', 'str']
   );
+
+  _avvRenderAudit();
 }
 
 /* Handler drill-down KPI "Con CIG" → modal con elenco. */
 function _avvDrillCIG() {
   const list = filtered.filter(c => c.avvCIG);
   if (typeof drillDownItems === 'function') drillDownItems('Avvalimenti con CIG (' + list.length + ')', list);
+}
+
+/* Audit copertura parser AVV: classifica = ha avvTipo o avvCategoria.
+   I metadati arrivano da avv_parser.py server-side, ma il principio audit vale. */
+function _avvRenderAudit() {
+  if (typeof buildParserAuditCard !== 'function') return;
+  buildParserAuditCard({
+    containerId: 'sec-avvalimenti',
+    classify: c => ({
+      tipi: c.avvTipo ? [c.avvTipo] : [],
+      aree: c.avvTipo ? ['Tipo'] : [],
+    }),
+    filtered: filtered,
+    buLabel: 'AVV',
+    knownSigle: ['Standard', 'Manifestazione', 'Pacchetto', 'RTI'],
+    paramName: 'Tipo Avvalimento',
+    hint: 'Aggiungi nuovi pattern in tools/avv_parser.py (regex sul Titolo) e rilancia tools/convert_sectors.py per popolare avvTipo.',
+  });
 }
