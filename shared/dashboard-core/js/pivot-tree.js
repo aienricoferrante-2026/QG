@@ -107,10 +107,21 @@ function buildPivotCard(opts) {
   h += '<th style="text-align:right">Commesse</th><th style="text-align:right">Ricavi</th><th style="text-align:right">MOL</th>' +
     '<th style="text-align:right">Margine %</th><th style="text-align:right">Incassato</th><th style="text-align:right">% Inc.</th>' +
     '<th style="text-align:right">Da Inc.</th><th style="text-align:right">Clienti</th><th style="text-align:right">Ticket €</th><th style="width:60px"></th>';
-  h += '</tr></thead><tbody>' + _pivotRenderRows(ns, opts.items, dims, [], opts) + '</tbody></table></div>';
+  let rowsHtml = '';
+  try {
+    rowsHtml = _pivotRenderRows(ns, opts.items, dims, [], opts);
+  } catch (e) {
+    console.error('[pivot-tree] errore render ns=' + ns + ':', e);
+    rowsHtml = '<tr><td colspan="20" style="padding:20px;text-align:center;color:#dc2626">' +
+      '⚠ Errore nel render del pivot: <code>' + _pivotEscHtml(e.message) + '</code><br>' +
+      '<span style="color:var(--text3);font-size:11px">Apri console (F12) per stack trace completo. Ricarica la pagina o cambia dimensione.</span></td></tr>';
+  }
+  h += '</tr></thead><tbody>' + rowsHtml + '</tbody></table></div>';
 
   card.innerHTML = h;
-  root.querySelector('.sec').appendChild(card);
+  const sec = root.querySelector('.sec');
+  if (sec) sec.appendChild(card);
+  else root.appendChild(card);
 }
 
 function _pivotValAt(c, dim, opts) {
@@ -138,6 +149,21 @@ function _pivotAggrLevel(items, dim, opts) {
 
 function _pivotPathKey(path) { return path.join('>'); }
 
+/* Escape per contenuto HTML (testo dentro <td>, <b>, ecc.) */
+function _pivotEscHtml(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+/* Escape per attributo HTML (es. dentro title="..."). */
+function _pivotEscAttr(s) {
+  return String(s == null ? '' : s).replace(/"/g, '&quot;').replace(/</g, '&lt;');
+}
+
 function _pivotRenderRows(ns, items, dims, path, opts) {
   if (!dims.length) return '';
   const state = window._pivotState[ns];
@@ -147,12 +173,15 @@ function _pivotRenderRows(ns, items, dims, path, opts) {
   const entries = Object.entries(g).sort((a, b) => b[1].ric - a[1].ric);
   const LEVEL_COLOR = ['#3b82f6', '#10b981', '#f59e0b', '#a78bfa'];
   let html = '';
-  entries.forEach(([val, v]) => {
+  entries.forEach(([valRaw, v]) => {
+    // Difensivo: val potrebbe non essere stringa (number, null, ecc.)
+    const val = String(valRaw == null ? 'N/D' : valRaw);
     const newPath = [...path, val];
     const pathKey = _pivotPathKey(newPath);
     const isOpen = state.open.has(pathKey);
     const isLeaf = remaining.length === 0;
-    const safeKey = pathKey.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    // safeKey usato in onclick="..._pivotXXX('safeKey')" → escape sia ' che "
+    const safeKey = pathKey.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
     const arrow = isLeaf ? '·' : (isOpen ? '▼' : '▶');
     const cursor = isLeaf ? '' : 'cursor:pointer;';
     const margPct = v.ric ? (v.mol / v.ric * 100) : 0;
@@ -162,17 +191,20 @@ function _pivotRenderRows(ns, items, dims, path, opts) {
     const incC = incPct >= 80 ? '#10b981' : incPct >= 50 ? '#f59e0b' : '#dc2626';
     const cellClick = ' onclick="_pivotDrill(\'' + ns + '\',\'' + safeKey + '\')" style="text-align:right;cursor:pointer"';
     const levelColor = LEVEL_COLOR[path.length] || '#64748b';
-    const dimLabel = opts.dims[dim].label;
+    const dimLabel = (opts.dims[dim] && opts.dims[dim].label) || dim;
     const indent = path.length * 24;
+    const valEscHtml = _pivotEscHtml(val);
+    const valEscAttr = _pivotEscAttr(val);
+    const dimEscAttr = _pivotEscAttr(dimLabel);
     // Etichetta livello (es. "L2 · Status") in piccolo sopra il valore
-    const levelTag = '<span style="color:' + levelColor + ';font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.3px;margin-right:6px">L' + (path.length + 1) + ' · ' + dimLabel + '</span>';
+    const levelTag = '<span style="color:' + levelColor + ';font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.3px;margin-right:6px">L' + (path.length + 1) + ' · ' + _pivotEscHtml(dimLabel) + '</span>';
     html += '<tr style="background:rgba(99,102,241,' + (0.03 * path.length) + ')">';
     html += '<td style="text-align:center;color:' + levelColor + ';' + cursor + ';font-size:13px;font-weight:700"' +
       (isLeaf ? '' : ' onclick="event.stopPropagation();_pivotToggle(\'' + ns + '\',\'' + safeKey + '\')"') + '>' + arrow + '</td>';
     // Singola colonna "Voce" con indentazione + level tag + valore in grassetto
     html += '<td style="padding-left:' + (10 + indent) + 'px;cursor:pointer;border-left:3px solid ' + levelColor + '" ' +
-            'onclick="_pivotDrill(\'' + ns + '\',\'' + safeKey + '\')" title="Apri elenco commesse · ' + dimLabel + ' = ' + val.replace(/"/g, '&quot;') + '">' +
-            levelTag + '<b style="color:var(--text)">' + val + '</b></td>';
+            'onclick="_pivotDrill(\'' + ns + '\',\'' + safeKey + '\')" title="Apri elenco commesse · ' + dimEscAttr + ' = ' + valEscAttr + '">' +
+            levelTag + '<b style="color:var(--text)">' + valEscHtml + '</b></td>';
     html += '<td' + cellClick + '>' + fmt(v.items.length) + '</td>';
     html += '<td' + cellClick + '>' + fmtE(v.ric) + '</td>';
     html += '<td' + cellClick + '>' + fmtE(v.mol) + '</td>';
