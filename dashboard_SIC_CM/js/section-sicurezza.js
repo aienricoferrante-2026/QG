@@ -363,14 +363,19 @@ function _sicMatchPath(c, path, dims) {
 }
 
 function _sicAggrLevel(items, dim) {
-  /* Aggrega items per il valore della dimensione dim (multi-conteggio se multi). */
+  /* Aggrega items per il valore della dimensione dim (multi-conteggio se multi).
+     Calcola: ricavi, MOL, costi, incassato, da incassare, clienti distinti. */
   const g = {};
   items.forEach(c => {
     const vals = _sicValAt(c, dim);
     vals.forEach(v => {
-      if (!g[v]) g[v] = { items: [], ric: 0 };
+      if (!g[v]) g[v] = { items: [], ric: 0, mol: 0, inc: 0, daInc: 0, clienti: new Set() };
       g[v].items.push(c);
       g[v].ric += (c.consulenza || 0);
+      g[v].mol += (c.mol || 0);
+      g[v].inc += (c.giaIncassato || 0);
+      g[v].daInc += Math.max(0, (c.consulenza || 0) - (c.giaIncassato || 0));
+      if (c.cliente) g[v].clienti.add(c.cliente);
     });
   });
   return g;
@@ -422,14 +427,23 @@ function _sicRenderPivot() {
   h += '<button onclick="_sicPivotCollapseAll()" style="align-self:flex-end;padding:6px 12px;border-radius:5px;background:var(--card);border:1px solid var(--border);color:var(--text);cursor:pointer;font-size:11px">Comprimi</button>';
   h += '</div>';
 
-  // Render tabella
+  // Render tabella con metriche complete
   const activeDims = _sicPivotDims.filter(Boolean);
-  h += '<div class="tbl-scroll"><table class="coge-tbl" style="width:100%"><thead><tr>';
+  h += '<div class="tbl-scroll"><table class="coge-tbl" style="width:100%;font-size:11px"><thead><tr>';
   h += '<th style="width:32px"></th>';
   activeDims.forEach((d, i) => {
     h += '<th>' + (i === 0 ? _SIC_PIVOT_DIMS[d].label : '↳ ' + _SIC_PIVOT_DIMS[d].label) + '</th>';
   });
-  h += '<th style="text-align:right">Commesse</th><th style="text-align:right">Ricavi</th><th style="width:60px"></th>';
+  h += '<th style="text-align:right">Commesse</th>';
+  h += '<th style="text-align:right">Ricavi</th>';
+  h += '<th style="text-align:right">MOL</th>';
+  h += '<th style="text-align:right">Margine %</th>';
+  h += '<th style="text-align:right">Incassato</th>';
+  h += '<th style="text-align:right">% Inc.</th>';
+  h += '<th style="text-align:right">Da Inc.</th>';
+  h += '<th style="text-align:right">Clienti</th>';
+  h += '<th style="text-align:right">Ticket €</th>';
+  h += '<th style="width:60px"></th>';
   h += '</tr></thead><tbody>' + _sicPivotRenderRows(filtered, activeDims, []) + '</tbody></table></div>';
 
   card.innerHTML = h;
@@ -467,8 +481,21 @@ function _sicPivotRenderRows(items, dims, path) {
         html += '<td></td>';
       }
     }
-    html += '<td style="text-align:right;cursor:pointer" onclick="_sicPivotDrill(\'' + safeKey + '\')">' + fmt(v.items.length) + '</td>';
-    html += '<td style="text-align:right;cursor:pointer" onclick="_sicPivotDrill(\'' + safeKey + '\')">' + fmtE(v.ric) + '</td>';
+    const margPct = v.ric ? (v.mol / v.ric * 100) : 0;
+    const incPct = v.ric ? (v.inc / v.ric * 100) : 0;
+    const ticket = v.items.length ? (v.ric / v.items.length) : 0;
+    const marC = margPct >= 20 ? '#10b981' : margPct >= 5 ? '#f59e0b' : '#dc2626';
+    const incC = incPct >= 80 ? '#10b981' : incPct >= 50 ? '#f59e0b' : '#dc2626';
+    const cellClick = ' onclick="_sicPivotDrill(\'' + safeKey + '\')" style="text-align:right;cursor:pointer"';
+    html += '<td' + cellClick + '>' + fmt(v.items.length) + '</td>';
+    html += '<td' + cellClick + '>' + fmtE(v.ric) + '</td>';
+    html += '<td' + cellClick + '>' + fmtE(v.mol) + '</td>';
+    html += '<td style="text-align:right;cursor:pointer;color:' + marC + '" onclick="_sicPivotDrill(\'' + safeKey + '\')">' + margPct.toFixed(1) + '%</td>';
+    html += '<td' + cellClick + '>' + fmtE(v.inc) + '</td>';
+    html += '<td style="text-align:right;cursor:pointer;color:' + incC + '" onclick="_sicPivotDrill(\'' + safeKey + '\')">' + incPct.toFixed(0) + '%</td>';
+    html += '<td' + cellClick + '>' + fmtE(v.daInc) + '</td>';
+    html += '<td' + cellClick + '>' + fmt(v.clienti.size) + '</td>';
+    html += '<td' + cellClick + '>' + fmtE(ticket) + '</td>';
     html += '<td style="text-align:right"><a href="#" onclick="event.preventDefault();_sicPivotDrill(\'' + safeKey + '\');return false" style="color:var(--accent);font-size:11px;text-decoration:none">apri →</a></td>';
     html += '</tr>';
     if (isOpen && !isLeaf) {
