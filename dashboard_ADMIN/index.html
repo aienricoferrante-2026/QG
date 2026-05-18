@@ -65,8 +65,26 @@
       <label class="btn-pick" for="fileInput">Scegli file…</label>
       <input id="fileInput" type="file" accept=".xlsx,.xls,.csv" multiple>
     </div>
+
+    <div style="margin-top:14px;padding:12px;background:rgba(99,102,241,.04);border-left:3px solid var(--accent);border-radius:5px">
+      <label style="display:block;color:var(--text2);font-size:11px;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px">
+        🔧 Forza BU per i file con nome non riconosciuto
+      </label>
+      <select id="forceBu" style="padding:6px 10px;border-radius:4px;background:var(--bg);color:var(--text);border:1px solid var(--border);font-size:12px;min-width:300px">
+        <option value="">— Auto-detect (default, riconosce dal nome file) —</option>
+      </select>
+      <p style="margin-top:6px;color:var(--text3);font-size:11px">
+        Selezionando una BU qui, TUTTI i file caricati dopo verranno forzati su quella tabella, ignorando il nome.
+        Utile quando il file ha un nome come "Export 18-05.xlsx" senza la sigla BU.
+      </p>
+    </div>
+
     <ul id="uploadStatus"></ul>
     <p id="uploadSummary" style="margin-top:12px;color:var(--text2);font-size:12px"></p>
+    <details style="margin-top:14px">
+      <summary style="cursor:pointer;color:var(--text3);font-size:11px">🛠 Mostra log diagnostico</summary>
+      <pre id="diagLog" style="background:rgba(0,0,0,.2);padding:10px;border-radius:5px;font-size:10px;color:var(--text2);margin-top:6px;max-height:300px;overflow:auto;white-space:pre-wrap;word-break:break-all"></pre>
+    </details>
   </div>
 
   <div class="card">

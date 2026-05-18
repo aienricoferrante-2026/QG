@@ -99,7 +99,9 @@ def split_record(rec, fixed_cols, date_cols=None):
             elif v in ('', None, '***'): v = None
             cols[camel_to_snake(k)] = v
         else:
-            if v not in ('', None, 0, 0.0, '***'):
+            # In meta: filtra solo stringhe vuote, None, '***'.
+            # Mantieni gli zeri numerici (potrebbero essere significativi).
+            if v not in ('', None, '***'):
                 meta[k] = v
     return cols, meta
 
