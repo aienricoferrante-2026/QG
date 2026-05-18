@@ -168,6 +168,8 @@ function renderGare() {
     ['CIG', 'Ente', 'Oggetto / Titolo', 'Scadenza', 'Importo', 'Stato', 'Esito', 'Qnet'],
     dettRows,
     ['str', 'str', 'str', 'num', 'num', 'str', 'str', 'str']);
+
+  _garRenderPivot();
 }
 
 function _garDrill(bucket) {
@@ -180,3 +182,36 @@ function _garDrill(bucket) {
   const list = filtered.filter(pred);
   if (typeof drillDownItems === 'function') drillDownItems(label + ' (' + list.length + ')', list);
 }
+
+/* Pivot ad albero (kit helper buildPivotCard) */
+function _garRenderPivot() {
+  if (typeof buildPivotCard !== 'function') return;
+  buildPivotCard({
+    containerId: 'sec-gare',
+    cardId: 'garPivotCard',
+    stateNamespace: 'gar',
+    title: '🌳 Pivot Gare · esplora gerarchico',
+    description: 'Scegli ordine dimensioni nei 4 livelli. Clicca ▶ per espandere, riga per drill pop-up commesse del ramo.',
+    dims: {
+      status:    { label: 'Status',           extract: c => c.status || 'N/D' },
+      statoLav:  { label: 'Stato Lavorazione', extract: c => (c.statoLav || '').trim() || 'N/D' },
+      ente:      { label: 'Ente Appaltante',  extract: c => c.garEnte || 'N/D' },
+      esito:     { label: 'Esito Gara',       extract: c => c.garEsito || 'N/D' },
+      anno:      { label: 'Anno',             extract: c => {
+        const s = c.dataInizio || c.dataPianInizio || ''; let m = String(s).match(/^(\d{4})-/); if (m) return m[1];
+        m = String(s).match(/-(\d{4})$/); return m ? m[1] : 'N/D';
+      }},
+      cliente:   { label: 'Cliente',          extract: c => (c.cliente || 'N/D').substring(0, 40) },
+      agente:    { label: 'Commerciale',      extract: c => (c.agente || '').trim() || 'N/D' },
+    },
+    presets: [
+      { label: '🎯 Status → Ente → Esito',    dims: ['status', 'ente', 'esito', ''] },
+      { label: '🏆 Ente → Status → Anno',     dims: ['ente', 'status', 'anno', ''] },
+      { label: '📅 Anno → Status → Ente',     dims: ['anno', 'status', 'ente', ''] },
+      { label: '💼 Commerciale → Ente',       dims: ['agente', 'ente', 'status', ''] },
+    ],
+    defaultDims: ['status', 'ente', 'esito', ''],
+    items: filtered,
+  });
+}
+

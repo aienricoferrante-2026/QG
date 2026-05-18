@@ -316,236 +316,35 @@ function _sicAttachChartClick(chartId, cb) {
   c.update();
 }
 
-/* ── Pivot Status & Sicurezza ──────────────────────────────────
- * Tabella ad albero multi-livello con dimensioni a scelta:
- *   Status / StatoLav / Macroarea / Tipologia / Anno / Cliente / AGG
- * L'utente sceglie l'ordine dei 4 livelli con 4 dropdown.
- * Preset rapidi disponibili. Ogni nodo è espandibile (▶/▼).
- * Click su riga → drillDownItems con le commesse del ramo.
- */
-
-const _SIC_PIVOT_DIMS = {
-  status:    { label: 'Status',           extract: c => c.status || 'N/D', multi: false },
-  statoLav:  { label: 'Stato Lavorazione', extract: c => (c.statoLav || '').trim() || 'N/D', multi: false },
-  macroarea: { label: 'Macro-area',        extract: c => _sicClassify(c.titolo).aree, multi: true },
-  tipologia: { label: 'Tipologia',         extract: c => _sicClassify(c.titolo).tipi.length ? _sicClassify(c.titolo).tipi : ['Altro'], multi: true },
-  anno:      { label: 'Anno avvio',        extract: c => _sicAnno(c), multi: false },
-  cliente:   { label: 'Cliente',           extract: c => (c.cliente || 'N/D').substring(0, 40), multi: false },
-  agg:       { label: 'Aggiornamento',     extract: c => _sicClassify(c.titolo).hasAgg ? 'Sì (AGG)' : 'No (Nuova)', multi: false },
-};
-
-const _SIC_PIVOT_PRESETS = [
-  { label: '🚦 Status → StatoLav',        dims: ['status', 'statoLav', '', ''] },
-  { label: '🚦 Status → Macroarea → Tipologia', dims: ['status', 'macroarea', 'tipologia', ''] },
-  { label: '📋 StatoLav → Macroarea',     dims: ['statoLav', 'macroarea', 'tipologia', ''] },
-  { label: '📂 Macroarea → Tipologia → Status', dims: ['macroarea', 'tipologia', 'status', ''] },
-  { label: '🔄 Aggiornamento → Macroarea', dims: ['agg', 'macroarea', 'tipologia', 'status'] },
-  { label: '📅 Anno → Status → Macroarea', dims: ['anno', 'status', 'macroarea', ''] },
-];
-
-let _sicPivotDims = ['status', 'statoLav', 'macroarea', 'tipologia'];
-let _sicPivotOpen = new Set();  // path già espansi (es. "Chiusa>7 _ Chiusura NC")
-
-function _sicValAt(c, dim) {
-  if (!dim || !_SIC_PIVOT_DIMS[dim]) return ['N/D'];
-  const v = _SIC_PIVOT_DIMS[dim].extract(c);
-  return Array.isArray(v) ? v : [v];
-}
-
-function _sicMatchPath(c, path, dims) {
-  /* Controlla se la commessa rientra in tutti i nodi del path (path array di label,
-     dims array di chiavi dimensione). */
-  for (let i = 0; i < path.length; i++) {
-    const vals = _sicValAt(c, dims[i]);
-    if (!vals.includes(path[i])) return false;
-  }
-  return true;
-}
-
-function _sicAggrLevel(items, dim) {
-  /* Aggrega items per il valore della dimensione dim (multi-conteggio se multi).
-     Calcola: ricavi, MOL, costi, incassato, da incassare, clienti distinti. */
-  const g = {};
-  items.forEach(c => {
-    const vals = _sicValAt(c, dim);
-    vals.forEach(v => {
-      if (!g[v]) g[v] = { items: [], ric: 0, mol: 0, inc: 0, daInc: 0, clienti: new Set() };
-      g[v].items.push(c);
-      g[v].ric += (c.consulenza || 0);
-      g[v].mol += (c.mol || 0);
-      g[v].inc += (c.giaIncassato || 0);
-      g[v].daInc += Math.max(0, (c.consulenza || 0) - (c.giaIncassato || 0));
-      if (c.cliente) g[v].clienti.add(c.cliente);
-    });
-  });
-  return g;
-}
-
-function _sicPivotPathKey(path) { return path.join('>'); }
-
+/* Pivot Status & Sicurezza · usa helper kit buildPivotCard (pivot-tree.js) */
 function _sicRenderPivot() {
-  const el = document.getElementById('sec-sicurezza');
-  if (!el) return;
-  const old = document.getElementById('sicPivotCard');
-  if (old) old.remove();
-
-  const card = document.createElement('div');
-  card.id = 'sicPivotCard';
-  card.className = 'card';
-  card.style.cssText = 'margin-top:14px;border-left:3px solid #6366f1';
-
-  let h = '<h4>🌳 Pivot Status &amp; Sicurezza · esplora gerarchico</h4>';
-  h += '<p style="color:var(--text3);font-size:11px;margin-bottom:12px">' +
-       'Scegli l\'ordine delle dimensioni nei 4 livelli. La tabella si organizza ad albero: ' +
-       'clicca <b>▶</b> per espandere/contrarre un nodo, clicca <b>la riga</b> per aprire il pop-up con le commesse di quel ramo. ' +
-       'Le dimensioni multi-valore (Macroarea, Tipologia) duplicano la commessa se rientra in più valori.</p>';
-
-  // Preset rapidi
-  h += '<div style="margin-bottom:10px;display:flex;flex-wrap:wrap;gap:6px">';
-  h += '<span style="color:var(--text3);font-size:11px;align-self:center;text-transform:uppercase;letter-spacing:.3px;margin-right:6px">⚡ Preset:</span>';
-  _SIC_PIVOT_PRESETS.forEach((p, i) => {
-    const active = JSON.stringify(p.dims) === JSON.stringify(_sicPivotDims);
-    h += '<button onclick="_sicPivotSetPreset(' + i + ')" style="padding:5px 10px;border-radius:14px;font-size:10px;cursor:pointer;border:1px solid ' +
-         (active ? 'var(--accent)' : 'var(--border)') + ';background:' +
-         (active ? 'rgba(99,102,241,.18)' : 'var(--card)') + ';color:var(--text)">' + p.label + '</button>';
+  if (typeof buildPivotCard !== 'function') return;
+  buildPivotCard({
+    containerId: 'sec-sicurezza',
+    cardId: 'sicPivotCard',
+    stateNamespace: 'sic',
+    title: '🌳 Pivot Status &amp; Sicurezza · esplora gerarchico',
+    description: 'Scegli l\'ordine delle dimensioni nei 4 livelli. Clicca ▶ per espandere, riga per drill commesse. Macro-area e Tipologia sono multi-valore (una commessa "DVR+RSPP" appare in entrambe).',
+    dims: {
+      status:    { label: 'Status',           extract: c => c.status || 'N/D' },
+      statoLav:  { label: 'Stato Lavorazione', extract: c => (c.statoLav || '').trim() || 'N/D' },
+      macroarea: { label: 'Macro-area',        extract: c => _sicClassify(c.titolo).aree },
+      tipologia: { label: 'Tipologia',         extract: c => { const t = _sicClassify(c.titolo).tipi; return t.length ? t : ['Altro']; } },
+      anno:      { label: 'Anno avvio',        extract: c => _sicAnno(c) },
+      cliente:   { label: 'Cliente',           extract: c => (c.cliente || 'N/D').substring(0, 40) },
+      agg:       { label: 'Aggiornamento',     extract: c => _sicClassify(c.titolo).hasAgg ? 'Sì (AGG)' : 'No (Nuova)' },
+    },
+    presets: [
+      { label: '🚦 Status → StatoLav',                dims: ['status', 'statoLav', '', ''] },
+      { label: '🚦 Status → Macroarea → Tipologia',   dims: ['status', 'macroarea', 'tipologia', ''] },
+      { label: '📋 StatoLav → Macroarea',             dims: ['statoLav', 'macroarea', 'tipologia', ''] },
+      { label: '📂 Macroarea → Tipologia → Status',   dims: ['macroarea', 'tipologia', 'status', ''] },
+      { label: '🔄 Aggiornamento → Macroarea',        dims: ['agg', 'macroarea', 'tipologia', 'status'] },
+      { label: '📅 Anno → Status → Macroarea',        dims: ['anno', 'status', 'macroarea', ''] },
+    ],
+    defaultDims: ['status', 'statoLav', 'macroarea', 'tipologia'],
+    items: filtered,
   });
-  h += '</div>';
-
-  // 4 dropdown
-  h += '<div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px;padding:10px;background:rgba(99,102,241,.04);border-radius:5px">';
-  for (let i = 0; i < 4; i++) {
-    h += '<label style="display:flex;flex-direction:column;font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.3px">' +
-         'Livello ' + (i + 1) +
-         '<select onchange="_sicPivotSetDim(' + i + ',this.value)" style="margin-top:4px;padding:5px 8px;border-radius:4px;background:var(--bg);color:var(--text);border:1px solid var(--border);font-size:12px;min-width:140px">';
-    h += '<option value=""' + (!_sicPivotDims[i] ? ' selected' : '') + '>— Nessuno —</option>';
-    Object.entries(_SIC_PIVOT_DIMS).forEach(([k, d]) => {
-      h += '<option value="' + k + '"' + (_sicPivotDims[i] === k ? ' selected' : '') + '>' + d.label + '</option>';
-    });
-    h += '</select></label>';
-  }
-  h += '<button onclick="_sicPivotExpandAll()" style="margin-left:auto;align-self:flex-end;padding:6px 12px;border-radius:5px;background:rgba(99,102,241,.1);border:1px solid var(--accent);color:var(--text);cursor:pointer;font-size:11px">Espandi tutto</button>';
-  h += '<button onclick="_sicPivotCollapseAll()" style="align-self:flex-end;padding:6px 12px;border-radius:5px;background:var(--card);border:1px solid var(--border);color:var(--text);cursor:pointer;font-size:11px">Comprimi</button>';
-  h += '</div>';
-
-  // Render tabella con metriche complete
-  const activeDims = _sicPivotDims.filter(Boolean);
-  h += '<div class="tbl-scroll"><table class="coge-tbl" style="width:100%;font-size:11px"><thead><tr>';
-  h += '<th style="width:32px"></th>';
-  activeDims.forEach((d, i) => {
-    h += '<th>' + (i === 0 ? _SIC_PIVOT_DIMS[d].label : '↳ ' + _SIC_PIVOT_DIMS[d].label) + '</th>';
-  });
-  h += '<th style="text-align:right">Commesse</th>';
-  h += '<th style="text-align:right">Ricavi</th>';
-  h += '<th style="text-align:right">MOL</th>';
-  h += '<th style="text-align:right">Margine %</th>';
-  h += '<th style="text-align:right">Incassato</th>';
-  h += '<th style="text-align:right">% Inc.</th>';
-  h += '<th style="text-align:right">Da Inc.</th>';
-  h += '<th style="text-align:right">Clienti</th>';
-  h += '<th style="text-align:right">Ticket €</th>';
-  h += '<th style="width:60px"></th>';
-  h += '</tr></thead><tbody>' + _sicPivotRenderRows(filtered, activeDims, []) + '</tbody></table></div>';
-
-  card.innerHTML = h;
-  el.querySelector('.sec').appendChild(card);
-}
-
-function _sicPivotRenderRows(items, dims, path) {
-  if (!dims.length) return '';
-  const dim = dims[0];
-  const remaining = dims.slice(1);
-  const g = _sicAggrLevel(items, dim);
-  const entries = Object.entries(g).sort((a, b) => b[1].items.length - a[1].items.length);
-  let html = '';
-  entries.forEach(([val, v]) => {
-    const newPath = [...path, val];
-    const pathKey = _sicPivotPathKey(newPath);
-    const isOpen = _sicPivotOpen.has(pathKey);
-    const isLeaf = remaining.length === 0;
-    const safeKey = pathKey.replace(/'/g, "\\'");
-    const safeLabel = path.map(p => p).join(' · ') + (path.length ? ' · ' : '') + val;
-    const arrow = isLeaf ? '·' : (isOpen ? '▼' : '▶');
-    const cursor = isLeaf ? '' : 'cursor:pointer;';
-    html += '<tr style="background:rgba(99,102,241,' + (0.02 * path.length) + ')">';
-    html += '<td style="text-align:center;color:var(--accent);' + cursor + '"' +
-            (isLeaf ? '' : ' onclick="event.stopPropagation();_sicPivotToggle(\'' + safeKey + '\')"') + '>' + arrow + '</td>';
-    // Indentazione visiva per il livello (colonne fixed)
-    for (let i = 0; i < dims.length; i++) {
-      if (i === path.length) {
-        const indent = path.length * 16;
-        html += '<td style="padding-left:' + (10 + indent) + 'px;cursor:pointer" onclick="_sicPivotDrill(\'' + safeKey + '\')" title="Clicca per aprire l\'elenco commesse">' +
-                '<b>' + val + '</b></td>';
-      } else if (i < path.length) {
-        html += '<td style="color:var(--text3)"></td>';
-      } else {
-        html += '<td></td>';
-      }
-    }
-    const margPct = v.ric ? (v.mol / v.ric * 100) : 0;
-    const incPct = v.ric ? (v.inc / v.ric * 100) : 0;
-    const ticket = v.items.length ? (v.ric / v.items.length) : 0;
-    const marC = margPct >= 20 ? '#10b981' : margPct >= 5 ? '#f59e0b' : '#dc2626';
-    const incC = incPct >= 80 ? '#10b981' : incPct >= 50 ? '#f59e0b' : '#dc2626';
-    const cellClick = ' onclick="_sicPivotDrill(\'' + safeKey + '\')" style="text-align:right;cursor:pointer"';
-    html += '<td' + cellClick + '>' + fmt(v.items.length) + '</td>';
-    html += '<td' + cellClick + '>' + fmtE(v.ric) + '</td>';
-    html += '<td' + cellClick + '>' + fmtE(v.mol) + '</td>';
-    html += '<td style="text-align:right;cursor:pointer;color:' + marC + '" onclick="_sicPivotDrill(\'' + safeKey + '\')">' + margPct.toFixed(1) + '%</td>';
-    html += '<td' + cellClick + '>' + fmtE(v.inc) + '</td>';
-    html += '<td style="text-align:right;cursor:pointer;color:' + incC + '" onclick="_sicPivotDrill(\'' + safeKey + '\')">' + incPct.toFixed(0) + '%</td>';
-    html += '<td' + cellClick + '>' + fmtE(v.daInc) + '</td>';
-    html += '<td' + cellClick + '>' + fmt(v.clienti.size) + '</td>';
-    html += '<td' + cellClick + '>' + fmtE(ticket) + '</td>';
-    html += '<td style="text-align:right"><a href="#" onclick="event.preventDefault();_sicPivotDrill(\'' + safeKey + '\');return false" style="color:var(--accent);font-size:11px;text-decoration:none">apri →</a></td>';
-    html += '</tr>';
-    if (isOpen && !isLeaf) {
-      html += _sicPivotRenderRows(v.items, remaining, newPath);
-    }
-  });
-  return html;
-}
-
-function _sicPivotToggle(pathKey) {
-  if (_sicPivotOpen.has(pathKey)) _sicPivotOpen.delete(pathKey);
-  else _sicPivotOpen.add(pathKey);
-  _sicRenderPivot();
-}
-
-function _sicPivotDrill(pathKey) {
-  const path = pathKey.split('>');
-  const dims = _sicPivotDims.filter(Boolean).slice(0, path.length);
-  const list = filtered.filter(c => _sicMatchPath(c, path, dims));
-  const label = dims.map((d, i) => _SIC_PIVOT_DIMS[d].label + '=' + path[i]).join(' · ');
-  if (typeof drillDownItems === 'function') drillDownItems(label + ' (' + list.length + ')', list);
-}
-
-function _sicPivotSetDim(level, dim) {
-  _sicPivotDims[level] = dim;
-  _sicPivotOpen.clear();
-  _sicRenderPivot();
-}
-
-function _sicPivotSetPreset(idx) {
-  _sicPivotDims = [..._SIC_PIVOT_PRESETS[idx].dims];
-  _sicPivotOpen.clear();
-  _sicRenderPivot();
-}
-
-function _sicPivotExpandAll() {
-  const dims = _sicPivotDims.filter(Boolean);
-  if (dims.length <= 1) return;
-  // Genera tutti i path possibili fino al penultimo livello
-  function _walk(items, d, path) {
-    if (d >= dims.length - 1) return;
-    const g = _sicAggrLevel(items, dims[d]);
-    Object.entries(g).forEach(([v, vd]) => {
-      const np = [...path, v];
-      _sicPivotOpen.add(_sicPivotPathKey(np));
-      _walk(vd.items, d + 1, np);
-    });
-  }
-  _walk(filtered, 0, []);
-  _sicRenderPivot();
 }
 
 function _sicPivotCollapseAll() {

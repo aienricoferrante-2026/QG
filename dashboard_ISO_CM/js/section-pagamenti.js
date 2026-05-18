@@ -133,6 +133,8 @@ function renderPagamenti() {
       ]),
       ['str', 'str', 'num', 'num', 'str', 'str']);
   }
+
+  _isoRenderPivot();
 }
 
 function _isoDrillPag(bucket) {
@@ -145,3 +147,35 @@ function _isoDrillPag(bucket) {
   const list = filtered.filter(pred);
   if (typeof drillDownItems === 'function') drillDownItems(label + ' (' + list.length + ')', list);
 }
+
+/* Pivot ad albero (kit helper buildPivotCard) */
+function _isoRenderPivot() {
+  if (typeof buildPivotCard !== 'function') return;
+  buildPivotCard({
+    containerId: 'sec-pagamenti',
+    cardId: 'isoPivotCard',
+    stateNamespace: 'iso',
+    title: '🌳 Pivot ISO · esplora gerarchico',
+    description: 'Scegli ordine dimensioni nei 4 livelli. Clicca ▶ per espandere, riga per drill pop-up commesse del ramo.',
+    dims: {
+      status:    { label: 'Status',           extract: c => c.status || 'N/D' },
+      statoLav:  { label: 'Stato Lavorazione', extract: c => (c.statoLav || '').trim() || 'N/D' },
+      standard:  { label: 'Standard ISO',     extract: c => c.isoStandard || c.isoStandards || 'N/D' },
+      ente:      { label: 'Ente certificatore', extract: c => c.isoEnte || 'N/D' },
+      tipoAudit: { label: 'Tipo Audit',       extract: c => c.isoTipoAudit || 'N/D' },
+      statoCert: { label: 'Stato Certificato', extract: c => c.isoStatoCert || 'N/D' },
+      statoPag:  { label: 'Stato Pagamento',  extract: c => c.isoStatoPagamentoTxt || 'N/D' },
+      cliente:   { label: 'Cliente',          extract: c => (c.cliente || 'N/D').substring(0, 40) },
+    },
+    presets: [
+      { label: '🚦 Status → Ente → StatoCert', dims: ['status', 'ente', 'statoCert', ''] },
+      { label: '📋 StatoLav → Standard',       dims: ['statoLav', 'standard', '', ''] },
+      { label: '🏆 Ente → Standard → Status',  dims: ['ente', 'standard', 'status', ''] },
+      { label: '💰 StatoPag → Cliente',         dims: ['statoPag', 'cliente', '', ''] },
+      { label: '📜 StatoCert → Ente',          dims: ['statoCert', 'ente', '', ''] },
+    ],
+    defaultDims: ['status', 'ente', 'standard', ''],
+    items: filtered,
+  });
+}
+
