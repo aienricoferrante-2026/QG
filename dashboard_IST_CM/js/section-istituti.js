@@ -137,6 +137,8 @@ function renderIstituti() {
     ['str', 'str', 'str', 'str', 'str', 'num', 'str']);
 
   _istRenderAudit();
+
+  _istRenderPivot2();
 }
 
 function _istRenderAudit() {
@@ -164,3 +166,30 @@ function _istDrillB(bando) {
   const list = filtered.filter(c => _istBando(c) === bando);
   if (typeof drillDownItems === 'function') drillDownItems('Bando ' + bando + ' (' + list.length + ')', list);
 }
+
+/* Pivot ad albero (kit helper buildPivotCard) */
+function _istRenderPivot2() {
+  if (typeof buildPivotCard !== 'function') return;
+  buildPivotCard({
+    containerId: 'sec-istituti',
+    cardId: 'istPivotCard',
+    stateNamespace: 'ist',
+    title: '🌳 Pivot Istituti · esplora gerarchico',
+    description: 'Scegli ordine dimensioni nei 4 livelli. Clicca ▶ per espandere, riga per drill pop-up commesse del ramo.',
+    dims: {
+      status:    { label: 'Status',           extract: c => c.status || 'N/D' },
+      statoLav:  { label: 'Stato Lavorazione', extract: c => (c.statoLav || '').trim() || 'N/D' },
+      tipo:      { label: 'Tipologia Servizio', extract: c => _istTipo(c) },
+      bando:     { label: 'Bando DM',         extract: c => _istBando(c) },
+      cliente:   { label: 'Cliente',          extract: c => (c.cliente || 'N/D').substring(0, 40) },
+    },
+    presets: [
+      { label: '🏛 Tipo → Bando',             dims: ['tipo', 'bando', '', ''] },
+      { label: '🚦 Status → Tipo → Bando',    dims: ['status', 'tipo', 'bando', ''] },
+      { label: '📜 Bando → Tipo → Status',    dims: ['bando', 'tipo', 'status', ''] },
+    ],
+    defaultDims: ['tipo', 'bando', 'status', ''],
+    items: filtered,
+  });
+}
+

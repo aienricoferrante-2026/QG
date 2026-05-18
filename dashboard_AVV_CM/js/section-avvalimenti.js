@@ -152,6 +152,8 @@ function renderAvvalimenti() {
   );
 
   _avvRenderAudit();
+
+  _avvRenderPivot2();
 }
 
 /* Handler drill-down KPI "Con CIG" → modal con elenco. */
@@ -177,3 +179,33 @@ function _avvRenderAudit() {
     hint: 'Aggiungi nuovi pattern in tools/avv_parser.py (regex sul Titolo) e rilancia tools/convert_sectors.py per popolare avvTipo.',
   });
 }
+
+/* Pivot ad albero (kit helper buildPivotCard) */
+function _avvRenderPivot2() {
+  if (typeof buildPivotCard !== 'function') return;
+  buildPivotCard({
+    containerId: 'sec-avvalimenti',
+    cardId: 'avvPivotCard',
+    stateNamespace: 'avv',
+    title: '🌳 Pivot Avvalimenti · esplora gerarchico',
+    description: 'Scegli ordine dimensioni nei 4 livelli. Clicca ▶ per espandere, riga per drill pop-up commesse del ramo.',
+    dims: {
+      status:    { label: 'Status',           extract: c => c.status || 'N/D' },
+      statoLav:  { label: 'Stato Lavorazione', extract: c => (c.statoLav || '').trim() || 'N/D' },
+      tipo:      { label: 'Tipo Avvalimento', extract: c => c.avvTipo || 'N/D' },
+      categoria: { label: 'Categoria SOA',    extract: c => Array.isArray(c.avvCategorie) && c.avvCategorie.length ? c.avvCategorie : ['N/D'] },
+      anno:      { label: 'Anno',             extract: c => c.avvAnno || 'N/D' },
+      cliente:   { label: 'Cliente',          extract: c => (c.cliente || 'N/D').substring(0, 40) },
+      agente:    { label: 'Commerciale',      extract: c => (c.agente || '').trim() || 'N/D' },
+    },
+    presets: [
+      { label: '🚦 Status → Tipo',            dims: ['status', 'tipo', '', ''] },
+      { label: '🤝 Tipo → Categoria → Status', dims: ['tipo', 'categoria', 'status', ''] },
+      { label: '📅 Anno → Tipo → Status',     dims: ['anno', 'tipo', 'status', ''] },
+      { label: '💼 Commerciale → Tipo',       dims: ['agente', 'tipo', 'status', ''] },
+    ],
+    defaultDims: ['status', 'tipo', 'categoria', ''],
+    items: filtered,
+  });
+}
+

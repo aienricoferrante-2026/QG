@@ -141,6 +141,8 @@ function renderRecsel() {
     ['str', 'str', 'str', 'str', 'str', 'str', 'num', 'str']);
 
   _resRenderAudit();
+
+  _resRenderPivot2();
 }
 
 function _resRenderAudit() {
@@ -172,3 +174,31 @@ function _resDrillF(fase) {
   const list = filtered.filter(c => _resFase(c) === fase);
   if (typeof drillDownItems === 'function') drillDownItems('Fase R&S · ' + fase + ' (' + list.length + ')', list);
 }
+
+/* Pivot ad albero (kit helper buildPivotCard) */
+function _resRenderPivot2() {
+  if (typeof buildPivotCard !== 'function') return;
+  buildPivotCard({
+    containerId: 'sec-recsel',
+    cardId: 'resPivotCard',
+    stateNamespace: 'res',
+    title: '🌳 Pivot R&S · esplora gerarchico',
+    description: 'Scegli ordine dimensioni nei 4 livelli. Clicca ▶ per espandere, riga per drill pop-up commesse del ramo.',
+    dims: {
+      status:    { label: 'Status',           extract: c => c.status || 'N/D' },
+      statoLav:  { label: 'Stato Lavorazione', extract: c => (c.statoLav || '').trim() || 'N/D' },
+      tipo:      { label: 'Tipologia',        extract: c => _resTipo(c) },
+      fase:      { label: 'Fase R&S',         extract: c => _resFase(c) },
+      cliente:   { label: 'Cliente',          extract: c => (c.cliente || 'N/D').substring(0, 40) },
+      responsabile: { label: 'Tecnico',       extract: c => (c.responsabile || '').trim() || 'N/D' },
+    },
+    presets: [
+      { label: '🚦 Status → Tipo',            dims: ['status', 'tipo', '', ''] },
+      { label: '📋 Tipo → Fase R&S',          dims: ['tipo', 'fase', '', ''] },
+      { label: '⚙️ Tecnico → Status → Fase',  dims: ['responsabile', 'status', 'fase', ''] },
+    ],
+    defaultDims: ['status', 'tipo', 'fase', ''],
+    items: filtered,
+  });
+}
+

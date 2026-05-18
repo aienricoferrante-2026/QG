@@ -259,6 +259,8 @@ function renderGol() {
   }
 
   _golRenderAudit();
+
+  _golRenderPivot();
 }
 
 function _golRenderAudit() {
@@ -283,3 +285,32 @@ function _golDrill(fase) {
   const list = filtered.filter(c => _golIsGol(c) && _golFase(c) === fase);
   if (typeof drillDownItems === 'function') drillDownItems('GOL · ' + fase + ' (' + list.length + ')', list);
 }
+
+/* Pivot ad albero (kit helper buildPivotCard) */
+function _golRenderPivot() {
+  if (typeof buildPivotCard !== 'function') return;
+  buildPivotCard({
+    containerId: 'sec-gol',
+    cardId: 'golPivotCard',
+    stateNamespace: 'gol',
+    title: '🌳 Pivot GOL · esplora gerarchico',
+    description: 'Scegli ordine dimensioni nei 4 livelli. Clicca ▶ per espandere, riga per drill pop-up commesse del ramo.',
+    dims: {
+      status:    { label: 'Status',           extract: c => c.status || 'N/D' },
+      statoLav:  { label: 'Stato Lavorazione', extract: c => (c.statoLav || '').trim() || 'N/D' },
+      fase:      { label: 'Fase Funnel GOL',  extract: c => _golIsGol(c) ? _golFase(c) : 'NON-GOL' },
+      citta:     { label: 'Città Beneficiario', extract: c => _golCity(c) },
+      cliente:   { label: 'Cliente',          extract: c => (c.cliente || 'N/D').substring(0, 40) },
+      responsabile: { label: 'Tecnico',       extract: c => (c.responsabile || '').trim() || 'N/D' },
+    },
+    presets: [
+      { label: '🚦 Status → Fase',            dims: ['status', 'fase', '', ''] },
+      { label: '🏃 Fase → Città',             dims: ['fase', 'citta', '', ''] },
+      { label: '⚙️ Tecnico → Fase → Status',  dims: ['responsabile', 'fase', 'status', ''] },
+      { label: '📍 Città → Fase → Status',    dims: ['citta', 'fase', 'status', ''] },
+    ],
+    defaultDims: ['status', 'fase', 'citta', ''],
+    items: filtered,
+  });
+}
+

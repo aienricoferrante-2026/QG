@@ -157,6 +157,8 @@ function renderBandi() {
     ['str', 'num', 'num', 'num', 'num', 'num', 'num']);
 
   _fiaRenderAudit();
+
+  _fiaRenderPivot2();
 }
 
 function _fiaRenderAudit() {
@@ -185,3 +187,32 @@ function _fiaDrillPipe() {
   const list = filtered.filter(c => c.status === 'Da pianificare');
   if (typeof drillDownItems === 'function') drillDownItems('Pipeline pianificata (' + list.length + ')', list);
 }
+
+/* Pivot ad albero (kit helper buildPivotCard) */
+function _fiaRenderPivot2() {
+  if (typeof buildPivotCard !== 'function') return;
+  buildPivotCard({
+    containerId: 'sec-bandi',
+    cardId: 'fiaPivotCard',
+    stateNamespace: 'fia',
+    title: '🌳 Pivot Bandi · esplora gerarchico',
+    description: 'Scegli ordine dimensioni nei 4 livelli. Clicca ▶ per espandere, riga per drill pop-up commesse del ramo.',
+    dims: {
+      status:    { label: 'Status',           extract: c => c.status || 'N/D' },
+      statoLav:  { label: 'Stato Lavorazione', extract: c => (c.statoLav || '').trim() || 'N/D' },
+      bando:     { label: 'Bando',            extract: c => _fiaBando(c) },
+      anno:      { label: 'Anno bando',       extract: c => _fiaAnno(c) },
+      cliente:   { label: 'Cliente',          extract: c => (c.cliente || 'N/D').substring(0, 40) },
+      agente:    { label: 'Commerciale',      extract: c => (c.agente || '').trim() || 'N/D' },
+    },
+    presets: [
+      { label: '🎯 Bando → Status',           dims: ['bando', 'status', '', ''] },
+      { label: '🚦 Status → Bando → Cliente', dims: ['status', 'bando', 'cliente', ''] },
+      { label: '📅 Anno → Bando → Status',    dims: ['anno', 'bando', 'status', ''] },
+      { label: '💼 Commerciale → Bando',      dims: ['agente', 'bando', 'status', ''] },
+    ],
+    defaultDims: ['status', 'bando', 'anno', ''],
+    items: filtered,
+  });
+}
+

@@ -137,6 +137,8 @@ function renderPagamentiGdpr() {
       ]),
       ['str', 'str', 'num', 'num', 'str', 'str']);
   }
+
+  _gdprRenderPivot();
 }
 
 function _gdprDrillPag(bucket) {
@@ -149,3 +151,33 @@ function _gdprDrillPag(bucket) {
   const list = filtered.filter(pred);
   if (typeof drillDownItems === 'function') drillDownItems(label + ' (' + list.length + ')', list);
 }
+
+/* Pivot ad albero (kit helper buildPivotCard) */
+function _gdprRenderPivot() {
+  if (typeof buildPivotCard !== 'function') return;
+  buildPivotCard({
+    containerId: 'sec-pagamentiGdpr',
+    cardId: 'gdprPivotCard',
+    stateNamespace: 'gdpr',
+    title: '🌳 Pivot GDPR · esplora gerarchico',
+    description: 'Scegli ordine dimensioni nei 4 livelli. Clicca ▶ per espandere, riga per drill pop-up commesse del ramo.',
+    dims: {
+      status:    { label: 'Status',           extract: c => c.status || 'N/D' },
+      statoLav:  { label: 'Stato Lavorazione', extract: c => (c.statoLav || '').trim() || 'N/D' },
+      statoPag:  { label: 'Stato Pagamento',  extract: c => c.gdprStatoPag || 'N/D' },
+      accordo:   { label: 'Accordo Pagamenti', extract: c => (c.gdprAccordo && String(c.gdprAccordo).trim()) ? 'Sì' : 'No' },
+      cliente:   { label: 'Cliente',          extract: c => (c.cliente || 'N/D').substring(0, 40) },
+      agente:    { label: 'Commerciale',      extract: c => (c.agente || '').trim() || 'N/D' },
+      responsabile: { label: 'Tecnico',       extract: c => (c.responsabile || '').trim() || 'N/D' },
+    },
+    presets: [
+      { label: '🚦 Status → StatoPag',        dims: ['status', 'statoPag', '', ''] },
+      { label: '💰 StatoPag → Accordo → Cliente', dims: ['statoPag', 'accordo', 'cliente', ''] },
+      { label: '💼 Commerciale → Status',     dims: ['agente', 'status', '', ''] },
+      { label: '⚙️ Tecnico → Status',          dims: ['responsabile', 'status', 'statoLav', ''] },
+    ],
+    defaultDims: ['status', 'statoPag', 'accordo', ''],
+    items: filtered,
+  });
+}
+
