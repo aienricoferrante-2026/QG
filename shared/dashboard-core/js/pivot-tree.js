@@ -92,11 +92,18 @@ function buildPivotCard(opts) {
   h += '<button onclick="_pivotCollapseAll(\'' + ns + '\')" style="align-self:flex-end;padding:6px 12px;border-radius:5px;background:var(--card);border:1px solid var(--border);color:var(--text);cursor:pointer;font-size:11px">Comprimi</button>';
   h += '</div>';
 
-  // Tabella ad albero con metriche complete
+  // Tabella ad albero · 1 colonna "Voce" con indentazione progressiva
+  // (no più colonne separate per ogni dimensione → niente sfalsamento)
   const dims = state.dims.filter(Boolean);
+  // Breadcrumb in cima alla tabella che mostra il percorso completo delle dimensioni
+  h += '<div style="margin-bottom:8px;padding:8px 12px;background:rgba(99,102,241,.05);border-radius:5px;font-size:11px;color:var(--text2)">' +
+       '<span style="color:var(--text3);text-transform:uppercase;letter-spacing:.4px;font-size:10px">Percorso:</span> ' +
+       dims.map((d, i) => '<span style="color:' + ['#3b82f6','#10b981','#f59e0b','#a78bfa'][i] + ';font-weight:600">' +
+                          (i + 1) + '. ' + opts.dims[d].label + '</span>').join(' <span style="color:var(--text3)">→</span> ') +
+       '</div>';
   h += '<div class="tbl-scroll"><table class="coge-tbl" style="width:100%;font-size:11px"><thead><tr>';
   h += '<th style="width:32px"></th>';
-  dims.forEach((d, i) => h += '<th>' + (i === 0 ? opts.dims[d].label : '↳ ' + opts.dims[d].label) + '</th>');
+  h += '<th>Voce</th>';
   h += '<th style="text-align:right">Commesse</th><th style="text-align:right">Ricavi</th><th style="text-align:right">MOL</th>' +
     '<th style="text-align:right">Margine %</th><th style="text-align:right">Incassato</th><th style="text-align:right">% Inc.</th>' +
     '<th style="text-align:right">Da Inc.</th><th style="text-align:right">Clienti</th><th style="text-align:right">Ticket €</th><th style="width:60px"></th>';
@@ -138,6 +145,7 @@ function _pivotRenderRows(ns, items, dims, path, opts) {
   const remaining = dims.slice(1);
   const g = _pivotAggrLevel(items, dim, opts);
   const entries = Object.entries(g).sort((a, b) => b[1].ric - a[1].ric);
+  const LEVEL_COLOR = ['#3b82f6', '#10b981', '#f59e0b', '#a78bfa'];
   let html = '';
   entries.forEach(([val, v]) => {
     const newPath = [...path, val];
@@ -153,16 +161,18 @@ function _pivotRenderRows(ns, items, dims, path, opts) {
     const marC = margPct >= 20 ? '#10b981' : margPct >= 5 ? '#f59e0b' : '#dc2626';
     const incC = incPct >= 80 ? '#10b981' : incPct >= 50 ? '#f59e0b' : '#dc2626';
     const cellClick = ' onclick="_pivotDrill(\'' + ns + '\',\'' + safeKey + '\')" style="text-align:right;cursor:pointer"';
-    html += '<tr style="background:rgba(99,102,241,' + (0.02 * path.length) + ')">';
-    html += '<td style="text-align:center;color:var(--accent);' + cursor + '"' +
+    const levelColor = LEVEL_COLOR[path.length] || '#64748b';
+    const dimLabel = opts.dims[dim].label;
+    const indent = path.length * 24;
+    // Etichetta livello (es. "L2 · Status") in piccolo sopra il valore
+    const levelTag = '<span style="color:' + levelColor + ';font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.3px;margin-right:6px">L' + (path.length + 1) + ' · ' + dimLabel + '</span>';
+    html += '<tr style="background:rgba(99,102,241,' + (0.03 * path.length) + ')">';
+    html += '<td style="text-align:center;color:' + levelColor + ';' + cursor + ';font-size:13px;font-weight:700"' +
       (isLeaf ? '' : ' onclick="event.stopPropagation();_pivotToggle(\'' + ns + '\',\'' + safeKey + '\')"') + '>' + arrow + '</td>';
-    for (let i = 0; i < dims.length; i++) {
-      if (i === path.length) {
-        const indent = path.length * 16;
-        html += '<td style="padding-left:' + (10 + indent) + 'px;cursor:pointer" onclick="_pivotDrill(\'' + ns + '\',\'' + safeKey + '\')" title="Apri elenco commesse"><b>' + val + '</b></td>';
-      } else if (i < path.length) html += '<td style="color:var(--text3)"></td>';
-      else html += '<td></td>';
-    }
+    // Singola colonna "Voce" con indentazione + level tag + valore in grassetto
+    html += '<td style="padding-left:' + (10 + indent) + 'px;cursor:pointer;border-left:3px solid ' + levelColor + '" ' +
+            'onclick="_pivotDrill(\'' + ns + '\',\'' + safeKey + '\')" title="Apri elenco commesse · ' + dimLabel + ' = ' + val.replace(/"/g, '&quot;') + '">' +
+            levelTag + '<b style="color:var(--text)">' + val + '</b></td>';
     html += '<td' + cellClick + '>' + fmt(v.items.length) + '</td>';
     html += '<td' + cellClick + '>' + fmtE(v.ric) + '</td>';
     html += '<td' + cellClick + '>' + fmtE(v.mol) + '</td>';
