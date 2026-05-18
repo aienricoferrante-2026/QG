@@ -99,21 +99,49 @@ async function upsertBatch(table, records, conflictCols) {
   }
 }
 
-async function processFile(file, statusEl) {
-  const route = detectFileRoute(file.name);
+async function processFile(file, statusEl, forcedRoute) {
+  // forcedRoute opzionale: { table, bu, label } selezionato manualmente
+  const route = forcedRoute || detectFileRoute(file.name);
   if (!route) {
-    statusEl.innerHTML = `<span style="color:#dc2626">✗ ${file.name} · BU non riconosciuta dal nome file</span>`;
+    statusEl.innerHTML = `<span style="color:#dc2626">✗ <b>${file.name}</b> · BU non riconosciuta dal nome file.<br>
+      <span style="color:var(--text3);font-size:11px">Suggerimento: seleziona "Forza BU" qui sopra per indicare manualmente la BU.</span></span>`;
+    diagLog(`✗ ${file.name}: no route match`);
     return { file: file.name, ok: 0, err: 0, skipped: true };
   }
   const cfg = window.STW_ADMIN;
-  statusEl.innerHTML = `<span style="color:#06b6d4">⏳ ${file.name} → ${route.table}${route.bu ? ' (' + route.bu + ')' : ''} · lettura…</span>`;
+  const routeLabel = route.label || (route.table + (route.bu ? ' (' + route.bu + ')' : ''));
+  statusEl.innerHTML = `<span style="color:#06b6d4">⏳ <b>${file.name}</b> → ${routeLabel} · lettura…</span>`;
+  diagLog(`→ ${file.name}: route=${routeLabel}, size=${file.size}B`);
 
-  // Read XLSX/CSV
+  // Read: supporta XLSX vero, CSV, e JSON (Qnet a volte esporta JSON con estensione .xlsx)
   const buf = await file.arrayBuffer();
-  const wb = XLSX.read(buf, { type: 'array' });
-  const sheet = wb.Sheets[wb.SheetNames[0]];
-  const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
-  if (!rows.length) {
+  let rows = null;
+  // Detect: prova prima JSON, poi XLSX
+  const head = new TextDecoder('utf-8', { fatal: false }).decode(buf.slice(0, 4));
+  if (head === '[{"i' || head === '[{"I' || head.trim().startsWith('[') || head.trim().startsWith('{')) {
+    // Probabile JSON
+    try {
+      const txt = new TextDecoder('utf-8').decode(buf);
+      const parsed = JSON.parse(txt);
+      rows = Array.isArray(parsed) ? parsed : [parsed];
+      diagLog(`  formato: JSON · ${rows.length} record`);
+    } catch (e) {
+      diagLog(`  JSON parse failed: ${e.message}, fallback XLSX`);
+    }
+  }
+  if (!rows) {
+    try {
+      const wb = XLSX.read(buf, { type: 'array' });
+      const sheet = wb.Sheets[wb.SheetNames[0]];
+      rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+      diagLog(`  formato: XLSX/CSV · sheet="${wb.SheetNames[0]}" · ${rows.length} righe`);
+    } catch (e) {
+      statusEl.innerHTML = `<span style="color:#dc2626">✗ <b>${file.name}</b> · impossibile leggere il file: ${e.message}</span>`;
+      diagLog(`  FATAL: ${e.message}`);
+      return { file: file.name, ok: 0, err: 0, skipped: true };
+    }
+  }
+  if (!rows || !rows.length) {
     statusEl.innerHTML = `<span style="color:#f59e0b">⚠ ${file.name} · file vuoto</span>`;
     return { file: file.name, ok: 0, err: 0, skipped: true };
   }
@@ -158,12 +186,30 @@ async function processFile(file, statusEl) {
   return { file: file.name, ok, err, skipped };
 }
 
+function diagLog(msg) {
+  const el = document.getElementById('diagLog');
+  if (!el) return;
+  const ts = new Date().toLocaleTimeString('it-IT');
+  el.textContent += `[${ts}] ${msg}\n`;
+  el.scrollTop = el.scrollHeight;
+}
+
+function getForcedRoute() {
+  const sel = document.getElementById('forceBu');
+  if (!sel || !sel.value) return null;
+  const cfg = window.STW_ADMIN;
+  const opt = cfg.manualForceOptions.find(o => (o.table + '|' + (o.bu || '')) === sel.value);
+  return opt || null;
+}
+
 async function handleFiles(fileList) {
   const files = Array.from(fileList);
   if (!files.length) return;
   const ul = document.getElementById('uploadStatus');
   ul.innerHTML = '';
   const summaryEl = document.getElementById('uploadSummary');
+  const forced = getForcedRoute();
+  diagLog(`▶ Avvio upload di ${files.length} file · forced=${forced ? (forced.label) : 'no (auto-detect)'}`);
   summaryEl.textContent = `Inizio elaborazione · ${files.length} file…`;
   const totals = { ok: 0, err: 0, skipped: 0, files: files.length };
   for (const f of files) {
@@ -171,16 +217,25 @@ async function handleFiles(fileList) {
     li.style.cssText = 'margin-bottom:6px;font-size:12px';
     ul.appendChild(li);
     try {
-      const r = await processFile(f, li);
+      const r = await processFile(f, li, forced);
       totals.ok += r.ok; totals.err += r.err;
       if (r.skipped) totals.skipped++;
     } catch (e) {
       li.innerHTML = `<span style="color:#dc2626">✗ ${f.name} · ${e.message}</span>`;
+      diagLog(`  EXCEPTION: ${e.message}`);
       totals.err++;
     }
   }
-  summaryEl.innerHTML = `<b>Fatto.</b> ${totals.ok.toLocaleString('it-IT')} record caricati su Supabase · ${totals.err} errori · ${totals.skipped} file saltati. ` +
-    `<br><i>Le dashboard sul sito leggono ancora i JSON committati. Per rigenerarli serve uno script lato server (TODO).</i>`;
+  diagLog(`◀ Fine: ${totals.ok} ok · ${totals.err} err · ${totals.skipped} skip`);
+  summaryEl.innerHTML = `<b>Fatto.</b> ${totals.ok.toLocaleString('it-IT')} record caricati su Supabase · ${totals.err} errori · ${totals.skipped} file saltati.` +
+    `<div style="margin-top:8px;padding:10px;background:rgba(245,158,11,.08);border-left:3px solid #f59e0b;border-radius:4px;color:var(--text2);font-size:11px">` +
+    `⚠ <b>Le dashboard sul sito leggono i JSON statici committati nel repo.</b> Per vedere i nuovi dati nelle dashboard, dopo l'upload devi:` +
+    `<ol style="margin:6px 0 0 18px;line-height:1.7">` +
+    `<li>Eseguire <code>python3 tools/regenerate_json_from_supabase.py</code> per scaricare i JSON aggiornati</li>` +
+    `<li><code>git add data/ && git commit -m "Update dati" && git push</code></li>` +
+    `<li>Aspettare 1-2 min che GitHub Pages aggiorni</li>` +
+    `</ol>` +
+    `In futuro questo sarà automatico via GitHub Action.</div>`;
 }
 
 async function loadStats() {
@@ -207,10 +262,23 @@ async function loadStats() {
   // se serve facciamo una RPC server-side.
 }
 
+function populateForceBu() {
+  const sel = document.getElementById('forceBu');
+  if (!sel) return;
+  const cfg = window.STW_ADMIN;
+  cfg.manualForceOptions.forEach(o => {
+    const opt = document.createElement('option');
+    opt.value = o.table + '|' + (o.bu || '');
+    opt.textContent = o.label;
+    sel.appendChild(opt);
+  });
+}
+
 function showApp() {
   document.getElementById('loginBox').style.display = 'none';
   document.getElementById('app').style.display = 'block';
   document.getElementById('logoutBtn').style.display = 'inline-block';
+  populateForceBu();
   loadStats();
 }
 

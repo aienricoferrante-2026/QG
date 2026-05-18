@@ -14,21 +14,41 @@ window.STW_ADMIN = {
   masterHash: '5bb40be187baff36150a637bacf46f1b6c75eb1e51efebf6f71d6ad5c92af43a',
 
   // Mapping nome file Excel → tabella + BU
-  // Riconosce il prefisso/keyword del filename. Case insensitive.
+  // Pattern permissivi: cerca la BU come keyword OVUNQUE nel filename.
+  // Es. "Export ISO 18-05.xlsx", "ISO commesse maggio.xlsx", "iso_2026.xlsx"
+  // funzionano tutti. Se manca il match, l'utente può "Forza BU" manualmente.
   fileRouting: [
-    { match: /commesse[_-]?for\b/i,     table: 'commesse', bu: 'FOR' },
-    { match: /commesse[_-]?iso\b/i,     table: 'commesse', bu: 'ISO' },
-    { match: /commesse[_-]?sic\b/i,     table: 'commesse', bu: 'SIC' },
-    { match: /commesse[_-]?apl[_-]?pal\b/i, table: 'commesse', bu: 'APL_PAL' },
-    { match: /commesse[_-]?apl[_-]?res\b/i, table: 'commesse', bu: 'APL_RES' },
-    { match: /commesse[_-]?gdpr\b/i,    table: 'commesse', bu: 'GDPR' },
-    { match: /commesse[_-]?soa\b/i,     table: 'commesse', bu: 'SOA' },
-    { match: /commesse[_-]?avv\b/i,     table: 'commesse', bu: 'AVV' },
-    { match: /commesse[_-]?gar\b/i,     table: 'commesse', bu: 'GAR' },
-    { match: /commesse[_-]?fia\b/i,     table: 'commesse', bu: 'FIA' },
-    { match: /commesse[_-]?ist\b/i,     table: 'commesse', bu: 'IST' },
-    { match: /offerte/i,                table: 'offerte', bu: null },
-    { match: /opportunit[aà][_-]?for\b/i, table: 'opportunita_for', bu: null },
+    // Pattern più specifici prima (per evitare falsi positivi)
+    { match: /opportunit[aà][_\s-]*for/i,    table: 'opportunita_for', bu: null, label: 'Opportunità FOR' },
+    { match: /\boff(erte)?\b/i,              table: 'offerte', bu: null, label: 'Offerte' },
+    { match: /\bapl[_\s-]*pal\b|politiche[_\s-]*attive/i, table: 'commesse', bu: 'APL_PAL', label: 'APL_PAL' },
+    { match: /\bapl[_\s-]*res\b|pal[_\s-]*risorse/i,      table: 'commesse', bu: 'APL_RES', label: 'APL_RES' },
+    { match: /\biso\b|certificazion/i,       table: 'commesse', bu: 'ISO', label: 'ISO' },
+    { match: /\bfor\b|formazion/i,           table: 'commesse', bu: 'FOR', label: 'FOR' },
+    { match: /\bsic\b|sicurezza/i,           table: 'commesse', bu: 'SIC', label: 'SIC' },
+    { match: /\bsoa\b|attestazion/i,         table: 'commesse', bu: 'SOA', label: 'SOA' },
+    { match: /\bavv\b|avvaliment/i,          table: 'commesse', bu: 'AVV', label: 'AVV' },
+    { match: /\bgar\b|gare/i,                table: 'commesse', bu: 'GAR', label: 'GAR' },
+    { match: /\bfia\b|finanza[_\s-]*agev/i,  table: 'commesse', bu: 'FIA', label: 'FIA' },
+    { match: /\bgdpr\b|privacy/i,            table: 'commesse', bu: 'GDPR', label: 'GDPR' },
+    { match: /\bist\b|istitut/i,             table: 'commesse', bu: 'IST', label: 'IST' },
+  ],
+
+  // Opzioni per il selettore manuale "Forza BU" (fallback)
+  manualForceOptions: [
+    { table: 'commesse', bu: 'FOR',     label: 'FOR · Formazione' },
+    { table: 'commesse', bu: 'ISO',     label: 'ISO · Certificazioni' },
+    { table: 'commesse', bu: 'SIC',     label: 'SIC · Sicurezza' },
+    { table: 'commesse', bu: 'APL_PAL', label: 'APL_PAL · Politiche Attive' },
+    { table: 'commesse', bu: 'APL_RES', label: 'APL_RES · PAL Risorse' },
+    { table: 'commesse', bu: 'GDPR',    label: 'GDPR · Privacy' },
+    { table: 'commesse', bu: 'SOA',     label: 'SOA · Attestazioni' },
+    { table: 'commesse', bu: 'AVV',     label: 'AVV · Avvalimenti' },
+    { table: 'commesse', bu: 'GAR',     label: 'GAR · Gare' },
+    { table: 'commesse', bu: 'FIA',     label: 'FIA · Finanza Agevolata' },
+    { table: 'commesse', bu: 'IST',     label: 'IST · Istituti' },
+    { table: 'offerte',          bu: null, label: 'Offerte' },
+    { table: 'opportunita_for',  bu: null, label: 'Opportunità FOR' },
   ],
 
   // Colonne fisse per ogni tabella (le altre vanno in meta JSONB)
