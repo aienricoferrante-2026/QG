@@ -152,8 +152,37 @@ function renderSicurezza() {
   let h = '<div class="sec"><h3 class="sec-title">Sicurezza Lavoro · ' + sectorLabel() + '</h3>';
   h += '<p style="color:var(--text3);font-size:11px;margin-bottom:14px">' +
        'Tipologia ricavata dal <i>Titolo</i> commessa (parser client-side). ' +
-       '13 sigle riconosciute (DVR, RSPP, RLS, ART37, POS, PREP, APS, ADE, FORM, VISITE, HACCP, PLE, PIMUS, TUTTA, 81/08), ' +
-       'aggregate in 6 macro-aree. Una commessa può rientrare in più tipologie (es. "DVR + RSPP").</p>';
+       '21 sigle riconosciute (DVR, RSPP, RLS, ART37, POS, PREP, APS, ADE, FORM, VISITE, HACCP, PLE, PIMUS, MULETTO, PES, GRU, DPI, SALDATORI, ALIMENT, TUTTA, 81/08), ' +
+       'aggregate in 6 macro-aree. Una commessa può rientrare in più tipologie (es. "DVR + RSPP" conta in Documentazione + Documentazione e quindi solo 1 volta nella sua area).</p>';
+
+  // Box "Come escono i numeri"
+  h += '<details style="margin-bottom:14px;background:rgba(99,102,241,.05);border-left:3px solid #6366f1;border-radius:4px;padding:10px 14px">' +
+       '<summary style="cursor:pointer;font-size:11px;color:var(--text2);font-weight:600">💡 Come escono i numeri (clicca per espandere)</summary>' +
+       '<div style="color:var(--text2);font-size:11px;line-height:1.6;margin-top:10px">' +
+       '<b>Step 1 · Parsing del titolo</b>: per ogni commessa il <code>titolo</code> viene tokenizzato su separatori ' +
+       '(<code>_</code>, <code>+</code>, spazio, <code>.</code>, <code>,</code>). Es. "SIC_AGG.RLS" → tokens ["AGG", "RLS"].' +
+       '<br><b>Step 2 · Strip prefisso numerico</b>: "1ADE" → "ADE", "2AGG" → "AGG". Il numero è solo edizione.' +
+       '<br><b>Step 3 · Flag AGG</b>: se uno qualsiasi dei token contiene "AGG" la commessa è marcata come <i>Aggiornamento periodico</i>.' +
+       '<br><b>Step 4 · Match sigle</b>: ogni token viene confrontato con le 21 sigle. I matching definiscono <b>tipologie</b> e <b>macro-aree</b> della commessa.' +
+       '<br><b>Step 5 · Aggregazione</b>:' +
+       '<ul style="margin:4px 0 4px 18px">' +
+       '<li><b>KPI macro-area</b> = numero di commesse che hanno almeno UNA tipologia in quell\'area (no doppio conteggio se più tipologie nella stessa area).</li>' +
+       '<li><b>Top Tipologie</b> = count di commesse per ogni singola sigla (es. quante commesse contengono RLS).</li>' +
+       '<li><b>Aggiornamenti</b> = count commesse con flag AGG / totale = % rinnovi periodici.</li>' +
+       '<li><b>Pacchetto Completo</b> = count commesse con sigla TUTTA (clienti che fanno "tutta la sicurezza" in un solo contratto).</li>' +
+       '</ul>' +
+       '<b>Mapping sigle → macro-area</b>:' +
+       '<ul style="margin:4px 0 0 18px">' +
+       '<li><span style="color:#3b82f6">📄 Documentazione</span>: DVR, POS, RSPP</li>' +
+       '<li><span style="color:#10b981">🎓 Formazione</span>: ART37, FORM, PREP, RLS</li>' +
+       '<li><span style="color:#dc2626">🆘 Emergenze</span>: APS (Addetto Primo Soccorso), ADE (Addetto Emergenze antincendio)</li>' +
+       '<li><span style="color:#f59e0b">🩺 Visite Mediche</span>: VISITE, VISITA, MEDICHE</li>' +
+       '<li><span style="color:#8b5cf6">🔧 Specialistico</span>: HACCP, PLE, PIMUS, MULETTO, PES, GRU, DPI, SALDATORI, ALIMENT</li>' +
+       '<li><span style="color:#06b6d4">📦 Pacchetto</span>: TUTTA, 81/08</li>' +
+       '</ul>' +
+       'Clicca su qualsiasi <b>KPI</b>, <b>fetta del donut</b>, <b>barra</b> o <b>riga di tabella</b> per vedere l\'elenco delle commesse.' +
+       '</div></details>';
+
   const pctClass = totale ? (conTipo / totale * 100) : 0;
   h += '<p style="color:var(--text3);font-size:11px;margin-bottom:14px;padding:8px 12px;background:rgba(16,185,129,.1);border-left:3px solid #10b981;border-radius:4px">' +
        'Classificate: <b>' + fmt(conTipo) + '</b> / ' + fmt(totale) + ' (' + pctClass.toFixed(1) + '%). ' +
@@ -188,29 +217,28 @@ function renderSicurezza() {
   el.innerHTML = h;
 
   // ── Charts ──
-  // Macro-aree (donut)
+  // Macro-aree (donut) — clicca fetta per drill
   const areaOrder = ['Documentazione', 'Formazione', 'Emergenze', 'Visite Mediche', 'Specialistico', 'Pacchetto', 'Altro'];
   const areaLabels = areaOrder.filter(a => byArea[a]);
   makeDonut('chSicArea',
     areaLabels,
     areaLabels.map(a => byArea[a].cnt),
     areaLabels.map(a => SIC_AREA_COLOR[a] || '#64748b'));
+  _sicAttachChartClick('chSicArea', i => _sicDrillArea(areaLabels[i]));
 
-  // Tipologie (bar, top 12)
+  // Tipologie (bar, top 12) — clicca barra per drill tipologia
   const tipoEntries = Object.entries(byTipo).sort((a, b) => b[1].cnt - a[1].cnt).slice(0, 12);
   makeBar('chSicTipo',
     tipoEntries.map(e => e[0]),
     tipoEntries.map(e => e[1].cnt),
     '#10b981',
     false);
+  _sicAttachChartClick('chSicTipo', i => _sicDrillTipo(tipoEntries[i][0]));
 
-  // Trend anno: nuove vs AGG (stacked-ish: 2 serie sul bar generico). Faccio un solo bar con totali
-  // e annoto il tasso AGG nella tabella sotto. Per semplicità, mostro qui solo Nuove (linea base
-  // del business: pipeline organica) vs aggiornamenti come segnale di ricorrenza.
+  // Trend anno: nuove vs AGG (stacked) — clicca barra per drill anno + tipo
   const anniOrder = Object.keys(byAnno).filter(k => k !== 'N/D').sort();
   const ctxAnno = document.getElementById('chSicAnno');
   if (ctxAnno && anniOrder.length) {
-    // Uso Chart.js direttamente per stacked
     if (window._chSicAnno) window._chSicAnno.destroy();
     window._chSicAnno = new Chart(ctxAnno.getContext('2d'), {
       type: 'bar',
@@ -223,35 +251,66 @@ function renderSicurezza() {
       },
       options: {
         responsive: true, maintainAspectRatio: false,
+        onClick: (ev, elements) => {
+          if (!elements.length) return;
+          const anno = anniOrder[elements[0].index];
+          const isAgg = elements[0].datasetIndex === 1;
+          _sicDrillAnno(anno, isAgg);
+        },
         scales: { x: { stacked: true, ticks: { color: 'var(--text3)' } }, y: { stacked: true, ticks: { color: 'var(--text3)' } } },
         plugins: { legend: { position: 'bottom', labels: { color: 'var(--text2)' } } }
       }
     });
   }
 
-  // Ricavi per area (bar)
+  // Ricavi per area (bar) — clicca barra per drill area
   makeBar('chSicRic',
     areaLabels,
     areaLabels.map(a => byArea[a].ric),
     '#3b82f6',
     true);
+  _sicAttachChartClick('chSicRic', i => _sicDrillArea(areaLabels[i]));
 
-  // Tabella tipologie
-  buildTbl('tblSicTipi',
-    ['Tipologia', 'Macro-area', 'Commesse', 'Ricavi', 'Aggiornamenti', '% AGG sulla tipologia'],
-    Object.entries(byTipo).sort((a, b) => b[1].cnt - a[1].cnt).map(([tipo, v]) => {
+  // Tabella tipologie · rendering manuale per onclick per riga (drill tipologia)
+  const tblEl = document.getElementById('tblSicTipi');
+  if (tblEl) {
+    const tipiSorted = Object.entries(byTipo).sort((a, b) => b[1].cnt - a[1].cnt);
+    let th = '<thead><tr>' +
+      '<th>Tipologia</th><th>Macro-area</th>' +
+      '<th style="text-align:right">Commesse</th>' +
+      '<th style="text-align:right">Ricavi</th>' +
+      '<th style="text-align:right">Aggiornamenti</th>' +
+      '<th style="text-align:right">% AGG sulla tipologia</th>' +
+      '</tr></thead><tbody>';
+    tipiSorted.forEach(([tipo, v]) => {
       const meta = SIC_TIPI.find(t => t.id === tipo);
       const pctAgg = v.cnt ? (v.agg / v.cnt * 100) : 0;
-      return [
-        { display: tipo, val: tipo },
-        { display: meta ? meta.area : 'Altro', val: meta ? meta.area : 'zz' },
-        { display: fmt(v.cnt), val: v.cnt },
-        { display: fmtE(v.ric), val: v.ric },
-        { display: fmt(v.agg), val: v.agg },
-        { display: pctAgg.toFixed(1) + '%', val: pctAgg }
-      ];
-    }),
-    ['str', 'str', 'num', 'num', 'num', 'num']);
+      const safeTipo = tipo.replace(/'/g, "\\'");
+      th += '<tr class="clickable" onclick="_sicDrillTipo(\'' + safeTipo + '\')" title="Clicca per vedere le commesse della tipologia ' + tipo + '">' +
+        '<td><b>' + tipo + '</b></td>' +
+        '<td><span style="color:' + (SIC_AREA_COLOR[meta?.area] || '#64748b') + '">' + (meta ? meta.area : 'Altro') + '</span></td>' +
+        '<td style="text-align:right">' + fmt(v.cnt) + '</td>' +
+        '<td style="text-align:right">' + fmtE(v.ric) + '</td>' +
+        '<td style="text-align:right">' + fmt(v.agg) + '</td>' +
+        '<td style="text-align:right">' + pctAgg.toFixed(1) + '%</td>' +
+        '</tr>';
+    });
+    th += '</tbody>';
+    tblEl.innerHTML = th;
+  }
+}
+
+/* Aggancia onClick a un chart già creato da makeDonut/makeBar.
+   cb riceve l'indice della fetta/barra cliccata. */
+function _sicAttachChartClick(chartId, cb) {
+  const c = (typeof _charts !== 'undefined') ? _charts[chartId] : null;
+  if (!c) return;
+  c.options.onClick = (ev, elements) => {
+    if (!elements.length) return;
+    cb(elements[0].index);
+  };
+  c.canvas.style.cursor = 'pointer';
+  c.update();
 }
 
 function _sicDrillArea(area) {
@@ -267,4 +326,14 @@ function _sicDrillTipo(tipo) {
 function _sicDrillAgg() {
   const list = filtered.filter(c => _sicClassify(c.titolo).hasAgg);
   if (typeof drillDownItems === 'function') drillDownItems('Aggiornamenti periodici (' + list.length + ')', list);
+}
+
+function _sicDrillAnno(anno, isAgg) {
+  const list = filtered.filter(c => {
+    if (_sicAnno(c) !== anno) return false;
+    const has = _sicClassify(c.titolo).hasAgg;
+    return isAgg ? has : !has;
+  });
+  const lbl = (isAgg ? 'Aggiornamenti' : 'Nuove') + ' · anno ' + anno;
+  if (typeof drillDownItems === 'function') drillDownItems(lbl + ' (' + list.length + ')', list);
 }
