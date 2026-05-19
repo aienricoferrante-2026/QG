@@ -1,0 +1,58 @@
+name: Rigenera JSON dashboard da Supabase
+
+# Ogni 15 minuti pesca lo stato di Supabase qualifica-stw e riscrive i
+# JSON statici letti dalle dashboard. Modificati → commit + push.
+# Manuale: tab "Actions" → "Run workflow" per forzare.
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+jobs:
+  rigenera-json:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Materializza .env.supabase dalle Secrets
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_SERVICE_ROLE_KEY" ]; then
+            echo "::error::Mancano le secrets SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY"
+            exit 1
+          fi
+          {
+            echo "SUPABASE_URL=$SUPABASE_URL"
+            echo "SUPABASE_SERVICE_ROLE_KEY=$SUPABASE_SERVICE_ROLE_KEY"
+          } > .env.supabase
+
+      - name: Esporta da Supabase nei JSON
+        run: python3 tools/regenerate_json_from_supabase.py
+
+      - name: Pulisci .env.supabase
+        if: always()
+        run: rm -f .env.supabase
+
+      - name: Committa eventuali aggiornamenti
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if [ -n "$(git status --porcelain dashboard_*/data/ 2>/dev/null)" ]; then
+            git add dashboard_*/data/
+            git commit -m "🤖 Auto-sync JSON da Supabase ($(date -u +%Y-%m-%dT%H:%MZ))"
+            git push
+            echo "✅ JSON aggiornati e pushati."
+          else
+            echo "ℹ️ Nessuna modifica dai dati Supabase."
+          fi
