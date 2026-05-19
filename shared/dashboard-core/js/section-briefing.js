@@ -59,7 +59,13 @@ function _bfActiveFiltersText() {
       if (p.kind === 'custom' && p.from && p.to) lbl = p.from + ' → ' + p.to;
       else if (p.kind === 'year' && p.value) lbl = 'anno ' + p.value;
       else if (p.kind === 'month' && p.value) lbl = p.value;
-      out.push('📅 Periodo: <b>' + lbl + '</b>');
+      out.push('📅 Inizio: <b>' + lbl + '</b>');
+    }
+    if (typeof _periodFilterFine !== 'undefined' && _periodFilterFine && _periodFilterFine.kind !== 'all') {
+      const p = _periodFilterFine;
+      let lbl = p.kind;
+      if (p.kind === 'custom' && p.from && p.to) lbl = p.from + ' → ' + p.to;
+      out.push('🏁 Fine: <b>' + lbl + '</b>');
     }
   } catch (e) {}
   // Quick filters

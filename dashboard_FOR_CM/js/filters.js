@@ -4,6 +4,7 @@
    'custom' apre due input date da-a. */
 
 let _periodFilter = { kind: 'all', from: null, to: null };
+let _periodFilterFine = { kind: 'all', from: null, to: null };
 
 function _parseDDMMYYYY(s) {
   if (!s) return null;
@@ -25,9 +26,9 @@ function _fromIso(iso) {
   return new Date(parseInt(m[1]), parseInt(m[2]) - 1, parseInt(m[3]));
 }
 
-function _periodRange() {
+function _periodRangeFrom(state) {
   const today = new Date();
-  switch (_periodFilter.kind) {
+  switch (state.kind) {
     case 'all':
       return { from: null, to: null };
     case 'last30': {
@@ -48,16 +49,29 @@ function _periodRange() {
     case 'y2023':
       return { from: new Date(2023, 0, 1), to: new Date(2023, 11, 31, 23, 59, 59) };
     case 'custom':
-      return { from: _periodFilter.from, to: _periodFilter.to };
+      return { from: state.from, to: state.to };
     default:
       return { from: null, to: null };
   }
 }
 
+function _periodRange() { return _periodRangeFrom(_periodFilter); }
+function _periodRangeFine() { return _periodRangeFrom(_periodFilterFine); }
+
 function _periodPredicate(c) {
   const r = _periodRange();
   if (!r.from && !r.to) return true;
   const d = _parseDDMMYYYY(c.dataInizio) || _parseDDMMYYYY(c.dataPianInizio);
+  if (!d) return false;
+  if (r.from && d < r.from) return false;
+  if (r.to && d > r.to) return false;
+  return true;
+}
+
+function _periodPredicateFine(c) {
+  const r = _periodRangeFine();
+  if (!r.from && !r.to) return true;
+  const d = _parseDDMMYYYY(c.dataFine) || _parseDDMMYYYY(c.dataPianFine);
   if (!d) return false;
   if (r.from && d < r.from) return false;
   if (r.to && d > r.to) return false;
@@ -85,6 +99,26 @@ function setPeriodCustom(fromIso, toIso) {
     _periodFilter.to = t;
   }
   renderPeriodFilter();
+  applyFilters();
+}
+
+function setPeriodKindFine(kind) {
+  _periodFilterFine.kind = kind || 'all';
+  if (kind !== 'custom') { _periodFilterFine.from = null; _periodFilterFine.to = null; }
+  renderPeriodFilterFine();
+  applyFilters();
+}
+
+function setPeriodCustomFine(fromIso, toIso) {
+  _periodFilterFine.kind = 'custom';
+  _periodFilterFine.from = _fromIso(fromIso);
+  _periodFilterFine.to = _fromIso(toIso);
+  if (_periodFilterFine.to) {
+    const t = new Date(_periodFilterFine.to);
+    t.setHours(23, 59, 59, 999);
+    _periodFilterFine.to = t;
+  }
+  renderPeriodFilterFine();
   applyFilters();
 }
 
@@ -124,6 +158,45 @@ function renderPeriodFilter() {
   const info = document.getElementById('pf-info');
   if (info && typeof D !== 'undefined' && D) {
     const inRange = D.filter(_periodPredicate).length;
+    info.textContent = inRange + ' commesse nel periodo';
+  }
+}
+
+function renderPeriodFilterFine() {
+  const el = document.getElementById('periodFilterFine');
+  if (!el) return;
+  const opts = [
+    { v: 'all', label: 'Tutto' },
+    { v: 'last30', label: 'Ultimi 30 giorni' },
+    { v: 'last90', label: 'Ultimi 90 giorni' },
+    { v: 'last12m', label: 'Ultimi 12 mesi' },
+    { v: 'y2026', label: '2026' },
+    { v: 'y2025', label: '2025' },
+    { v: 'y2024', label: '2024' },
+    { v: 'y2023', label: '2023' },
+    { v: 'custom', label: 'Personalizza…' }
+  ];
+  let h = '<span class="qf-label">Periodo (data fine):</span>';
+  h += '<select id="pff-select" onchange="setPeriodKindFine(this.value)" class="period-select">';
+  opts.forEach(o => {
+    h += '<option value="' + o.v + '"' + (_periodFilterFine.kind === o.v ? ' selected' : '') + '>' + o.label + '</option>';
+  });
+  h += '</select>';
+  if (_periodFilterFine.kind === 'custom') {
+    const fromIso = _toIso(_periodFilterFine.from);
+    const toIso = _toIso(_periodFilterFine.to);
+    h += '<input type="date" id="pff-from" value="' + fromIso + '" class="period-date" onchange="setPeriodCustomFine(this.value, document.getElementById(\'pff-to\').value)">';
+    h += '<span style="color:var(--text2);font-size:11px">→</span>';
+    h += '<input type="date" id="pff-to" value="' + toIso + '" class="period-date" onchange="setPeriodCustomFine(document.getElementById(\'pff-from\').value, this.value)">';
+  }
+  if (_periodFilterFine.kind !== 'all') {
+    h += '<span class="period-info" id="pff-info"></span>';
+  }
+  el.innerHTML = h;
+
+  const info = document.getElementById('pff-info');
+  if (info && typeof D !== 'undefined' && D) {
+    const inRange = D.filter(_periodPredicateFine).length;
     info.textContent = inRange + ' commesse nel periodo';
   }
 }
@@ -241,6 +314,7 @@ function rebuildFilterCounts() {
 function applyFilters() {
   filtered = D.filter(c => {
     if (!_periodPredicate(c)) return false;
+    if (!_periodPredicateFine(c)) return false;
     for (const f of FILTER_DEFS) {
       if (!MultiSelect.matches(f.id, _norm(c[f.key]))) return false;
     }
@@ -251,6 +325,7 @@ function applyFilters() {
   renderFilteredKpis();
   renderActiveFilters();
   if (typeof renderPeriodFilter === 'function') renderPeriodFilter();
+  if (typeof renderPeriodFilterFine === 'function') renderPeriodFilterFine();
   renderCurrentSection();
 }
 
@@ -258,14 +333,17 @@ function resetFilters() {
   MultiSelect.resetAll();
   _quickFilter = null;
   _periodFilter = { kind: 'all', from: null, to: null };
+  _periodFilterFine = { kind: 'all', from: null, to: null };
   renderQuickFilters();
   if (typeof renderPeriodFilter === 'function') renderPeriodFilter();
+  if (typeof renderPeriodFilterFine === 'function') renderPeriodFilterFine();
   applyFilters();
 }
 
 function initQuickFilters() {
   renderQuickFilters();
   if (typeof renderPeriodFilter === 'function') renderPeriodFilter();
+  if (typeof renderPeriodFilterFine === 'function') renderPeriodFilterFine();
 }
 
 function renderActiveFilters() {
