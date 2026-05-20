@@ -30,8 +30,13 @@ for line in open('.env.supabase'):
         k, v = line.split('=', 1)
         ENV[k.strip()] = v.strip()
 
-SUPABASE_URL = ENV['SUPABASE_URL']
-SERVICE_KEY = ENV['SUPABASE_SERVICE_ROLE_KEY']
+SUPABASE_URL = ENV['SUPABASE_URL'].strip().rstrip('/')
+# Defensive: se l'utente incolla la secret senza prefisso https://, lo aggiungiamo.
+# Idem se per sbaglio ha lasciato `http://` o slash multipli iniziali.
+if not SUPABASE_URL.startswith(('http://', 'https://')):
+    SUPABASE_URL = 'https://' + SUPABASE_URL.lstrip('/')
+SERVICE_KEY = ENV['SUPABASE_SERVICE_ROLE_KEY'].strip()
+print(f'[supabase] URL: {SUPABASE_URL[:35]}... (len={len(SUPABASE_URL)})')
 
 BU_OUTPUT = {
     'FOR':     'dashboard_FOR_CM/data/commesse_for.json',
