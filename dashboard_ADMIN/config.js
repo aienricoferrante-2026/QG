@@ -72,10 +72,18 @@ window.STW_ADMIN = {
   dateCols: ['dataInizio','dataPianInizio','dataFine','dataAssegnazione','dataUltimaNota'],
 
   /* Mappa header XLSX umano (italiano, come Qnet esporta in Excel) → chiave
-     camelCase usata dal DB. Senza questa mappa, un Excel "vero" finisce tutto
-     nel meta JSONB e le colonne fisse del DB restano vuote → le dashboard non
-     vedono i dati. I JSON Qnet hanno già le chiavi camelCase e bypassano. */
+     camelCase usata dal DB / dalle dashboard. Senza questa mappa, un Excel
+     "vero" finisce tutto nel meta JSONB e le colonne fisse del DB restano
+     vuote → le dashboard non vedono i dati. I JSON Qnet hanno già chiavi
+     camelCase e bypassano.
+
+     Struttura:
+       columnAliases       → mapping comune a TUTTE le BU
+       columnAliasesByBu   → override BU-specifici (es. 'Data Inizio Lavorazione'
+                             è 'isoDataInizioLav' per ISO ma 'aplDataInizioLav'
+                             per APL_RES). I per-BU vincono sui comuni. */
   columnAliases: {
+    // === Anagrafica / identificativi ===
     'ID': 'id',
     'Titolo': 'titolo',
     'Contratto': 'contratto',
@@ -91,13 +99,14 @@ window.STW_ADMIN = {
     'Indirizzo': 'indirizzo',
     'Funzione aziendale': 'funzione',
     'Funzione': 'funzione',
+    // === Status e workflow ===
     'Status': 'status',
     'Stato Lavorazione': 'statoLav',
     'Stato Corso': 'statoCorso',
     'Stato Classe': 'statoClasse',
     'Stato Pagamento': 'statoPagamento',
     'Avanzamento': 'avanzamento',
-    '% Avanzamento Ec.': 'avanzamentoRaw',
+    // === Economici fissi (colonne DB) ===
     'Importo Consulenza': 'consulenza',
     'Totale Ricavi': 'ricavi',
     'Totale Ricavo': 'ricavi',
@@ -114,22 +123,148 @@ window.STW_ADMIN = {
     'Fin. Incassi Tot.': 'finIncassiTot',
     'Fin. Uscite Tot.': 'finUsciteTot',
     'Fin. Delta Tot.': 'finDeltaTot',
+    // === Economici meta (% Ec.) — vanno in meta JSONB ===
+    '% Avanzamento Ec.': 'pctAvanzEc',
+    '% Ricavi Economici': 'pctRicaviEc',
+    '% Costi Economici': 'pctCostiEc',
+    '% MOL Economico':   'pctMolEc',
+    'Importo Ente':      'ente',
+    // === Persone ===
     'Agente': 'agente',
     'Responsabile': 'responsabile',
     'Segnalatore': 'segnalatore',
     'Contatto': 'contatto',
+    // === Date ===
     'Data Inizio': 'dataInizio',
     'Data Pian. Inizio': 'dataPianInizio',
     'Data Fine': 'dataFine',
     'Data Assegnazione': 'dataAssegnazione',
     'Data Ultima Nota': 'dataUltimaNota',
     'Ultima Nota': 'ultimaNota',
+    // === Free text / link ===
     'Descrizione': 'descrizione',
     'Note': 'note',
     'Link Commessa': 'qnetLink',
+    // === FOR-specifici (in meta) ===
     'Corso': 'corso',
     'Codice Classe': 'codClasse',
     'Totale Ore': 'ore',
     'ED': 'ed',
+    'Data Esame': 'dataEsame',
+    'Euro Residuo Effettivo': 'euroResiduo',
+    'Num. Discenti': 'numDiscenti',
+    'Totale Ricevuto Regione': 'totRicevutoRegione',
+    'Anticipo Importo': 'anticipoImporto',
+    'Anticipo Id. Richiesta': 'anticipoIdRichiesta',
+    'Anticipo Data Richiesta': 'anticipoDataRichiesta',
+    'Anticipo € da Decreto': 'anticipoDecreto',
+    'Anticipo Data Accredito': 'anticipoDataAccredito',
+    'Anticipo Decreto Numero e Data': 'anticipoDecretoNum',
+    'Saldo Importo': 'saldoImporto',
+    'Saldo Id Richiesta': 'saldoIdRichiesta',
+    'Saldo Data Richiesta': 'saldoDataRichiesta',
+    'Saldo € da Decreto': 'saldoDecreto',
+    'Saldo Data Accredito': 'saldoDataAccredito',
+    'Saldo Decreto Numero e Data': 'saldoDecretoNum',
+    // === OFFERTE ===
+    'Opportunità': 'opportunita',
+    'Categoria': 'categoria',
+    'Tipo': 'tipo',
+    'Anno': 'anno',
+    'Data': 'data',
+    'Data Contratto': 'dataContratto',
+    'Totale': 'totale',
+    'Rifiuto': 'rifiuto',
+    // === OPP_FOR (opportunità formazione GOL) ===
+    'Operatore': 'operatore',
+    'CPI': 'cpi',
+    'Provincia': 'provincia',
+    'Corso di interesse': 'corsoInteresse',
+    'Tipologia Corso': 'tipologiaCorso',
+    'Fonte': 'fonte',
+    'Stato Preventivo': 'statoPrev',
+    'Stato': 'status',
+    'Rendicontazione': 'rendicontazione',
+    'Annualità': 'annualita',
+    'Nome': 'nome',
+    'Cognome': 'cognome',
+    'Telefono': 'telefono',
+    'Email': 'email',
+    'Codice Fiscale': 'codiceFiscale',
+    'Codice fiscale': 'codiceFiscale',
+  },
+
+  /* Override per BU. Per le colonne con nome italiano identico ma mapping
+     diverso a seconda della BU (es. "Data Inizio Lavorazione" diventa
+     isoDataInizioLav per ISO ma aplDataInizioLav per APL_RES).
+     Le voci qui dentro vincono su columnAliases. */
+  columnAliasesByBu: {
+    ISO: {
+      'Ente di Riferimento': 'isoEnte',
+      'Scopo proposto': 'isoScopoProposto',
+      'Scopo in uscita': 'isoScopoUscita',
+      'Stato del Certificato': 'isoStatoCert',
+      'Urgenza emissione': 'isoUrgenza',
+      'Settore': 'isoSettore',
+      'Intervista in sede': 'isoIntervistaSede',
+      'Ore Lavorazione': 'isoOreLav',
+      'Data Inizio Lavorazione': 'isoDataInizioLav',
+      'Data Fine Lavorazione': 'isoDataFineLav',
+      'Data Verifica': 'isoDataVerifica',
+      'Data Ultima Chiamata': 'isoDataUltimaChiamata',
+      'Accordo sui Pagamenti': 'isoAccordoPagamenti',
+    },
+    APL_RES: {
+      'Data Inizio Lavorazione': 'aplDataInizioLav',
+      'Data Fine Lavorazione': 'aplDataFineLav',
+      'Numero Risorse': 'aplNumeroRisorse',
+      'Profilo Risorse': 'aplProfilo',
+    },
+    SOA: {
+      'Soa Attestante': 'soaAttestante',
+      'SOA Attestante': 'soaAttestante',
+      'Appartenenza Consorzio': 'consorzioFlag',
+      'Nome del Consorzio': 'consorzio',
+      "Nome dell'Ente di Certiifcazione 9001": 'enteCert9001',
+      'Scadenza Ente di Certiifcazione 9001': 'scadenzaCert',
+    },
+    GAR: {
+      'Protocollo': 'garProtocollo',
+      'Data Inserimento': 'garDataInserimento',
+      'Importo Gara': 'garImporto',
+      'CIG': 'garCIG',
+      'Data scadenza': 'garDataScadenza',
+      'Ente Appaltante': 'garEnte',
+      'Esito': 'garEsito',
+      'Note Esito': 'garNoteEsito',
+      'Oggetto': 'garOggetto',
+      'Categoria e Classe Servizi': 'garCategoria',
+    },
+    FIA: {
+      // FIA usa gli stessi campi gara di GAR
+      'Protocollo': 'garProtocollo',
+      'Data Inserimento': 'garDataInserimento',
+      'Importo Gara': 'garImporto',
+      'CIG': 'garCIG',
+      'Data scadenza': 'garDataScadenza',
+      'Ente Appaltante': 'garEnte',
+      'Esito': 'garEsito',
+      'Note Esito': 'garNoteEsito',
+    },
+    AVV: {
+      'CIG': 'avvCIG',
+      'Categoria': 'avvCategoria',
+      'Classifica': 'avvClassifica',
+      'Tipo': 'avvTipo',
+      'Anno': 'avvAnno',
+      'Esito': 'avvEsito',
+    },
+    GDPR: {
+      'Accordo sui Pagamenti': 'gdprAccordo',
+      'Insoluti': 'gdprInsoluti',
+    },
+    SIC: {
+      'Ente di Riferimento': 'ente',
+    },
   },
 };

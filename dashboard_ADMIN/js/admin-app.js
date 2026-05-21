@@ -60,13 +60,17 @@ function detectFileRoute(filename) {
 
 /* Normalizza un record da XLSX umano (header italiano) a chiavi camelCase.
    Se le chiavi sono già camelCase (JSON Qnet), restituisce il record intatto.
-   Ritorna {rec, mapped}: mapped=true se almeno una chiave è stata tradotta. */
-function aliasKeys(rec) {
-  const map = (window.STW_ADMIN && window.STW_ADMIN.columnAliases) || {};
+   Ritorna {rec, mapped}: mapped=true se almeno una chiave è stata tradotta.
+   `bu` opzionale → applica anche columnAliasesByBu[bu] (vince sui comuni). */
+function aliasKeys(rec, bu) {
+  const cfg = window.STW_ADMIN || {};
+  const common = cfg.columnAliases || {};
+  const byBu = (cfg.columnAliasesByBu && bu && cfg.columnAliasesByBu[bu]) || {};
   const out = {};
   let mapped = false;
   for (const [k, v] of Object.entries(rec)) {
-    const aliased = map[k] || map[k.trim()];
+    // BU-specific vince sul comune; .trim() come fallback per spazi spuri
+    const aliased = byBu[k] || byBu[k.trim()] || common[k] || common[k.trim()];
     const key = aliased || k;
     if (aliased) mapped = true;
     // Se la stessa chiave esiste già (es. 2 colonne "Data Fine") tieni il primo
@@ -173,7 +177,7 @@ async function processFile(file, statusEl, forcedRoute) {
   let skipped = 0;
   let aliased = 0;
   for (const raw of rows) {
-    const { rec: r, mapped } = aliasKeys(raw);
+    const { rec: r, mapped } = aliasKeys(raw, route.bu);
     if (mapped) aliased++;
     const idVal = r.id || r.ID || r.Id;
     if (!idVal) { skipped++; continue; }
