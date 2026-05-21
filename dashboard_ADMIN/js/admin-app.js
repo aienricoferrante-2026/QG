@@ -58,6 +58,25 @@ function detectFileRoute(filename) {
   return null;
 }
 
+/* Normalizza un record da XLSX umano (header italiano) a chiavi camelCase.
+   Se le chiavi sono già camelCase (JSON Qnet), restituisce il record intatto.
+   Ritorna {rec, mapped}: mapped=true se almeno una chiave è stata tradotta. */
+function aliasKeys(rec) {
+  const map = (window.STW_ADMIN && window.STW_ADMIN.columnAliases) || {};
+  const out = {};
+  let mapped = false;
+  for (const [k, v] of Object.entries(rec)) {
+    const aliased = map[k] || map[k.trim()];
+    const key = aliased || k;
+    if (aliased) mapped = true;
+    // Se la stessa chiave esiste già (es. 2 colonne "Data Fine") tieni il primo
+    // valore non-vuoto. Excel di Qnet duplica spesso colonne con stesso label.
+    if (key in out && (out[key] !== '' && out[key] != null) && (v === '' || v == null)) continue;
+    out[key] = v;
+  }
+  return { rec: out, mapped };
+}
+
 function splitRecord(rec, fixedCols, dateCols) {
   /* Ritorna { cols, meta }. cols ha chiavi snake_case (= colonne DB).
      meta è oggetto JSON con tutto il resto. */
@@ -152,7 +171,10 @@ async function processFile(file, statusEl, forcedRoute) {
   const dates = cfg.dateCols;
   const records = [];
   let skipped = 0;
-  for (const r of rows) {
+  let aliased = 0;
+  for (const raw of rows) {
+    const { rec: r, mapped } = aliasKeys(raw);
+    if (mapped) aliased++;
     const idVal = r.id || r.ID || r.Id;
     if (!idVal) { skipped++; continue; }
     const { cols, meta } = splitRecord(r, fixed, dates);
@@ -160,6 +182,7 @@ async function processFile(file, statusEl, forcedRoute) {
     if (route.bu) rec.bu = route.bu;
     records.push(rec);
   }
+  if (aliased > 0) diagLog(`  alias italiano→camelCase applicati su ${aliased}/${rows.length} righe`);
 
   // Upsert batch da 500
   const conflict = route.table === 'commesse' ? 'bu,id' : 'id';
