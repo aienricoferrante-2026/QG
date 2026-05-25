@@ -1,0 +1,196 @@
+{
+  "_meta": "Descrizioni umane dei campi camelCase. Usate da tools/api_docs/generator.py per arricchire la doc. Aggiornabile a mano senza toccare codice Python.",
+
+  "_anagrafica": {
+    "id": "ID univoco Qnet della commessa",
+    "titolo": "Titolo descrittivo della commessa",
+    "contratto": "Codice contratto",
+    "idContratto": "ID Qnet del contratto",
+    "tipoCommessa": "Tipologia commessa (es. Lavorazione, Progetto interno)",
+    "cliente": "Ragione sociale cliente",
+    "societa": "Società Gruppo Qualifica che eroga (15 società)",
+    "sede": "Sede legale cliente (Excel)",
+    "sedeOp": "Sede operativa cliente",
+    "sedeNorm": "Sede normalizzata (post-elaborazione)",
+    "citta": "Città cliente",
+    "regione": "Regione cliente",
+    "indirizzo": "Indirizzo cliente",
+    "funzione": "Funzione aziendale (linea di business)",
+    "sector": "BU di appartenenza (FOR, ISO, SIC, ecc.)"
+  },
+
+  "_status": {
+    "status": "Status macro (In Lavorazione, Concluso, Annullato, ecc.)",
+    "statoLav": "Stato lavorazione interno (workflow di dettaglio)",
+    "statoCorso": "Stato del corso (FOR-specifico)",
+    "statoClasse": "Stato della classe corso (FOR-specifico)",
+    "statoPagamento": "Stato pagamento commessa",
+    "avanzamento": "% avanzamento dichiarato (0-100)",
+    "avanzamentoRaw": "Avanzamento numerico raw"
+  },
+
+  "_economici": {
+    "consulenza": "Importo consulenza (€)",
+    "ricavi": "Totale ricavi (€)",
+    "costi": "Totale costi (€)",
+    "mol": "Margine Operativo Lordo (€)",
+    "ricaviDocum": "Ricavi documentali fatturati (€)",
+    "costiDocum": "Costi documentali ricevuti (€)",
+    "molDocum": "MOL documentale (€)",
+    "ecRicaviCons": "Ricavi economici consuntivati (€)",
+    "ecCostiCons": "Costi economici consuntivati (€)",
+    "ecMolCons": "MOL economico consuntivato (€)",
+    "giaIncassato": "Importo già incassato (€)",
+    "daIncassare": "Importo da incassare (€)",
+    "finIncassiTot": "Totale incassi finanziari (€)",
+    "finUsciteTot": "Totale uscite finanziarie (€)",
+    "finDeltaTot": "Delta finanziario (€)",
+    "pctAvanzEc": "% Avanzamento economico",
+    "pctRicaviEc": "% Ricavi economici sul totale",
+    "pctCostiEc": "% Costi economici sul totale",
+    "pctMolEc": "% MOL economico sul totale",
+    "ente": "Importo Ente certificatore / pagato all'ente (€)"
+  },
+
+  "_persone": {
+    "agente": "Commerciale partecipante (referente vendita)",
+    "responsabile": "Tecnico responsabile esecuzione",
+    "segnalatore": "Rete segnalatore (chi ha portato il lead)",
+    "contatto": "Contatto operativo cliente"
+  },
+
+  "_date": {
+    "dataInizio": "Data inizio effettiva (dd-mm-yyyy)",
+    "dataPianInizio": "Data inizio pianificata",
+    "dataFine": "Data fine effettiva",
+    "dataAssegnazione": "Data assegnazione al tecnico",
+    "dataUltimaNota": "Data dell'ultima nota inserita",
+    "ultimaNota": "Testo ultima nota"
+  },
+
+  "_link_testo": {
+    "descrizione": "Descrizione estesa",
+    "note": "Note libere",
+    "qnetLink": "URL Qnet della commessa",
+    "erpLink": "URL ERP della commessa"
+  },
+
+  "FOR": {
+    "corso": "Nome corso",
+    "codClasse": "Codice classe corso",
+    "ore": "Ore totali corso",
+    "ed": "Edizione corso",
+    "dataEsame": "Data esame corso",
+    "euroResiduo": "Residuo da incassare (€)",
+    "numDiscenti": "Numero discenti corso",
+    "totRicavo": "Totale ricavo aggregato (€)",
+    "totRicevutoRegione": "Totale ricevuto da Regione (€)",
+    "anticipoImporto": "Importo anticipo Regione (€)",
+    "anticipoIdRichiesta": "ID richiesta anticipo",
+    "anticipoDataRichiesta": "Data richiesta anticipo",
+    "anticipoDecreto": "Importo da decreto anticipo (€)",
+    "anticipoDataAccredito": "Data accredito anticipo",
+    "anticipoDecretoNum": "Numero e data decreto anticipo",
+    "saldoImporto": "Importo saldo Regione (€)",
+    "saldoIdRichiesta": "ID richiesta saldo",
+    "saldoDataRichiesta": "Data richiesta saldo",
+    "saldoDecreto": "Importo da decreto saldo (€)",
+    "saldoDataAccredito": "Data accredito saldo",
+    "saldoDecretoNum": "Numero e data decreto saldo"
+  },
+
+  "SOA": {
+    "soaAttestante": "Nome ente SOA attestante",
+    "consorzioFlag": "Appartiene a un consorzio (sì/no)",
+    "consorzio": "Nome del consorzio",
+    "enteCert9001": "Ente che ha certificato ISO 9001",
+    "scadenzaCert": "Scadenza certificazione ISO 9001"
+  },
+
+  "ISO": {
+    "isoEnte": "Ente certificatore ISO di riferimento",
+    "isoStandard": "Standard ISO singolo (es. 9001)",
+    "isoStandards": "Lista standard ISO multipli (es. \"9001+14001\")",
+    "isoScopoProposto": "Scopo proposto alla certificazione",
+    "isoScopoUscita": "Scopo finale rilasciato",
+    "isoStatoCert": "Stato certificato (attivo/sospeso/revocato)",
+    "isoUrgenza": "Urgenza emissione certificato",
+    "isoSettore": "Settore EA della certificazione",
+    "isoIntervistaSede": "Intervista in sede effettuata (sì/no)",
+    "isoOreLav": "Ore lavorazione tecnica",
+    "isoDataInizioLav": "Data inizio lavorazione audit",
+    "isoDataFineLav": "Data fine lavorazione audit",
+    "isoDataVerifica": "Data verifica ispettiva",
+    "isoDataUltimaChiamata": "Data ultima chiamata cliente",
+    "isoAccordoPagamenti": "Accordo pagamenti raggiunto (sì/no)",
+    "isoTipoAudit": "Tipo audit (Stage1, Stage2, Sorveglianza, Rinnovo)",
+    "isoStatoPagamentoTxt": "Stato pagamento testuale (ISO)"
+  },
+
+  "APL_RES": {
+    "aplDataInizioLav": "Data inizio lavorazione (APL)",
+    "aplDataFineLav": "Data fine lavorazione (APL)",
+    "aplNumeroRisorse": "Numero risorse richieste (APL_RES)",
+    "aplProfilo": "Profilo risorse richieste (APL_RES)"
+  },
+
+  "GAR": {
+    "garProtocollo": "Numero protocollo gara",
+    "garDataInserimento": "Data inserimento gara a sistema",
+    "garImporto": "Importo base gara (€)",
+    "garCIG": "Codice Identificativo Gara (CIG)",
+    "garDataScadenza": "Data scadenza presentazione offerta",
+    "garEnte": "Ente appaltante",
+    "garEsito": "Esito gara (Aggiudicata, Non aggiudicata, ecc.)",
+    "garNoteEsito": "Note esito gara",
+    "garOggetto": "Oggetto della gara",
+    "garCategoria": "Categoria e classe servizi"
+  },
+
+  "AVV": {
+    "avvCIG": "CIG gara per cui si fornisce avvalimento",
+    "avvCategoria": "Categoria avvalimento (singola)",
+    "avvCategorie": "Lista categorie avvalimento",
+    "avvClassifica": "Classifica SOA avvalimento (singola)",
+    "avvClassifiche": "Lista classifiche SOA",
+    "avvTipo": "Tipo avvalimento",
+    "avvAnno": "Anno avvalimento",
+    "avvEsito": "Esito avvalimento"
+  },
+
+  "GDPR": {
+    "gdprAccordo": "Accordo sui pagamenti GDPR (sì/no)",
+    "gdprInsoluti": "Importo insoluti (€)",
+    "gdprStatoPag": "Stato pagamento GDPR"
+  },
+
+  "OFFERTE": {
+    "opportunita": "ID opportunità collegata all'offerta",
+    "categoria": "Categoria offerta",
+    "tipo": "Tipo offerta",
+    "anno": "Anno offerta",
+    "data": "Data offerta",
+    "dataContratto": "Data firma contratto (se accettata)",
+    "totale": "Totale offerta (€)",
+    "rifiuto": "Motivazione rifiuto (se rifiutata)",
+    "dataFull": "Data offerta completa"
+  },
+
+  "OPP_FOR": {
+    "operatore": "Operatore CPI di riferimento",
+    "cpi": "Centro per l'Impiego di pertinenza",
+    "provincia": "Provincia del lead",
+    "corsoInteresse": "Corso di interesse",
+    "tipologiaCorso": "Tipologia corso (IFTS, ITS, ecc.)",
+    "fonte": "Fonte del lead (campagna marketing)",
+    "statoPrev": "Stato preventivo",
+    "rendicontazione": "Stato rendicontazione",
+    "annualita": "Annualità del bando",
+    "nome": "Nome candidato",
+    "cognome": "Cognome candidato",
+    "telefono": "Telefono candidato",
+    "email": "Email candidato",
+    "codiceFiscale": "Codice fiscale candidato",
+    "assegnatoA": "Operatore a cui è assegnato il lead"
+  }
+}
