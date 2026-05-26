@@ -89,10 +89,36 @@ togliendo il flag.
 
 1. Claude legge il tuo Excel compilato (5 min)
 2. Genera la mappa "Qnet → camelCase" automatica
-3. Scrive il cron sync Qnet API V2 → Supabase
-4. Le webapp partono in automatico con i **campi reali** (non più
-   "presunti" da Claude leggendo gli Excel)
-5. Da quel momento: **addio export Excel manuale** per tutto il gruppo
+3. Per i campi che NON sono in V2 (probabilmente la maggioranza dei 168):
+   **scegli tu come procedere** (vedi sotto)
+4. Scrive il cron sync Qnet API V2 → Supabase per i campi disponibili
+5. Le webapp partono in automatico con i **campi reali**
+
+## Proposta extra: Claude può scriverti la V2.1
+
+Visto che probabilmente molti campi (~70%) sono in DB ma non esposti
+da V2, ti propongo:
+
+**Claude scrive lui la PR Laravel pronta da applicare per estendere
+V2 → V2.1** (~10-15 nuovi endpoint, ~8-12h di suo lavoro). Tu fai
+solo review + test staging + deploy.
+
+| Opzione | Tempo tuo | Pro |
+|---|---|---|
+| 🅐 Claude scrive, tu reviewa | ~2h review | Risparmi 8-10h |
+| 🅑 Spec di Claude, scrivi tu | ~8-12h | Controllo totale del codice |
+| 🅒 Niente V2.1, sync solo su campi V2 | 0h | Restano alcuni campi via Excel manuale |
+
+**Tutta la roba è in READ/INSERT/UPDATE, MAI DELETE** (vedi tabella
+safe-write sopra) — quindi qualsiasi opzione è zero rischio per Qnet.
+
+Indicami nella mail di risposta quale preferisci.
+
+## Da quel momento
+
+**Addio export Excel manuale per tutto il gruppo** (almeno per i campi
+coperti). Tu non ricevi più richieste di "rifammi l'export per la
+dashboard X"; tutto è automatico.
 
 ## File allegato
 
