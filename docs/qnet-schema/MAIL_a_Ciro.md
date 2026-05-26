@@ -55,6 +55,16 @@ Per ognuno:
 - Se sono in JSON / dati liberi → scrivi `JSONB`
 - Se sono in più tabelle → indica quella primaria + note nella K
 
+**🔴 Importante per la colonna J (Endpoint API V2)**:
+Sappiamo che V2 oggi è stata pensata principalmente per Q-WORK e probabilmente NON espone tutti i 168 campi (specialmente quelli economici tipo `consulenza`, `mol`, `anticipoImporto`, e quelli BU-specific tipo `soaAttestante`, `garCIG`).
+
+Per ogni campo, nella colonna J scrivi:
+- L'endpoint se è già esposto (es. `GET /api/v2/orders`)
+- `NON IN V2` se il campo esiste in DB ma non c'è endpoint
+- `DA AGGIUNGERE A V2` se basta una piccola modifica (con un'indicazione di come)
+
+Questo ci dice esattamente quanta sync è automatizzabile vs quanto serve estendere V2 o trovare un altro modo.
+
 **Tempo stimato**: 20-30 minuti.
 
 ## Garanzia di sicurezza
