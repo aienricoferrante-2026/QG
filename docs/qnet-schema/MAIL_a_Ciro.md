@@ -133,6 +133,27 @@ dashboard X"; tutto è automatico.
 Nella prima scheda dell'Excel ("📖 Istruzioni") trovi tutti i dettagli
 operativi su cosa mettere in ogni colonna.
 
+## Bonus: vedi anche il PIANO COMPLETO prima di iniziare
+
+Per darti il contesto totale di cosa Claude vuole costruire (così puoi
+darmi indicazioni anche di approccio, non solo di nomi campo), ho pubblicato
+il draft completo qui:
+
+🔗 https://github.com/aienricoferrante-2026/qualifica-platform/tree/claude/stw-api-v1-gateway/apps/hub/docs/qnet-v2.1-draft
+
+Dentro trovi:
+- `README.md` — flusso completo e tempi stimati
+- `ENDPOINTS_LIST.md` — lista dei ~12 endpoint pianificati con esempi
+  di response
+- `openapi.yaml` — contratto Swagger 3.0
+- `safety-policy.md` — policy READ/INSERT/UPDATE sì, DELETE mai
+- `reference-laravel/` — template Laravel di esempio (Controller,
+  Resource, Routes) per farti vedere il pattern proposto
+
+Se l'approccio Laravel proposto NON ti convince (namespace, middleware,
+naming, ecc.) — fammelo sapere PRIMA così riadatto la spec. Meglio
+sistemare lo stile ora che dopo.
+
 Grazie mille — questo passo sblocca tutto il roadmap webapp dei prossimi
 mesi.
 
