@@ -41,14 +41,20 @@ umani in italiano) ma non sappiamo:
 Ti allego un Excel con tutti i 168 campi che le webapp usano oggi.
 Per ognuno:
 
-- ✅ **Prime 6 colonne** già piene (nome che usiamo a video, header Excel
-  italiano, descrizione, esempio reale, coverage). Non toccarle.
+- ✅ **Prime 7 colonne** già piene (nome che usiamo a video, header Excel
+  italiano, descrizione, esempio reale, coverage, **dove viene usato il
+  campo** — dashboard + webapp). Non toccarle.
 - 🟡 **Ultime 5 colonne** (in giallo) sono per te:
   - Tabella Qnet
   - Nome campo SQL
   - Tipo SQL
   - Endpoint API V2
   - Note
+
+**Sulla colonna G "Usato in"**: ti mostra dove ogni campo viene
+consumato oggi (es. "Dashboard CM-FOR · WeA CON · Q-WORK"). Ti dà il
+contesto: campi usati da molti consumatori sono critici, campi usati
+da uno solo possono attendere se complessi.
 
 **Per i campi speciali**:
 - Se NON esistono in Qnet perché li calcoliamo noi → scrivi `CALCOLATO`

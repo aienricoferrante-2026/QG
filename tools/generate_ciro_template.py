@@ -21,6 +21,26 @@ from api_docs import analyzer
 OUT_PATH = os.path.join(ROOT, 'docs', 'qnet-schema', 'qnet-fields-template-per-ciro.xlsx')
 os.makedirs(os.path.dirname(OUT_PATH), exist_ok=True)
 
+# ── Consumatori: dove ogni campo viene usato oggi o sarà usato a breve ──
+# Aiuta Ciro a capire il contesto e l'impatto di ogni campo.
+WEBAPP_USERS = {
+    'common':  ['Dashboard CM-* (tutte le 11 BU)', 'WeA CdG · Controllo di Gestione',
+                'WeA CON · Q-CONT Contabilità', 'Q-WORK', 'Hub · dizionario campi'],
+    'FOR':     ['Dashboard CM-FOR', 'Dashboard FOR_OPP', 'WeA CON (pagamenti regionali)'],
+    'ISO':     ['Dashboard CM-ISO', 'WeA ISO · webapp dedicata'],
+    'SIC':     ['Dashboard CM-SIC', 'Q-SIC81 · webapp sicurezza 81/08'],
+    'SOA':     ['Dashboard CM-SOA'],
+    'AVV':     ['Dashboard CM-AVV'],
+    'GAR':     ['Dashboard CM-GAR'],
+    'FIA':     ['Dashboard CM-FIA'],
+    'GDPR':    ['Dashboard CM-GDPR'],
+    'IST':     ['Dashboard CM-IST'],
+    'APL_PAL': ['Dashboard CM-APL_PAL'],
+    'APL_RES': ['Dashboard CM-APL_RES'],
+    'OFFERTE': ['Dashboard offerte', 'WeA Sales · CRM commerciale'],
+    'OPP_FOR': ['Dashboard FOR_OPP', 'WeA Sales · CRM commerciale'],
+}
+
 # ── Stili ──
 HDR_FILL = PatternFill(start_color='1F4E78', end_color='1F4E78', fill_type='solid')
 HDR_FONT = Font(color='FFFFFF', bold=True, size=11)
@@ -55,13 +75,16 @@ def build_instructions_sheet(ws):
         '   D · Descrizione      · cosa rappresenta in italiano',
         '   E · Esempio valore   · un valore reale visto nei nostri dati',
         '   F · Coverage         · su quante commesse il campo è popolato (es. "613/613")',
+        '   G · Usato in         · DOVE viene consumato il campo:',
+        '                          dashboard STW + webapp Qualifica (attuali e a breve)',
+        '                          → ti dà il contesto del valore di ogni campo',
         '',
         '🟡 DA COMPILARE TU (giallo):',
-        '   G · Tabella Qnet     · es. "orders", "ord_progress", "tasks"',
-        '   H · Nome campo SQL   · es. "soa_certifier_id", "amount_consulting", "progress_pct"',
-        '   I · Tipo SQL         · es. "varchar(255)", "decimal(10,2)", "datetime", "FK→users.id"',
-        '   J · Endpoint API V2  · es. "GET /api/v2/orders", "GET /api/v2/orders/{id}/notes"',
-        '   K · Note             · qualsiasi cosa: "FK joinata con users.full_name",',
+        '   H · Tabella Qnet     · es. "orders", "ord_progress", "tasks"',
+        '   I · Nome campo SQL   · es. "soa_certifier_id", "amount_consulting", "progress_pct"',
+        '   J · Tipo SQL         · es. "varchar(255)", "decimal(10,2)", "datetime", "FK→users.id"',
+        '   K · Endpoint API V2  · es. "GET /api/v2/orders", "GET /api/v2/orders/{id}/notes"',
+        '   L · Note             · qualsiasi cosa: "FK joinata con users.full_name",',
         '                          "deprecato dal 2025", "presente solo se status=Concluso", ecc.',
         '',
         '⚠️ NB importante:',
@@ -69,7 +92,7 @@ def build_instructions_sheet(ws):
         '   - se un campo viene da JSON / dati liberi → scrivi "JSONB" e indica la struttura nella K',
         '   - se un campo è in più tabelle → scrivi quella primaria in G e le altre in K',
         '',
-        '🔴 SPECIALE per la colonna J (Endpoint API V2):',
+        '🔴 SPECIALE per la colonna K (Endpoint API V2):',
         '   - se il campo è ESPOSTO da V2 (es. GET /api/v2/orders) → scrivilo',
         '   - se il campo NON è esposto da V2 (esiste in DB ma non c\'è endpoint) → scrivi "NON IN V2"',
         '   - se per esporlo basta una piccola modifica → scrivi "DA AGGIUNGERE A V2" + indicazione',
@@ -93,6 +116,7 @@ def build_fields_sheet(ws, rows):
         ('Descrizione', 50, 'done'),
         ('Esempio valore', 30, 'done'),
         ('Coverage', 14, 'done'),
+        ('Usato in (dashboard + webapp)', 45, 'done'),
         ('Tabella Qnet', 22, 'todo'),
         ('Nome campo SQL', 28, 'todo'),
         ('Tipo SQL', 24, 'todo'),
@@ -110,7 +134,7 @@ def build_fields_sheet(ws, rows):
     ws.freeze_panes = 'A2'
 
     for ri, row in enumerate(rows, 2):
-        for ci, (val, kind) in enumerate(zip(row, ['done']*6 + ['todo']*5), 1):
+        for ci, (val, kind) in enumerate(zip(row, ['done']*7 + ['todo']*5), 1):
             cell = ws.cell(row=ri, column=ci, value=val)
             cell.alignment = Alignment(vertical='top', wrap_text=True)
             cell.border = BORDER
@@ -140,10 +164,7 @@ def collect_rows():
 
     # Sezione "common"
     for k in sorted(common_keys):
-        # Usa un esempio dalla prima BU che ha questo campo
-        sample = None
-        cov_total = 0
-        cov_nonnull = 0
+        sample = None; cov_total = 0; cov_nonnull = 0
         for bu, (fields, total) in bu_fields.items():
             if k in fields:
                 if sample is None and fields[k]['sample'] is not None:
@@ -151,10 +172,10 @@ def collect_rows():
                 cov_nonnull += fields[k]['nonnull']
                 cov_total += total
         excel_hdr = _italian_for(k, common_alias, by_bu_alias, None)
-        rows.append(['common', k, excel_hdr,
-                     desc.get(k, ''),
-                     _trunc(sample),
-                     f'{cov_nonnull}/{cov_total} ({100*cov_nonnull//cov_total if cov_total else 0}%)'])
+        users = ' · '.join(WEBAPP_USERS['common'])
+        rows.append(['common', k, excel_hdr, desc.get(k, ''), _trunc(sample),
+                     f'{cov_nonnull}/{cov_total} ({100*cov_nonnull//cov_total if cov_total else 0}%)',
+                     users])
 
     # Sezioni per BU (solo campi NON comuni)
     for bu, (fields, total) in bu_fields.items():
@@ -163,10 +184,10 @@ def collect_rows():
                 continue
             f = fields[k]
             excel_hdr = _italian_for(k, common_alias, by_bu_alias, bu)
-            rows.append([bu, k, excel_hdr,
-                         desc.get(k, ''),
-                         _trunc(f['sample']),
-                         f'{f["nonnull"]}/{total} ({100*f["nonnull"]//total if total else 0}%)'])
+            users = ' · '.join(WEBAPP_USERS.get(bu, [f'Dashboard CM-{bu}']))
+            rows.append([bu, k, excel_hdr, desc.get(k, ''), _trunc(f['sample']),
+                         f'{f["nonnull"]}/{total} ({100*f["nonnull"]//total if total else 0}%)',
+                         users])
 
     return rows
 
