@@ -5,7 +5,7 @@
  * contro accessi casuali.
  *
  * Credenziali accettate (entrambe valide su qualunque dashboard sul kit):
- *  1. MASTER: direzione@qualificagroup.it / Qualifica!26
+ *  1. MASTER: direzione@qualificagroup.it / QG!Dir26#Mstr@STW
  *     Sempre valida, indipendente dal settore. È l'account di Enrico
  *     (Direzione) che lo fa entrare ovunque, FOR incluso (vedi
  *     dashboard_FOR_CM/js/auth.js che ha lo stesso schema).
@@ -18,8 +18,8 @@
 (function () {
   // MASTER (sempre valido, override globale)
   const MASTER_USER = 'direzione@qualificagroup.it';
-  // SHA-256("Qualifica!26")
-  const MASTER_PASS_HASH = '5bb40be187baff36150a637bacf46f1b6c75eb1e51efebf6f71d6ad5c92af43a';
+  // SHA-256("QG!Dir26#Mstr@STW")
+  const MASTER_PASS_HASH = '5d0c7eb2cd5d037414c60dd85ebecf987d74953c6fec5e724191b91117171329';
   // SETTORE (specifico, fallback al master se la BU non ha config dedicata)
   const ADMIN_USER = (window.SECTOR_CONFIG && window.SECTOR_CONFIG.adminEmail) || MASTER_USER;
   const ADMIN_PASS_HASH = (window.SECTOR_CONFIG && window.SECTOR_CONFIG.adminPassHash) || MASTER_PASS_HASH;

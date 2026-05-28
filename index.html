@@ -573,8 +573,8 @@ const CREDS_SECTORS = [
 ];
 
 const CREDS_MASTER_USER = 'direzione@qualificagroup.it';
-/* SHA-256("Qualifica!26") */
-const CREDS_MASTER_HASH = '5bb40be187baff36150a637bacf46f1b6c75eb1e51efebf6f71d6ad5c92af43a';
+/* SHA-256("QG!Dir26#Mstr@STW") */
+const CREDS_MASTER_HASH = '5d0c7eb2cd5d037414c60dd85ebecf987d74953c6fec5e724191b91117171329';
 const CREDS_SESSION_KEY = 'qg_passwords_authed_v1';
 const CREDS_COORD_KEY   = 'qg_creds_coordinators_v1';
 
@@ -657,11 +657,11 @@ function credsRenderTable() {
     '<td><strong>Master Direzione</strong><br><span style="color:var(--text3);font-size:10px">accesso ovunque</span></td>' +
     '<td><span style="color:var(--text3);font-size:11px">Enrico Ferrante</span></td>' +
     '<td class="code">' + CREDS_MASTER_USER + '</td>' +
-    '<td class="code">Qualifica!26</td>' +
+    '<td class="code">QG!Dir26#Mstr@STW</td>' +
     '<td><span style="color:var(--text3);font-size:11px">tutte le dashboard</span></td>' +
     '<td><div class="creds-actions">' +
       '<button class="creds-btn" onclick="credsCopy(this,\'' + CREDS_MASTER_USER + '\')">📋 mail</button>' +
-      '<button class="creds-btn" onclick="credsCopy(this,\'Qualifica!26\')">📋 pwd</button>' +
+      '<button class="creds-btn" onclick="credsCopy(this,\'QG!Dir26#Mstr@STW\')">📋 pwd</button>' +
     '</div></td></tr>';
 }
 
