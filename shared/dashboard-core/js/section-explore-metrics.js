@@ -6,6 +6,8 @@
 
 const EXPLORE_DIMENSIONS = [
   { id: 'none',        label: '— (nessuno)' },
+  /* _bu disponibile solo nella Dashboard Totale (TUTTO) */
+  { id: '_bu',         label: 'Settore (BU)',    tuttoOnly: true },
   { id: 'societa',     label: 'Società' },
   { id: 'regione',     label: 'Regione' },
   { id: 'sedeNorm',    label: 'Sede' },
@@ -22,7 +24,7 @@ const EXPLORE_DIMENSIONS = [
 ];
 
 /* Campo "drill" associato alla dimensione (per clickField del kit drill-down).
-   Le dimensioni virtuali (statusXLav, anno, mese) non hanno drill diretto. */
+   Le dimensioni virtuali (statusXLav, anno, mese, _bu) non hanno drill diretto. */
 const EXPLORE_DIM_DRILL = {
   societa: 'societa', regione: 'regione', sedeNorm: 'sedeNorm',
   cliente: 'cliente', responsabile: 'responsabile', agente: 'agente',
@@ -56,16 +58,37 @@ const EXPLORE_COMPARE = [
 ];
 
 const EXPLORE_PRESETS = [
-  { id: 'sedi',     label: '📍 Sedi',                  l1: 'sedeNorm',    l2: 'none', l3: 'none',    m: 'ricavi' },
-  { id: 'clienti',  label: '👥 Clienti',               l1: 'cliente',     l2: 'none', l3: 'none',    m: 'ricavi' },
-  { id: 'tecWip',   label: '🛠️ Tecnico WIP',           l1: 'responsabile',l2: 'none', l3: 'none',    m: 'wipN'   },
-  { id: 'commOut',  label: '💼 Commerciale Output €',  l1: 'agente',      l2: 'none', l3: 'none',    m: 'outE'   },
-  { id: 'segInc',   label: '🤝 Segnalatore Incassato', l1: 'segnalatore', l2: 'none', l3: 'none',    m: 'incassato' },
-  { id: 'srCli',    label: '🏢 Soc → Reg → Cliente',   l1: 'societa',     l2: 'regione', l3: 'cliente',   m: 'ricavi' },
-  { id: 'srSede',   label: '🌍 Soc → Reg → Sede',      l1: 'societa',     l2: 'regione', l3: 'sedeNorm',  m: 'ricavi' },
-  { id: 'sxL',      label: '🚦 Stato × Lav',           l1: 'statusXLav',  l2: 'none', l3: 'none',    m: 'count'  },
-  { id: 'annoMese', label: '📅 Anno → Mese',           l1: 'anno',        l2: 'mese', l3: 'none',    m: 'outN'   }
+  /* ── Preset universali (tutte le BU) ── */
+  { id: 'sedi',     label: '📍 Sedi',                  l1: 'sedeNorm',    l2: 'none',    l3: 'none',       m: 'ricavi'    },
+  { id: 'clienti',  label: '👥 Clienti',               l1: 'cliente',     l2: 'none',    l3: 'none',       m: 'ricavi'    },
+  { id: 'tecWip',   label: '🛠️ Tecnico WIP',           l1: 'responsabile',l2: 'none',    l3: 'none',       m: 'wipN'      },
+  { id: 'commOut',  label: '💼 Commerciale Output €',  l1: 'agente',      l2: 'none',    l3: 'none',       m: 'outE'      },
+  { id: 'segInc',   label: '🤝 Segnalatore Incassato', l1: 'segnalatore', l2: 'none',    l3: 'none',       m: 'incassato' },
+  { id: 'srCli',    label: '🏢 Soc → Reg → Cliente',   l1: 'societa',     l2: 'regione', l3: 'cliente',    m: 'ricavi'    },
+  { id: 'srSede',   label: '🌍 Soc → Reg → Sede',      l1: 'societa',     l2: 'regione', l3: 'sedeNorm',   m: 'ricavi'    },
+  { id: 'sxL',      label: '🚦 Stato × Lav',           l1: 'statusXLav',  l2: 'none',    l3: 'none',       m: 'count'     },
+  { id: 'annoMese', label: '📅 Anno → Mese',           l1: 'anno',        l2: 'mese',    l3: 'none',       m: 'outN'      },
+  /* ── Preset TUTTO (solo Dashboard Totale con campo _bu) ── */
+  { id: 'buRicavi', label: '🗂️ BU → Ricavi',           l1: '_bu',         l2: 'none',    l3: 'none',       m: 'ricavi',   tuttoOnly: true },
+  { id: 'buMol',    label: '🗂️ BU → MOL %',            l1: '_bu',         l2: 'none',    l3: 'none',       m: 'margine',  tuttoOnly: true },
+  { id: 'buCli',    label: '🗂️ BU → Cliente',          l1: '_bu',         l2: 'cliente', l3: 'none',       m: 'ricavi',   tuttoOnly: true },
+  { id: 'buSede',   label: '🗂️ BU → Sede',             l1: '_bu',         l2: 'sedeNorm',l3: 'none',       m: 'ricavi',   tuttoOnly: true },
+  { id: 'buTec',    label: '🗂️ BU → Tecnico',          l1: '_bu',         l2: 'responsabile',l3: 'none',   m: 'wipN',     tuttoOnly: true },
+  { id: 'buAnno',   label: '🗂️ BU → Anno',             l1: '_bu',         l2: 'anno',    l3: 'none',       m: 'outN',     tuttoOnly: true },
 ];
+
+/* ── Helpers contesto TUTTO ── */
+function _isTutto() {
+  return (window.SECTOR_CONFIG && window.SECTOR_CONFIG.code === 'TUTTO');
+}
+/* Dimensioni visibili nel contesto corrente */
+function _exploreDimsVisible() {
+  return EXPLORE_DIMENSIONS.filter(d => !d.tuttoOnly || _isTutto());
+}
+/* Preset visibili nel contesto corrente */
+function _explorePresetsVisible() {
+  return EXPLORE_PRESETS.filter(p => !p.tuttoOnly || _isTutto());
+}
 
 /* ── Dimension getter ── */
 function _exploreNorm(v) {
@@ -83,6 +106,14 @@ function _exploreAge(c) {
 }
 
 function _exploreDimGetter(dimId) {
+  if (dimId === '_bu') {
+    /* Mostra icona + label se BU_META è disponibile (Dashboard Totale) */
+    return c => {
+      const bu = c._bu || 'N/D';
+      const meta = window.BU_META && window.BU_META[bu];
+      return meta ? meta.icon + ' ' + bu + ' · ' + meta.label : bu;
+    };
+  }
   if (dimId === 'statusXLav') {
     return c => _exploreNorm(c.status) + ' · ' + _exploreNorm(c.statoLav);
   }

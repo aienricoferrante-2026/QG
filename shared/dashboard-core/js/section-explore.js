@@ -7,8 +7,10 @@
 function _exploreKey() { return 'qg_explore_' + sectorCode(); }
 
 function _exploreDefault() {
+  /* Per TUTTO la dimensione L1 di default è _bu (più utile di società) */
+  const l1default = (window.SECTOR_CONFIG && window.SECTOR_CONFIG.code === 'TUTTO') ? '_bu' : 'societa';
   return {
-    l1: 'societa', l2: 'none', l3: 'none',
+    l1: l1default, l2: 'none', l3: 'none',
     metric: 'ricavi', compare: 'none',
     aIso: '', bIso: '',
     search: '',
@@ -87,7 +89,7 @@ function _explorePreset(id) {
 
 function _exploreActivePreset() {
   const s = _exploreState();
-  return EXPLORE_PRESETS.find(p => p.l1 === s.l1 && p.l2 === s.l2 && p.l3 === s.l3 && p.m === s.metric);
+  return _explorePresetsVisible().find(p => p.l1 === s.l1 && p.l2 === s.l2 && p.l3 === s.l3 && p.m === s.metric);
 }
 
 /* Sub-filtri locali a Esplora: si applicano sopra ai filtri globali del
@@ -133,7 +135,7 @@ function renderExplore() {
   const periods = _exploreApplySubFilters(periodsRaw, s);
 
   const metricLabel = EXPLORE_METRICS.find(m => m.id === s.metric).short;
-  const dim1Label = (EXPLORE_DIMENSIONS.find(d => d.id === s.l1) || {}).label || s.l1;
+  const dim1Label = (EXPLORE_DIMENSIONS.find(d => d.id === s.l1) || {}).label || s.l1; // label sempre da EXPLORE_DIMENSIONS (include _bu)
 
   let h = '<div class="sec"><h3 class="sec-title">Esplora · ' + sectorLabel() + '</h3>';
   h += '<p style="color:var(--text3);font-size:11px;margin-bottom:14px">' +
@@ -186,7 +188,7 @@ function _explorePresetsHtml() {
   const active = _exploreActivePreset();
   let h = '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">';
   h += '<span class="qf-label">Preset:</span>';
-  EXPLORE_PRESETS.forEach(p => {
+  _explorePresetsVisible().forEach(p => {
     const cls = active && active.id === p.id ? 'qf-btn active' : 'qf-btn';
     h += '<button class="' + cls + '" onclick="_explorePreset(\'' + p.id + '\')" title="L1:' + p.l1 + ' · L2:' + p.l2 + ' · L3:' + p.l3 + ' · m:' + p.m + '">' + p.label + '</button>';
   });
@@ -277,11 +279,11 @@ function _exploreControlsHtml() {
   const used = [s.l1, s.l2, s.l3];
   let h = '<div class="period-filter" style="border:1px solid var(--border);border-radius:8px;margin-bottom:14px;padding:10px 14px">';
   h += '<span class="qf-label">Livello 1:</span>' +
-       _exploreSelect('_exploreSetL1', EXPLORE_DIMENSIONS, s.l1, used.filter((_, i) => i !== 0));
+       _exploreSelect('_exploreSetL1', _exploreDimsVisible(), s.l1, used.filter((_, i) => i !== 0));
   h += '<span class="qf-label">→ L2:</span>' +
-       _exploreSelect('_exploreSetL2', EXPLORE_DIMENSIONS, s.l2, used.filter((_, i) => i !== 1));
+       _exploreSelect('_exploreSetL2', _exploreDimsVisible(), s.l2, used.filter((_, i) => i !== 1));
   h += '<span class="qf-label">→ L3:</span>' +
-       _exploreSelect('_exploreSetL3', EXPLORE_DIMENSIONS, s.l3, used.filter((_, i) => i !== 2));
+       _exploreSelect('_exploreSetL3', _exploreDimsVisible(), s.l3, used.filter((_, i) => i !== 2));
   h += '<span class="qf-label">Metrica:</span>' +
        _exploreSelect('_exploreSetMet', EXPLORE_METRICS, s.metric);
   h += '<span class="qf-label">Confronto:</span>' +
