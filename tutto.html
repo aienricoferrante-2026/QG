@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Qualifica Group · Tutto · Vista Totale</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0f172a;--card:#1e293b;--card2:#162032;--border:#334155;--border2:#253347;
+  --text:#f1f5f9;--text2:#94a3b8;--text3:#64748b;
+  --accent:#6366f1;--green:#10b981;--orange:#f59e0b;--red:#ef4444;--cyan:#06b6d4;
+}
+body.light{--bg:#f1f5f9;--card:#fff;--card2:#f8fafc;--border:#e2e8f0;--border2:#cbd5e1;--text:#0f172a;--text2:#475569;--text3:#94a3b8}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;min-height:100vh}
+
+/* ── App Tab Bar ── */
+.app-bar{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px solid var(--border);padding:0 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;height:52px}
+.app-brand{font-size:13px;font-weight:800;letter-spacing:-.2px;white-space:nowrap;color:var(--text)}
+.app-brand span{color:var(--text3);font-weight:400}
+.app-tabs{display:flex;align-items:stretch;gap:2px;height:100%}
+.app-tab{display:inline-flex;align-items:center;gap:6px;padding:0 16px;font-size:12px;font-weight:600;text-decoration:none;color:var(--text3);border-bottom:2px solid transparent;transition:color .15s,border-color .15s;white-space:nowrap}
+.app-tab:hover{color:var(--text)}
+.app-tab.active{color:var(--text);border-bottom-color:var(--accent)}
+.app-actions{display:flex;align-items:center;gap:6px}
+.ab-btn{padding:5px 11px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;background:var(--card);border:1px solid var(--border);color:var(--text2);text-decoration:none;display:inline-flex;align-items:center;gap:4px;transition:border-color .15s,color .15s}
+.ab-btn:hover{border-color:var(--accent);color:var(--text)}
+.ab-theme{width:30px;height:30px;border-radius:50%;padding:0;justify-content:center;font-size:13px}
+
+/* ── Layout ── */
+.wrap{max-width:1440px;margin:0 auto;padding:18px 16px 60px}
+
+/* ── Loading ── */
+.loading{display:flex;flex-direction:column;align-items:center;padding:60px 20px;gap:10px}
+.spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading p{color:var(--text3);font-size:13px}
+
+/* ── Filtri BU ── */
+.filter-bar{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:12px}
+.filter-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.filter-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);white-space:nowrap}
+.bu-chip{
+  display:inline-flex;align-items:center;gap:5px;padding:5px 10px;
+  border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;
+  border:1.5px solid transparent;transition:all .15s;user-select:none;
+}
+.bu-chip.off{background:var(--card2);border-color:var(--border2);color:var(--text3);opacity:.6}
+.bu-chip.on{opacity:1}
+.all-chip{background:rgba(99,102,241,.15);border-color:rgba(99,102,241,.4);color:#a5b4fc}
+.all-chip.active{background:rgba(99,102,241,.3);border-color:#6366f1;color:#fff}
+
+/* ── Barra ricerca + info ── */
+.search-bar{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.search-input{
+  flex:1;min-width:200px;padding:8px 12px;border-radius:7px;
+  background:var(--card);border:1px solid var(--border);color:var(--text);font-size:12px;outline:none;
+}
+.search-input:focus{border-color:var(--accent)}
+.search-input::placeholder{color:var(--text3)}
+.row-count{font-size:11px;color:var(--text3);white-space:nowrap}
+.col-toggle-btn{font-size:11px}
+
+/* ── Status filter pills ── */
+.status-filter{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.sf-pill{padding:4px 10px;border-radius:12px;font-size:10px;font-weight:700;cursor:pointer;border:1.5px solid transparent;transition:all .12s;user-select:none}
+.sf-pill.off{background:var(--card2);border-color:var(--border2);color:var(--text3);opacity:.6}
+
+/* ── KPI mini band ── */
+.kpi-mini{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:12px}
+@media(max-width:800px){.kpi-mini{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:480px){.kpi-mini{grid-template-columns:repeat(2,1fr)}}
+.km-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px 14px}
+.km-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3)}
+.km-val{font-size:18px;font-weight:800;margin-top:4px;font-variant-numeric:tabular-nums}
+.c-green{color:#10b981}.c-blue{color:#3b82f6}.c-orange{color:#f59e0b}.c-cyan{color:#06b6d4}.c-purple{color:#a78bfa}
+
+/* ── Tabella ── */
+.table-wrap{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.table-scroll{overflow-x:auto;max-height:calc(100vh - 280px)}
+table{width:100%;border-collapse:collapse;font-size:11px;white-space:nowrap}
+thead{position:sticky;top:0;z-index:5}
+th{
+  padding:9px 10px;border-bottom:2px solid var(--border);
+  background:var(--card2);color:var(--text3);font-weight:700;
+  text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.3px;
+  cursor:pointer;user-select:none;
+}
+th:hover{color:var(--text);background:rgba(99,102,241,.08)}
+th.sort-asc::after{content:' ▲';color:var(--accent)}
+th.sort-desc::after{content:' ▼';color:var(--accent)}
+td{padding:8px 10px;border-bottom:1px solid var(--border2);vertical-align:middle;max-width:200px;overflow:hidden;text-overflow:ellipsis}
+tbody tr:hover{background:rgba(99,102,241,.05)}
+tbody tr:last-child td{border-bottom:none}
+
+/* ── BU badge in tabella ── */
+.bu-tag{display:inline-block;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:800;letter-spacing:.4px}
+
+/* ── Status badge ── */
+.st-badge{display:inline-block;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700}
+.st-lav{background:rgba(16,185,129,.15);color:#10b981}
+.st-chiusa{background:rgba(100,116,139,.12);color:#94a3b8}
+.st-pian{background:rgba(99,102,241,.12);color:#a5b4fc}
+.st-ann{background:rgba(239,68,68,.12);color:#ef4444}
+
+/* ── Valori numerici ── */
+.num{text-align:right;font-variant-numeric:tabular-nums}
+.pos{color:#10b981}.neg{color:#ef4444}.warn{color:#f59e0b}
+
+/* ── Pagination ── */
+.pagination{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-top:1px solid var(--border);background:var(--card2);gap:10px;flex-wrap:wrap}
+.pag-info{font-size:11px;color:var(--text3)}
+.pag-btns{display:flex;gap:4px;align-items:center}
+.pag-btn{
+  padding:5px 10px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;
+  background:var(--card);border:1px solid var(--border);color:var(--text2);
+  transition:border-color .12s,color .12s;
+}
+.pag-btn:hover:not(:disabled){border-color:var(--accent);color:var(--text)}
+.pag-btn:disabled{opacity:.35;cursor:not-allowed}
+.pag-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.pag-size{padding:4px 8px;border-radius:5px;background:var(--card);border:1px solid var(--border);color:var(--text);font-size:11px}
+
+/* ── Col toggle panel ── */
+.col-panel{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin-bottom:10px;display:none}
+.col-panel.open{display:block}
+.col-panel-title{font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.4px;margin-bottom:10px}
+.col-checks{display:flex;flex-wrap:wrap;gap:8px}
+.col-check{display:inline-flex;align-items:center;gap:5px;padding:4px 9px;border-radius:5px;background:var(--card2);border:1px solid var(--border2);font-size:11px;cursor:pointer;user-select:none;color:var(--text2)}
+.col-check input{cursor:pointer;accent-color:var(--accent)}
+.col-check:hover{border-color:var(--accent);color:var(--text)}
+</style>
+</head>
+<body>
+
+<!-- ── Tab Bar ── -->
+<div class="app-bar">
+  <div class="app-brand">Qualifica <span>Group · STW</span></div>
+  <div class="app-tabs">
+    <a class="app-tab" href="index.html">🏠 Hub</a>
+    <a class="app-tab" href="cruscotto.html">📊 Cruscotto</a>
+    <a class="app-tab active" href="tutto.html">🔍 Tutto</a>
+  </div>
+  <div class="app-actions">
+    <span id="loadStatus" style="font-size:10px;color:var(--text3)"></span>
+    <button class="ab-btn ab-theme" id="themeBtn" onclick="toggleTheme()" title="Tema">🌙</button>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- Loading -->
+  <div id="loadingWrap" class="loading">
+    <div class="spinner"></div>
+    <p id="loadingMsg">Carico dati da 11 settori…</p>
+  </div>
+
+  <div id="dashContent" style="display:none">
+
+    <!-- ── KPI ── -->
+    <div class="kpi-mini" id="kpiBar"></div>
+
+    <!-- ── Filtri BU ── -->
+    <div class="filter-bar">
+      <div class="filter-row" id="buChips">
+        <span class="filter-label">Settore:</span>
+      </div>
+      <div class="filter-row" style="margin-top:10px" id="statusChips">
+        <span class="filter-label">Status:</span>
+      </div>
+    </div>
+
+    <!-- ── Ricerca + controlli ── -->
+    <div class="search-bar">
+      <input class="search-input" id="searchInput" placeholder="🔍 Cerca cliente, agente, responsabile, titolo…" autocomplete="off">
+      <span class="row-count" id="rowCount">…</span>
+      <button class="ab-btn col-toggle-btn" onclick="toggleColPanel()">⚙️ Colonne</button>
+    </div>
+
+    <!-- ── Pannello colonne ── -->
+    <div class="col-panel" id="colPanel">
+      <div class="col-panel-title">Gestione colonne visibili</div>
+      <div class="col-checks" id="colChecks"></div>
+    </div>
+
+    <!-- ── Tabella ── -->
+    <div class="table-wrap">
+      <div class="table-scroll">
+        <table id="mainTable">
+          <thead><tr id="tableHead"></tr></thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+      <div class="pagination">
+        <div class="pag-info" id="pagInfo">—</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <select class="pag-size" id="pagSize" onchange="onPageSizeChange()">
+            <option value="50">50 / pag.</option>
+            <option value="100">100 / pag.</option>
+            <option value="200">200 / pag.</option>
+            <option value="500">500 / pag.</option>
+          </select>
+          <div class="pag-btns" id="pagBtns"></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /dashContent -->
+</div>
+
+<script>
+// ── BU config ──────────────────────────────────────────────────────────────
+const BU_CFG = [
+  {code:'FOR',    label:'Formazione',        icon:'🎓', color:'#10b981', file:'dashboard_FOR_CM/data/commesse_for.json'},
+  {code:'ISO',    label:'ISO',               icon:'📜', color:'#3b82f6', file:'dashboard_ISO_CM/data/commesse_iso.json'},
+  {code:'SIC',    label:'Sicurezza',         icon:'🛡️', color:'#06b6d4', file:'dashboard_SIC_CM/data/commesse_sic.json'},
+  {code:'APL_PAL',label:'Pol. Attive',       icon:'💼', color:'#a78bfa', file:'dashboard_APL_PAL_CM/data/commesse_apl_pal.json'},
+  {code:'GDPR',   label:'GDPR',              icon:'🔒', color:'#ec4899', file:'dashboard_GDPR_CM/data/commesse_gdpr.json'},
+  {code:'SOA',    label:'SOA',               icon:'🏗️', color:'#f59e0b', file:'dashboard_SOA_CM/data/commesse_soa.json'},
+  {code:'AVV',    label:'Avvalimenti',       icon:'🤝', color:'#a78bfa', file:'dashboard_AVV_CM/data/commesse_avv.json'},
+  {code:'GAR',    label:'Gare',              icon:'🎯', color:'#06b6d4', file:'dashboard_GAR_CM/data/commesse_gar.json'},
+  {code:'FIA',    label:'Fin. Agevolata',    icon:'💰', color:'#fbbf24', file:'dashboard_FIA_CM/data/commesse_fia.json'},
+  {code:'APL_RES',label:'PAL Risorse',       icon:'👥', color:'#10b981', file:'dashboard_APL_RES_CM/data/commesse_apl_res.json'},
+  {code:'IST',    label:'Istituti',          icon:'🏛️', color:'#34d399', file:'dashboard_IST_CM/data/commesse_ist.json'},
+];
+
+// ── Definizione colonne ─────────────────────────────────────────────────────
+// Ogni colonna: { key, label, fmt, group, bus }
+// group: 'base' | 'quasi' | 'specific'
+// bus: array di BU che hanno questo campo (null = tutte)
+
+const COL_DEFS = [
+  // ── Base: comuni a tutte ──
+  {key:'_bu',     label:'BU',           fmt:'bu',     group:'base', bus:null},
+  {key:'cliente', label:'Cliente',      fmt:'txt',    group:'base', bus:null},
+  {key:'societa', label:'Società',      fmt:'txt',    group:'base', bus:null},
+  {key:'sede',    label:'Sede',         fmt:'txt',    group:'base', bus:null},
+  {key:'status',  label:'Status',       fmt:'status', group:'base', bus:null},
+  {key:'ricavi',  label:'Ricavi €',     fmt:'eur',    group:'base', bus:null},
+  {key:'mol',     label:'MOL €',        fmt:'mol',    group:'base', bus:null},
+  {key:'responsabile',label:'Resp.',    fmt:'txt',    group:'base', bus:null},
+  {key:'dataInizio',  label:'Inizio',   fmt:'date',   group:'base', bus:null},
+  {key:'dataFine',    label:'Fine',     fmt:'date',   group:'base', bus:null},
+  // ── Quasi-comuni: presenti in >7 BU ──
+  {key:'agente',      label:'Agente/Comm.',fmt:'txt', group:'quasi', bus:['ISO','SIC','APL_PAL','GDPR','SOA','AVV','GAR','FIA','APL_RES','IST']},
+  {key:'giaIncassato',label:'Incassato €', fmt:'eur', group:'quasi', bus:['FOR','ISO','SIC','GDPR','AVV','GAR','FIA']},
+  {key:'avanzamento', label:'Avanz. %',    fmt:'avz', group:'quasi', bus:['FOR','SIC','APL_PAL','GDPR','SOA','AVV','GAR','FIA','APL_RES','IST']},
+  {key:'statoLav',    label:'Stato Lav.',  fmt:'txt', group:'quasi', bus:['ISO','SIC','APL_PAL','GDPR','SOA','AVV','GAR','FIA','APL_RES','IST']},
+  {key:'segnalatore', label:'Segnalatore', fmt:'txt', group:'quasi', bus:['ISO','SIC','APL_PAL','GDPR','FIA','APL_RES','IST']},
+  {key:'costi',       label:'Costi €',     fmt:'eur', group:'quasi', bus:['FOR','SIC','APL_PAL','GDPR','AVV','GAR','FIA','IST']},
+  // ── Specifiche FOR ──
+  {key:'corso',       label:'Corso',       fmt:'txt', group:'specific', bu:'FOR', bus:['FOR']},
+  {key:'statoCorso',  label:'Stato Corso', fmt:'txt', group:'specific', bu:'FOR', bus:['FOR']},
+  {key:'ore',         label:'Ore',         fmt:'num', group:'specific', bu:'FOR', bus:['FOR']},
+  {key:'codClasse',   label:'Cod. Classe', fmt:'txt', group:'specific', bu:'FOR', bus:['FOR']},
+  {key:'totRicevutoRegione',label:'Ricevuto Reg.',fmt:'eur',group:'specific',bu:'FOR',bus:['FOR']},
+  // ── Specifiche ISO ──
+  {key:'isoEnte',     label:'Ente ISO',    fmt:'txt', group:'specific', bu:'ISO', bus:['ISO']},
+  {key:'isoScopoProposto',label:'Scopo ISO',fmt:'txt',group:'specific', bu:'ISO', bus:['ISO']},
+  {key:'isoStatoCert',label:'Stato Cert.', fmt:'txt', group:'specific', bu:'ISO', bus:['ISO']},
+  {key:'isoSettore',  label:'Settore ISO', fmt:'txt', group:'specific', bu:'ISO', bus:['ISO']},
+  // ── Specifiche SOA ──
+  {key:'soaAttestante',label:'Attestante', fmt:'txt', group:'specific', bu:'SOA', bus:['SOA']},
+  {key:'consorzio',  label:'Consorzio',    fmt:'txt', group:'specific', bu:'SOA', bus:['SOA']},
+  {key:'scadenzaCert',label:'Scad. Cert.', fmt:'date',group:'specific', bu:'SOA', bus:['SOA']},
+  // ── Specifiche AVV ──
+  {key:'avvCIG',      label:'CIG Avv.',    fmt:'txt', group:'specific', bu:'AVV', bus:['AVV']},
+  {key:'avvCategoria',label:'Categ. Avv.', fmt:'txt', group:'specific', bu:'AVV', bus:['AVV']},
+  {key:'avvClassifica',label:'Classifica', fmt:'txt', group:'specific', bu:'AVV', bus:['AVV']},
+  // ── Specifiche GAR + FIA ──
+  {key:'garCIG',      label:'CIG',         fmt:'txt', group:'specific', bu:'GAR', bus:['GAR']},
+  {key:'garImporto',  label:'Importo Gara',fmt:'eur', group:'specific', bu:'GAR', bus:['GAR']},
+  {key:'garDataScadenza',label:'Scad. Gara',fmt:'date',group:'specific',bu:'GAR', bus:['GAR']},
+  {key:'garEnte',     label:'Ente Gara',   fmt:'txt', group:'specific', bu:'GAR', bus:['GAR']},
+  {key:'garEsito',    label:'Esito Gara',  fmt:'txt', group:'specific', bu:'GAR', bus:['GAR']},
+  // ── Specifiche GDPR ──
+  {key:'gdprAccordo', label:'Accordo Pag.',fmt:'txt', group:'specific', bu:'GDPR', bus:['GDPR']},
+  {key:'gdprInsoluti',label:'Insoluti',    fmt:'txt', group:'specific', bu:'GDPR', bus:['GDPR']},
+  // ── Specifiche APL_RES ──
+  {key:'aplNumeroRisorse',label:'N. Risorse',fmt:'num',group:'specific',bu:'APL_RES',bus:['APL_RES']},
+  {key:'aplProfilo',  label:'Profilo',     fmt:'txt', group:'specific', bu:'APL_RES', bus:['APL_RES']},
+];
+
+// ── Formattatori ───────────────────────────────────────────────────────────
+const BU_MAP = {};
+BU_CFG.forEach(b => BU_MAP[b.code] = b);
+
+function fmtCell(val, fmt, row) {
+  if (val === null || val === undefined || val === '') return '<span style="color:var(--text3)">—</span>';
+  switch(fmt) {
+    case 'bu': {
+      const b = BU_MAP[row._bu] || {};
+      return `<span class="bu-tag" style="background:${b.color}22;color:${b.color}">${b.icon||''} ${row._bu}</span>`;
+    }
+    case 'txt': return `<span title="${String(val).replace(/"/g,'&quot;')}">${String(val).substring(0,40)}${String(val).length>40?'…':''}</span>`;
+    case 'eur': {
+      const n = Number(val)||0;
+      if (n === 0) return '<span style="color:var(--text3)">—</span>';
+      const s = n.toLocaleString('it-IT',{minimumFractionDigits:0,maximumFractionDigits:0});
+      const cls = n > 0 ? '' : 'neg';
+      return `<span class="${cls}">€ ${s}</span>`;
+    }
+    case 'mol': {
+      const n = Number(val)||0;
+      if (n === 0) return '<span style="color:var(--text3)">—</span>';
+      const s = n.toLocaleString('it-IT',{minimumFractionDigits:0,maximumFractionDigits:0});
+      const cls = n >= 0 ? 'pos' : 'neg';
+      return `<span class="${cls}">€ ${s}</span>`;
+    }
+    case 'num': return `<span>${Number(val).toLocaleString('it-IT')}</span>`;
+    case 'date': return `<span style="color:var(--text2)">${String(val).substring(0,10)}</span>`;
+    case 'avz': {
+      const n = Number(String(val).replace('%',''))||0;
+      const cls = n>=80?'pos':n>=40?'warn':'';
+      return `<span class="${cls}">${n}%</span>`;
+    }
+    case 'status': {
+      const s = String(val);
+      let cls = '';
+      if (/lavoraz/i.test(s)) cls = 'st-lav';
+      else if (/chius/i.test(s)) cls = 'st-chiusa';
+      else if (/pian/i.test(s)) cls = 'st-pian';
+      else if (/annul/i.test(s)) cls = 'st-ann';
+      return `<span class="st-badge ${cls}">${s}</span>`;
+    }
+    default: return String(val);
+  }
+}
+
+function colorMol(ric, mol) {
+  if (!ric || ric === 0) return 'var(--text3)';
+  const p = mol/ric*100;
+  return p >= 30 ? '#10b981' : p >= 15 ? '#f59e0b' : '#ef4444';
+}
+
+// ── Stato globale ──────────────────────────────────────────────────────────
+let ALL_ROWS = [];              // tutti i record (con ._bu aggiunto)
+let filteredRows = [];          // dopo filtri BU + status + search
+let sortState = {key:'ricavi', dir:'desc'};
+let currentPage = 1;
+let pageSize = 50;
+let activeBu = new Set(BU_CFG.map(b => b.code)); // tutte selezionate
+let activeStatuses = new Set();                   // vuoto = tutte
+let searchQ = '';
+let visibleCols = new Set(
+  COL_DEFS.filter(c => c.group === 'base').map(c => c.key)
+);
+// Aggiungo quasi-comuni visibili di default
+['agente','giaIncassato','avanzamento'].forEach(k => visibleCols.add(k));
+
+// ── Caricamento dati ───────────────────────────────────────────────────────
+async function loadAll() {
+  const msg = document.getElementById('loadingMsg');
+  let done = 0;
+  const results = await Promise.all(BU_CFG.map(async bu => {
+    try {
+      const r = await fetch(bu.file);
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      const rows = await r.json();
+      done++;
+      msg.textContent = `Carico… ${done}/${BU_CFG.length} settori`;
+      return rows.map(row => ({...row, _bu: bu.code}));
+    } catch(e) {
+      done++;
+      console.warn(`[tutto] ${bu.code}:`, e.message);
+      return [];
+    }
+  }));
+  ALL_ROWS = results.flat();
+  document.getElementById('loadStatus').textContent = `${ALL_ROWS.length.toLocaleString('it-IT')} righe totali`;
+  return ALL_ROWS;
+}
+
+// ── Filtro + sort ──────────────────────────────────────────────────────────
+function applyFilters() {
+  const q = searchQ.toLowerCase().trim();
+  filteredRows = ALL_ROWS.filter(r => {
+    if (!activeBu.has(r._bu)) return false;
+    if (activeStatuses.size > 0 && !activeStatuses.has(normalizeStatus(r.status))) return false;
+    if (q) {
+      const hay = [r.cliente, r.agente, r.responsabile, r.titolo, r.segnalatore, r.corso]
+        .filter(Boolean).join(' ').toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+  applySort();
+  currentPage = 1;
+}
+
+function normalizeStatus(s) {
+  if (!s) return 'altro';
+  if (/lavoraz/i.test(s)) return 'lavorazione';
+  if (/chius/i.test(s)) return 'chiusa';
+  if (/pian/i.test(s)) return 'pianificazione';
+  if (/annul/i.test(s)) return 'annullato';
+  return 'altro';
+}
+
+function applySort() {
+  const {key, dir} = sortState;
+  filteredRows.sort((a, b) => {
+    let va = a[key], vb = b[key];
+    // Numeri
+    if (!isNaN(Number(va)) && !isNaN(Number(vb))) {
+      return dir === 'asc' ? Number(va)-Number(vb) : Number(vb)-Number(va);
+    }
+    va = String(va||''); vb = String(vb||'');
+    return dir === 'asc' ? va.localeCompare(vb,'it') : vb.localeCompare(va,'it');
+  });
+}
+
+// ── Colonne attive in base alle BU selezionate ────────────────────────────
+function getActiveCols() {
+  return COL_DEFS.filter(col => {
+    if (!visibleCols.has(col.key)) return false;
+    if (!col.bus) return true; // base
+    // mostra se almeno una BU selezionata ha questo campo
+    return col.bus.some(bu => activeBu.has(bu));
+  });
+}
+
+// ── Render KPI ─────────────────────────────────────────────────────────────
+function renderKpi() {
+  const rows = filteredRows;
+  const totRic = rows.reduce((s,r) => s+Number(r.ricavi||0), 0);
+  const totMol = rows.reduce((s,r) => s+Number(r.mol||0), 0);
+  const totInc = rows.reduce((s,r) => s+Number(r.giaIncassato||0), 0);
+  const nLav  = rows.filter(r => /lavoraz/i.test(r.status||'')).length;
+  const molPct = totRic > 0 ? totMol/totRic*100 : 0;
+  const fmtM = n => { n=Number(n||0); return Math.abs(n)>=1e6?'€'+(n/1e6).toFixed(1)+'M':Math.abs(n)>=1e3?'€'+(n/1e3).toFixed(0)+'K':'€'+n.toFixed(0) };
+  document.getElementById('kpiBar').innerHTML = `
+    <div class="km-card"><div class="km-lbl">Commesse</div><div class="km-val c-blue">${rows.length.toLocaleString('it-IT')}</div></div>
+    <div class="km-card"><div class="km-lbl">Ricavi</div><div class="km-val c-green">${fmtM(totRic)}</div></div>
+    <div class="km-card"><div class="km-lbl">MOL</div><div class="km-val" style="color:${colorMol(totRic,totMol)}">${fmtM(totMol)} <span style="font-size:12px;color:var(--text3)">${molPct.toFixed(1)}%</span></div></div>
+    <div class="km-card"><div class="km-lbl">Incassato</div><div class="km-val c-orange">${fmtM(totInc)}</div></div>
+    <div class="km-card"><div class="km-lbl">In Lavorazione</div><div class="km-val c-purple">${nLav.toLocaleString('it-IT')}</div></div>
+  `;
+}
+
+// ── Render tabella ─────────────────────────────────────────────────────────
+function renderTable() {
+  const cols = getActiveCols();
+  const total = filteredRows.length;
+  const pages = Math.ceil(total / pageSize) || 1;
+  if (currentPage > pages) currentPage = 1;
+  const start = (currentPage - 1) * pageSize;
+  const slice = filteredRows.slice(start, start + pageSize);
+
+  // Header
+  const thead = document.getElementById('tableHead');
+  thead.innerHTML = cols.map(c => {
+    const cls = sortState.key === c.key ? `sort-${sortState.dir}` : '';
+    return `<th class="${cls}" data-key="${c.key}">${c.label}</th>`;
+  }).join('');
+  thead.querySelectorAll('th').forEach(th => {
+    th.addEventListener('click', () => {
+      const k = th.dataset.key;
+      if (sortState.key === k) sortState.dir = sortState.dir==='asc'?'desc':'asc';
+      else { sortState.key = k; sortState.dir = 'desc'; }
+      applySort();
+      currentPage = 1;
+      renderTable();
+    });
+  });
+
+  // Body
+  const tbody = document.getElementById('tableBody');
+  tbody.innerHTML = slice.map(row =>
+    '<tr>' + cols.map(c => {
+      const raw = c.key === '_bu' ? row._bu : row[c.key];
+      const numFmts = ['eur','mol','num'];
+      const tdClass = numFmts.includes(c.fmt) ? 'num' : '';
+      return `<td class="${tdClass}">${fmtCell(raw, c.fmt, row)}</td>`;
+    }).join('') + '</tr>'
+  ).join('');
+
+  // Row count
+  document.getElementById('rowCount').textContent =
+    `${total.toLocaleString('it-IT')} righe${total !== ALL_ROWS.length ? ' (filtrate su '+ALL_ROWS.length.toLocaleString('it-IT')+' totali)' : ''}`;
+
+  // Pagination
+  renderPagination(total, pages);
+}
+
+function renderPagination(total, pages) {
+  const start = (currentPage-1)*pageSize+1;
+  const end = Math.min(currentPage*pageSize, total);
+  document.getElementById('pagInfo').textContent =
+    total === 0 ? 'Nessun risultato' : `${start.toLocaleString('it-IT')}–${end.toLocaleString('it-IT')} di ${total.toLocaleString('it-IT')}`;
+
+  const btns = document.getElementById('pagBtns');
+  const maxBtn = 7;
+  let pages_arr = [];
+
+  if (pages <= maxBtn) {
+    for (let i=1;i<=pages;i++) pages_arr.push(i);
+  } else {
+    pages_arr = [1];
+    let lo = Math.max(2, currentPage-2), hi = Math.min(pages-1, currentPage+2);
+    if (lo > 2) pages_arr.push('…');
+    for (let i=lo;i<=hi;i++) pages_arr.push(i);
+    if (hi < pages-1) pages_arr.push('…');
+    pages_arr.push(pages);
+  }
+
+  btns.innerHTML =
+    `<button class="pag-btn" onclick="gotoPage(${currentPage-1})" ${currentPage===1?'disabled':''}>‹</button>` +
+    pages_arr.map(p => p==='…'
+      ? `<span style="color:var(--text3);padding:0 4px">…</span>`
+      : `<button class="pag-btn${p===currentPage?' active':''}" onclick="gotoPage(${p})">${p}</button>`
+    ).join('') +
+    `<button class="pag-btn" onclick="gotoPage(${currentPage+1})" ${currentPage===pages?'disabled':''}>›</button>`;
+}
+
+function gotoPage(p) {
+  const pages = Math.ceil(filteredRows.length / pageSize) || 1;
+  currentPage = Math.max(1, Math.min(p, pages));
+  renderTable();
+  document.querySelector('.table-scroll')?.scrollTo(0, 0);
+}
+
+function onPageSizeChange() {
+  pageSize = parseInt(document.getElementById('pagSize').value);
+  currentPage = 1;
+  renderTable();
+}
+
+// ── Chip BU ────────────────────────────────────────────────────────────────
+function renderBuChips() {
+  const wrap = document.getElementById('buChips');
+  // "Tutto" chip
+  const allChip = document.createElement('span');
+  allChip.className = 'bu-chip all-chip' + (activeBu.size === BU_CFG.length ? ' active' : '');
+  allChip.textContent = '✦ Tutto';
+  allChip.onclick = () => {
+    if (activeBu.size === BU_CFG.length) {
+      // deseleziona tutto tranne il primo
+      activeBu = new Set([BU_CFG[0].code]);
+    } else {
+      activeBu = new Set(BU_CFG.map(b => b.code));
+    }
+    refreshBuChips();
+    refreshColChecks();
+    applyFilters();
+    renderKpi();
+    renderTable();
+  };
+  wrap.appendChild(allChip);
+
+  BU_CFG.forEach(bu => {
+    const chip = document.createElement('span');
+    chip.className = `bu-chip ${activeBu.has(bu.code)?'on':'off'}`;
+    chip.style.background = activeBu.has(bu.code) ? bu.color+'22' : '';
+    chip.style.borderColor = activeBu.has(bu.code) ? bu.color+'88' : '';
+    chip.style.color = activeBu.has(bu.code) ? bu.color : '';
+    chip.dataset.bu = bu.code;
+    chip.innerHTML = `${bu.icon} ${bu.code}`;
+    chip.onclick = () => {
+      if (activeBu.has(bu.code)) {
+        if (activeBu.size > 1) activeBu.delete(bu.code);
+      } else {
+        activeBu.add(bu.code);
+      }
+      refreshBuChips();
+      refreshColChecks();
+      applyFilters();
+      renderKpi();
+      renderTable();
+    };
+    wrap.appendChild(chip);
+  });
+}
+
+function refreshBuChips() {
+  const chips = document.querySelectorAll('.bu-chip:not(.all-chip)');
+  chips.forEach(chip => {
+    const code = chip.dataset.bu;
+    const bu = BU_MAP[code];
+    const on = activeBu.has(code);
+    chip.className = `bu-chip ${on?'on':'off'}`;
+    chip.style.background = on ? bu.color+'22' : '';
+    chip.style.borderColor = on ? bu.color+'88' : '';
+    chip.style.color = on ? bu.color : '';
+  });
+  const allChip = document.querySelector('.all-chip');
+  if (allChip) allChip.className = `bu-chip all-chip${activeBu.size===BU_CFG.length?' active':''}`;
+}
+
+// ── Status filter chips ───────────────────────────────────────────────────
+const STATUS_OPTS = [
+  {key:'lavorazione', label:'In Lavorazione', color:'#10b981'},
+  {key:'chiusa',      label:'Chiusa',          color:'#94a3b8'},
+  {key:'pianificazione',label:'Da Pianificare',color:'#a5b4fc'},
+  {key:'annullato',   label:'Annullato',       color:'#ef4444'},
+];
+
+function renderStatusChips() {
+  const wrap = document.getElementById('statusChips');
+  const allPill = document.createElement('span');
+  allPill.className = 'sf-pill ' + (activeStatuses.size===0?'on':'off');
+  allPill.style.background = 'rgba(99,102,241,.15)'; allPill.style.borderColor='rgba(99,102,241,.4)'; allPill.style.color='#a5b4fc';
+  allPill.textContent = 'Tutti';
+  allPill.onclick = () => { activeStatuses.clear(); refreshStatusChips(); applyFilters(); renderKpi(); renderTable(); };
+  wrap.appendChild(allPill);
+
+  STATUS_OPTS.forEach(s => {
+    const pill = document.createElement('span');
+    pill.className = 'sf-pill ' + (activeStatuses.has(s.key)?'on':'off');
+    pill.style.background = s.color+'22'; pill.style.borderColor = s.color+'66'; pill.style.color = s.color;
+    pill.dataset.status = s.key;
+    pill.textContent = s.label;
+    pill.onclick = () => {
+      if (activeStatuses.has(s.key)) activeStatuses.delete(s.key);
+      else activeStatuses.add(s.key);
+      refreshStatusChips();
+      applyFilters(); renderKpi(); renderTable();
+    };
+    wrap.appendChild(pill);
+  });
+}
+
+function refreshStatusChips() {
+  document.querySelectorAll('.sf-pill').forEach((pill, i) => {
+    if (i === 0) { pill.className = 'sf-pill ' + (activeStatuses.size===0?'on':'off'); return; }
+    const k = pill.dataset.status;
+    pill.className = 'sf-pill ' + (activeStatuses.has(k)?'on':'off');
+  });
+}
+
+// ── Pannello colonne ────────────────────────────────────────────────────────
+function renderColChecks() {
+  const wrap = document.getElementById('colChecks');
+  wrap.innerHTML = '';
+  const groups = {base:'🔒 Base (sempre)', quasi:'〰 Quasi-comuni', specific:'⚡ BU-specifiche'};
+  let lastGroup = null;
+  COL_DEFS.forEach(col => {
+    if (col.key === '_bu') return; // BU sempre visibile
+    // Mostra solo se la BU attiva ha questo campo
+    if (col.bus && !col.bus.some(b => activeBu.has(b))) return;
+    if (col.group !== lastGroup) {
+      const sep = document.createElement('div');
+      sep.style.cssText = 'width:100%;font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-top:8px;margin-bottom:2px';
+      sep.textContent = groups[col.group] || col.group;
+      wrap.appendChild(sep);
+      lastGroup = col.group;
+    }
+    const label = document.createElement('label');
+    label.className = 'col-check';
+    const chk = document.createElement('input');
+    chk.type = 'checkbox';
+    chk.checked = visibleCols.has(col.key);
+    chk.disabled = col.group === 'base';
+    chk.onchange = () => {
+      if (chk.checked) visibleCols.add(col.key);
+      else visibleCols.delete(col.key);
+      renderTable();
+    };
+    label.appendChild(chk);
+    label.appendChild(document.createTextNode(' ' + col.label));
+    if (col.bu) {
+      const badge = document.createElement('span');
+      const bu = BU_MAP[col.bu];
+      badge.style.cssText = `font-size:8px;background:${bu?.color||'#888'}22;color:${bu?.color||'#888'};padding:1px 4px;border-radius:3px;margin-left:2px`;
+      badge.textContent = col.bu;
+      label.appendChild(badge);
+    }
+    wrap.appendChild(label);
+  });
+}
+
+function refreshColChecks() {
+  renderColChecks(); // ribuildo per aggiornare quali BU sono attive
+}
+
+function toggleColPanel() {
+  document.getElementById('colPanel').classList.toggle('open');
+}
+
+// ── Search ─────────────────────────────────────────────────────────────────
+let searchTimer;
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('searchInput').addEventListener('input', e => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => {
+      searchQ = e.target.value;
+      applyFilters();
+      renderKpi();
+      renderTable();
+    }, 200);
+  });
+});
+
+// ── Tema ───────────────────────────────────────────────────────────────────
+function toggleTheme() {
+  const l = document.body.classList.toggle('light');
+  localStorage.setItem('qg_theme', l?'light':'dark');
+  document.getElementById('themeBtn').textContent = l?'☀️':'🌙';
+}
+(function(){
+  if (localStorage.getItem('qg_theme')==='light'){
+    document.body.classList.add('light');
+    document.getElementById('themeBtn').textContent='☀️';
+  }
+})();
+
+// ── Boot ───────────────────────────────────────────────────────────────────
+async function init() {
+  await loadAll();
+  if (ALL_ROWS.length === 0) {
+    document.getElementById('loadingMsg').textContent = '⚠ Nessun dato. Apri da un server locale (python serve.py).';
+    return;
+  }
+  document.getElementById('loadingWrap').style.display = 'none';
+  document.getElementById('dashContent').style.display = 'block';
+
+  renderBuChips();
+  renderStatusChips();
+  renderColChecks();
+  applyFilters();
+  renderKpi();
+  renderTable();
+}
+
+init();
+</script>
+</body>
+</html>
