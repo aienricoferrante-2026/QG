@@ -62,16 +62,52 @@ function aliasKeys(rec, bu) {
   return { rec: out, mapped };
 }
 
+/* Campi che Qnet esporta come "15% - Descrizione" ma il DB vuole integer.
+   Estrae la parte numerica iniziale: "15% - foo" → 15, "0% - " → 0. */
+const PERCENT_COLS = new Set(['avanzamento', 'avanzamentoRaw']);
+
+function parsePercent(v) {
+  if (v === null || v === undefined || v === '') return null;
+  const s = String(v).trim();
+  if (!s || s === '***') return null;
+  const m = s.match(/^(\d+(?:[.,]\d+)?)/);
+  if (m) return parseFloat(m[1].replace(',', '.'));
+  return null;
+}
+
+/* Colonne numeriche che potrebbero avere valori monetari con simboli. */
+const NUMERIC_COLS = new Set([
+  'consulenza','ricavi','mol','costi','ricaviDocum','costiDocum','molDocum',
+  'ecRicaviCons','ecMolCons','ecCostiCons','giaIncassato','daIncassare',
+  'finIncassiTot','finUsciteTot','finDeltaTot',
+  'garImporto','anticipoImporto','saldoImporto','totale','ente',
+]);
+
+function coerceNumeric(v) {
+  if (v === null || v === undefined || v === '' || v === '***') return null;
+  if (typeof v === 'number') return v;
+  const s = String(v).replace(/[€$£\s.]/g, '').replace(',', '.');
+  const n = parseFloat(s);
+  return isNaN(n) ? null : n;
+}
+
 function splitRecord(rec, fixedCols, dateCols) {
   const cols = {}; const meta = {};
   const fixedSet = new Set(fixedCols);
-  const dateSet = new Set(dateCols);
+  const dateSet  = new Set(dateCols);
   Object.entries(rec).forEach(([k, v]) => {
     if (k === 'id') return;
     if (fixedSet.has(k)) {
       let val = v;
-      if (dateSet.has(k)) val = parseDate(v);
-      else if (v === '' || v === '***') val = null;
+      if (dateSet.has(k)) {
+        val = parseDate(v);
+      } else if (PERCENT_COLS.has(k)) {
+        val = parsePercent(v);
+      } else if (NUMERIC_COLS.has(k)) {
+        val = coerceNumeric(v);
+      } else if (v === '' || v === '***') {
+        val = null;
+      }
       cols[camelToSnake(k)] = val;
     } else {
       if (v !== '' && v !== null && v !== undefined && v !== 0 && v !== '***') meta[k] = v;
