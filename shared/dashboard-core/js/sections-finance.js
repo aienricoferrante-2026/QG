@@ -1,11 +1,28 @@
 /* ── Sezioni: Sedi, Avanzamento, Alert (core multi-settore) ── */
 
 function toggleSidebar() {
-  document.body.classList.toggle('sidebar-collapsed');
+  const collapsed = document.body.classList.toggle('sidebar-collapsed');
   const btn = document.getElementById('sidebarToggle');
-  if (btn) btn.innerHTML = document.body.classList.contains('sidebar-collapsed') ? '&#9776;' : '&times;';
+  if (btn) {
+    btn.innerHTML = collapsed ? '&#9776;' : '&times;';
+    btn.title = collapsed ? 'Apri menu' : 'Chiudi menu';
+  }
+  try { localStorage.setItem('qg_sidebar_collapsed', collapsed ? '1' : '0'); } catch(e) {}
   setTimeout(() => { if (typeof renderCurrentSection === 'function') renderCurrentSection(); }, 220);
 }
+
+/* Ripristina stato sidebar al caricamento */
+(function() {
+  try {
+    if (localStorage.getItem('qg_sidebar_collapsed') === '1') {
+      document.body.classList.add('sidebar-collapsed');
+      document.addEventListener('DOMContentLoaded', () => {
+        const btn = document.getElementById('sidebarToggle');
+        if (btn) { btn.innerHTML = '&#9776;'; btn.title = 'Apri menu'; }
+      });
+    }
+  } catch(e) {}
+})();
 
 /* ── Sedi ── */
 function renderSedi() {
