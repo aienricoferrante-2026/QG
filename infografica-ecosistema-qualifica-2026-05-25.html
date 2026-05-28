@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ecosistema Qualifica · Stato + Cosa fare · 2026-05-25</title>
+<style>
+  :root {
+    --navy: #1a365d;
+    --blue: #2b6cb0;
+    --green: #2f855a;
+    --orange: #c05621;
+    --red: #c53030;
+    --slate-50: #f8fafc;
+    --slate-100: #f1f5f9;
+    --slate-200: #e2e8f0;
+    --slate-300: #cbd5e1;
+    --slate-500: #64748b;
+    --slate-700: #334155;
+    --slate-800: #1e293b;
+    --slate-900: #0f172a;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--slate-100);
+    color: var(--slate-800);
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+  }
+  .page { max-width: 1280px; margin: 0 auto; padding: 32px 28px 80px; }
+
+  /* HERO */
+  .hero {
+    background: linear-gradient(135deg, var(--navy) 0%, var(--blue) 100%);
+    color: white; padding: 48px 40px; border-radius: 24px;
+    box-shadow: 0 20px 60px rgba(26, 54, 93, 0.25);
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: ""; position: absolute; top: -50px; right: -50px;
+    width: 300px; height: 300px; background: rgba(255,255,255,0.05);
+    border-radius: 50%;
+  }
+  .hero-eyebrow {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.2em;
+    text-transform: uppercase; color: rgba(255,255,255,0.7); margin-bottom: 8px;
+  }
+  .hero h1 { font-size: 48px; font-weight: 800; letter-spacing: -0.025em; line-height: 1.1; margin-bottom: 14px; }
+  .hero p { font-size: 17px; color: rgba(255,255,255,0.9); max-width: 720px; }
+  .hero-stats { display: flex; gap: 40px; margin-top: 28px; flex-wrap: wrap; }
+  .hero-stat { display: flex; flex-direction: column; gap: 2px; }
+  .hero-stat-val { font-size: 32px; font-weight: 800; line-height: 1; }
+  .hero-stat-label { font-size: 11px; color: rgba(255,255,255,0.75); text-transform: uppercase; letter-spacing: 0.1em; }
+
+  /* SECTION */
+  .section { margin-top: 48px; }
+  .section-title {
+    font-size: 11px; font-weight: 800; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--slate-500); margin-bottom: 14px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .section-title::before {
+    content: ""; width: 28px; height: 3px; background: var(--blue); border-radius: 2px;
+  }
+  .section h2 {
+    font-size: 30px; font-weight: 800; color: var(--slate-900);
+    letter-spacing: -0.02em; margin-bottom: 22px;
+  }
+
+  /* CARDS */
+  .card {
+    background: white; border-radius: 16px; padding: 24px;
+    border: 1px solid var(--slate-200);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .grid { display: grid; gap: 16px; }
+  .grid-3 { grid-template-columns: repeat(3, 1fr); }
+  .grid-4 { grid-template-columns: repeat(4, 1fr); }
+  .grid-2 { grid-template-columns: repeat(2, 1fr); }
+  @media (max-width: 900px) {
+    .grid-3, .grid-4, .grid-2 { grid-template-columns: 1fr; }
+  }
+
+  /* ARCHITETTURA */
+  .arch {
+    background: white; border-radius: 20px; padding: 40px;
+    border: 1px solid var(--slate-200);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+  }
+  .arch-hub {
+    background: linear-gradient(135deg, var(--navy), var(--blue));
+    color: white; padding: 28px; border-radius: 16px; text-align: center;
+    margin: 0 auto 40px; max-width: 480px;
+    box-shadow: 0 12px 30px rgba(26,54,93,0.3);
+  }
+  .arch-hub-label { font-size: 11px; font-weight: 700; letter-spacing: 0.2em; opacity: 0.8; text-transform: uppercase; }
+  .arch-hub-name { font-size: 28px; font-weight: 800; margin: 4px 0 12px; }
+  .arch-hub-desc { font-size: 13px; opacity: 0.9; }
+  .arch-hub-badges { display: flex; gap: 8px; justify-content: center; margin-top: 14px; flex-wrap: wrap; }
+  .arch-hub-badge {
+    background: rgba(255,255,255,0.18); padding: 4px 10px;
+    border-radius: 999px; font-size: 11px; font-weight: 600;
+  }
+
+  .arch-arrows { text-align: center; margin: -20px 0 12px; font-size: 20px; color: var(--slate-300); }
+
+  .arch-apps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  @media (max-width: 700px) { .arch-apps { grid-template-columns: repeat(2, 1fr); } }
+  .arch-app {
+    background: var(--slate-50); border: 2px solid var(--slate-200);
+    border-radius: 12px; padding: 16px; text-align: center;
+    transition: transform .15s, box-shadow .15s;
+  }
+  .arch-app:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+  .arch-app-emoji { font-size: 32px; line-height: 1; margin-bottom: 8px; }
+  .arch-app-name { font-size: 14px; font-weight: 700; color: var(--slate-900); }
+  .arch-app-status { font-size: 11px; color: var(--slate-500); margin-top: 4px; }
+  .arch-app-status.live { color: var(--green); font-weight: 600; }
+  .arch-app-status.deploy { color: var(--orange); font-weight: 600; }
+
+  /* TIMELINE ROUND */
+  .timeline { display: grid; gap: 16px; }
+  .round {
+    background: white; border-radius: 14px; padding: 20px 24px;
+    border-left: 5px solid var(--blue);
+    display: flex; gap: 20px; align-items: flex-start;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .round-num {
+    font-size: 32px; font-weight: 800; color: var(--navy);
+    line-height: 1; min-width: 60px;
+  }
+  .round-num-sub { font-size: 11px; color: var(--slate-500); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600; }
+  .round-content { flex: 1; }
+  .round-title { font-size: 17px; font-weight: 700; color: var(--slate-900); margin-bottom: 6px; }
+  .round-meta { font-size: 12px; color: var(--slate-500); margin-bottom: 10px; }
+  .round-bullets { font-size: 13px; color: var(--slate-700); margin-left: 16px; }
+  .round-bullets li { margin-bottom: 4px; }
+
+  .round-r1 { border-color: var(--blue); }
+  .round-r2 { border-color: var(--green); }
+  .round-r3 { border-color: var(--orange); }
+  .round-r4 { border-color: var(--red); }
+
+  /* TODO BOX */
+  .todo-box {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    border: 2px solid #f59e0b; border-radius: 16px;
+    padding: 28px; box-shadow: 0 4px 12px rgba(245,158,11,0.15);
+  }
+  .todo-box h3 {
+    font-size: 18px; color: #78350f; margin-bottom: 14px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .todo-item {
+    background: white; border-radius: 10px; padding: 16px 18px;
+    margin-bottom: 12px;
+    border-left: 4px solid #f59e0b;
+  }
+  .todo-item:last-child { margin-bottom: 0; }
+  .todo-num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 26px; height: 26px; border-radius: 50%;
+    background: #f59e0b; color: white; font-weight: 700; font-size: 13px;
+    margin-right: 10px;
+  }
+  .todo-title { font-size: 15px; font-weight: 700; color: var(--slate-900); }
+  .todo-desc { font-size: 13px; color: var(--slate-700); margin-top: 6px; margin-left: 36px; }
+  .todo-howto {
+    background: var(--slate-50); border-radius: 6px;
+    padding: 10px 12px; margin-top: 8px; margin-left: 36px;
+    font-size: 12px; color: var(--slate-700);
+    font-family: ui-monospace, Menlo, monospace;
+  }
+  .todo-time {
+    display: inline-block; background: #fef3c7; color: #78350f;
+    padding: 2px 8px; border-radius: 12px; font-size: 11px;
+    font-weight: 700; margin-left: 8px;
+  }
+
+  /* FLOW STORAGE */
+  .flow {
+    background: white; border-radius: 16px; padding: 32px;
+    border: 1px solid var(--slate-200);
+  }
+  .flow-row { display: flex; align-items: stretch; gap: 0; margin-bottom: 18px; }
+  .flow-step {
+    flex: 1; background: var(--slate-50); padding: 18px;
+    border-radius: 12px; text-align: center; border: 2px solid var(--slate-200);
+    position: relative;
+  }
+  .flow-step-num {
+    position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+    background: var(--blue); color: white; width: 26px; height: 26px;
+    border-radius: 50%; font-size: 13px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .flow-step-title { font-weight: 700; font-size: 14px; color: var(--slate-900); margin-bottom: 6px; margin-top: 6px; }
+  .flow-step-desc { font-size: 12px; color: var(--slate-600); }
+  .flow-arrow {
+    display: flex; align-items: center; padding: 0 8px;
+    color: var(--slate-400); font-size: 24px; font-weight: 700;
+  }
+  @media (max-width: 800px) {
+    .flow-row { flex-direction: column; gap: 16px; }
+    .flow-arrow { display: none; }
+  }
+
+  .flow-modes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 20px; }
+  @media (max-width: 700px) { .flow-modes { grid-template-columns: 1fr; } }
+  .flow-mode {
+    border-radius: 12px; padding: 16px; text-align: left;
+    border: 2px solid;
+  }
+  .flow-mode.disabled { background: #f1f5f9; border-color: var(--slate-300); }
+  .flow-mode.in-app { background: #dbeafe; border-color: var(--blue); }
+  .flow-mode.sharepoint { background: #dcfce7; border-color: var(--green); }
+  .flow-mode-title { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+  .flow-mode-desc { font-size: 12px; line-height: 1.5; }
+
+  /* STATS CARDS */
+  .stat-card {
+    background: white; border-radius: 12px; padding: 20px;
+    border: 1px solid var(--slate-200); text-align: center;
+  }
+  .stat-card-num {
+    font-size: 36px; font-weight: 800; line-height: 1;
+    background: linear-gradient(135deg, var(--navy), var(--blue));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .stat-card-label { font-size: 12px; color: var(--slate-500); margin-top: 6px; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; }
+
+  /* PERMS */
+  .perm-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  @media (max-width: 700px) { .perm-list { grid-template-columns: 1fr; } }
+  .perm-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px; background: var(--slate-50); border-radius: 8px;
+    font-size: 13px;
+  }
+  .perm-check { color: var(--green); font-size: 18px; font-weight: 700; }
+  .perm-name { font-family: ui-monospace, Menlo, monospace; font-weight: 600; color: var(--slate-900); font-size: 12px; }
+  .perm-desc { font-size: 11px; color: var(--slate-500); margin-left: auto; }
+
+  /* ROADMAP */
+  .roadmap { display: grid; gap: 14px; }
+  .road-item {
+    display: flex; gap: 16px; padding: 16px 20px;
+    background: white; border-radius: 12px; border: 1px solid var(--slate-200);
+  }
+  .road-state {
+    width: 90px; flex-shrink: 0; font-size: 11px;
+    font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
+    padding: 6px 10px; border-radius: 6px; text-align: center; height: 28px;
+  }
+  .road-state.done { background: #dcfce7; color: #166534; }
+  .road-state.next { background: #fed7aa; color: #9a3412; }
+  .road-state.blocked { background: #fee2e2; color: #991b1b; }
+  .road-state.future { background: var(--slate-100); color: var(--slate-600); }
+  .road-content { flex: 1; }
+  .road-title { font-weight: 700; font-size: 14px; color: var(--slate-900); margin-bottom: 4px; }
+  .road-desc { font-size: 12px; color: var(--slate-600); }
+
+  /* FOOTER */
+  .footer {
+    margin-top: 60px; padding: 24px; text-align: center;
+    font-size: 12px; color: var(--slate-500);
+    border-top: 1px solid var(--slate-200);
+  }
+  .footer-brand { font-weight: 700; color: var(--slate-700); }
+
+  /* PRINT */
+  @media print {
+    body { background: white; }
+    .page { padding: 0; max-width: none; }
+    .arch, .card, .round, .todo-item, .flow, .road-item, .stat-card { break-inside: avoid; }
+    .hero { box-shadow: none; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="hero-eyebrow">Qualifica Group · Ecosistema Operativo</div>
+    <h1>9 webapp, 1 Hub, 12 permessi Microsoft.<br>Stato e cosa fare.</h1>
+    <p>Snapshot del Sistema Operativo Qualifica al 25 maggio 2026. Tutte le webapp condividono un Hub centrale che gestisce integrazioni Microsoft 365, AI Claude, storage SharePoint, log AI e mappatura QNET. 4 round di audit + ~30 PR in 9 giorni.</p>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="hero-stat-val">9</div><div class="hero-stat-label">Webapp in produzione</div></div>
+      <div class="hero-stat"><div class="hero-stat-val">12</div><div class="hero-stat-label">Permessi M365 attivi</div></div>
+      <div class="hero-stat"><div class="hero-stat-val">~30</div><div class="hero-stat-label">PR mergiati 9 giorni</div></div>
+      <div class="hero-stat"><div class="hero-stat-val">28</div><div class="hero-stat-label">Fix audit mergiati</div></div>
+      <div class="hero-stat"><div class="hero-stat-val">2</div><div class="hero-stat-label">Action items per te</div></div>
+    </div>
+  </header>
+
+  <!-- COSA DEVI FARE -->
+  <section class="section">
+    <div class="section-title">Priorità immediata</div>
+    <h2>⚡ 2 cose da fare ORA (5 minuti totali)</h2>
+
+    <div class="todo-box">
+      <h3>🎯 Action items dopo l'ultimo PR (audit R4)</h3>
+
+      <div class="todo-item">
+        <div class="todo-title"><span class="todo-num">1</span>Applica migration SQL su Supabase HR<span class="todo-time">2 min</span></div>
+        <div class="todo-desc">Senza questa migration, CdG quando salva allocazioni dipendenti usa un fallback non-atomico (funziona, ma c'è warning nei log e una piccola finestra di race condition fra HR e CdG).</div>
+        <div class="todo-howto">
+          1. Vai su Supabase Dashboard → progetto HR<br>
+          2. SQL Editor → New query<br>
+          3. Copia tutto il file <b>apps/hr/supabase/migration-cdg-replace-allocazioni-rpc.sql</b><br>
+          4. Run. Risultato atteso: "Success. No rows returned"
+        </div>
+      </div>
+
+      <div class="todo-item">
+        <div class="todo-title"><span class="todo-num">2</span>Verifica <code>CRON_SECRET</code> su Vercel SIC<span class="todo-time">1 min</span></div>
+        <div class="todo-desc">Prima del fix R4, i cron SIC erano tecnicamente aperti (chiunque conoscesse l'URL li poteva triggerare). Ora fail-closed: senza CRON_SECRET il cron Vercel NON funziona. Devi verificare che la env var sia settata.</div>
+        <div class="todo-howto">
+          1. Vai su Vercel Dashboard → progetto qualifica-wea-sic → Settings → Environment Variables<br>
+          2. Cerca <b>CRON_SECRET</b>. Se manca, "Add" con un valore random (32+ caratteri, es. <code>openssl rand -hex 32</code>)<br>
+          3. Redeploy (o aspetta il prossimo push)
+        </div>
+      </div>
+
+      <div class="todo-item" style="background: #f0fdf4; border-left-color: #16a34a;">
+        <div class="todo-title" style="color: #14532d;"><span class="todo-num" style="background: #16a34a;">✓</span>Già fatto da te ieri</div>
+        <div class="todo-desc">Hai concesso in autonomia (admin global Microsoft) i 12 permessi Graph sull'app <code>Qualifica Webapps – Mail Sender</code>. Questo ha sbloccato Q-WORK Step 1.D email import + 1.6 SharePoint allegati. ✅</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ARCHITETTURA -->
+  <section class="section">
+    <div class="section-title">Architettura</div>
+    <h2>🏛️ Come funziona l'ecosistema</h2>
+
+    <div class="arch">
+      <div class="arch-hub">
+        <div class="arch-hub-label">Hub centrale (cervello)</div>
+        <div class="arch-hub-name">Qualifica Hub</div>
+        <div class="arch-hub-desc">Mission Control AI · Integrazioni M365 · Storage settings · Dizionari campi/API · AI log cross-app</div>
+        <div class="arch-hub-badges">
+          <span class="arch-hub-badge">/admin/storage-settings</span>
+          <span class="arch-hub-badge">/admin/integrazioni/microsoft-365</span>
+          <span class="arch-hub-badge">/mission-control</span>
+          <span class="arch-hub-badge">/admin/draft-outreach</span>
+        </div>
+      </div>
+
+      <div class="arch-arrows">▼ Hub propaga env vars (M365 + storage config + AI key) via Vercel API ▼</div>
+
+      <div class="arch-apps">
+        <div class="arch-app">
+          <div class="arch-app-emoji">👥</div>
+          <div class="arch-app-name">WeA HR</div>
+          <div class="arch-app-status live">● LIVE</div>
+        </div>
+        <div class="arch-app">
+          <div class="arch-app-emoji">💼</div>
+          <div class="arch-app-name">WeA Sales</div>
+          <div class="arch-app-status live">● LIVE</div>
+        </div>
+        <div class="arch-app">
+          <div class="arch-app-emoji">📊</div>
+          <div class="arch-app-name">WeA BP 2026</div>
+          <div class="arch-app-status live">● LIVE</div>
+        </div>
+        <div class="arch-app">
+          <div class="arch-app-emoji">📜</div>
+          <div class="arch-app-name">WeA ISO</div>
+          <div class="arch-app-status live">● LIVE</div>
+        </div>
+        <div class="arch-app">
+          <div class="arch-app-emoji">💰</div>
+          <div class="arch-app-name">WeA CdG</div>
+          <div class="arch-app-status live">● LIVE</div>
+        </div>
+        <div class="arch-app">
+          <div class="arch-app-emoji">🦺</div>
+          <div class="arch-app-name">Q-SIC81</div>
+          <div class="arch-app-status live">● LIVE</div>
+        </div>
+        <div class="arch-app">
+          <div class="arch-app-emoji">⚙️</div>
+          <div class="arch-app-name">WeA SGI</div>
+          <div class="arch-app-status live">● LIVE</div>
+        </div>
+        <div class="arch-app">
+          <div class="arch-app-emoji">✅</div>
+          <div class="arch-app-name">Q-WORK</div>
+          <div class="arch-app-status deploy">● Q-TASK migration pending</div>
+        </div>
+      </div>
+
+      <div style="margin-top: 32px; padding: 20px; background: var(--slate-50); border-radius: 12px; font-size: 13px; color: var(--slate-700); border-left: 4px solid var(--blue);">
+        <b>Regola d'oro:</b> ogni nuova integrazione esterna (Microsoft 365, Anthropic AI, SharePoint, future API) vive SOLO nel Hub. Le altre 8 webapp leggono env vars propagate. Nessuna webapp registra app Azure proprie. Pattern deciso il 23-05-2026.
+      </div>
+    </div>
+  </section>
+
+  <!-- M365 PERMESSI -->
+  <section class="section">
+    <div class="section-title">Integrazione Microsoft 365</div>
+    <h2>🔑 12 permessi Graph attivi (concessi da te il 24-05)</h2>
+
+    <div class="grid grid-2">
+      <div class="card">
+        <div style="font-weight: 700; font-size: 15px; margin-bottom: 12px; color: var(--navy);">📧 Mail (3 permessi)</div>
+        <div class="perm-list">
+          <div class="perm-item"><span class="perm-check">✓</span><div><div class="perm-name">Mail.Send</div><div class="perm-desc">Invia email da noreplyqg@</div></div></div>
+          <div class="perm-item"><span class="perm-check">✓</span><div><div class="perm-name">Mail.Read</div><div class="perm-desc">Legge inbox tutto il tenant</div></div></div>
+          <div class="perm-item"><span class="perm-check">✓</span><div><div class="perm-name">Mail.ReadWrite</div><div class="perm-desc">Sposta, segna letta, cancella</div></div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="font-weight: 700; font-size: 15px; margin-bottom: 12px; color: var(--navy);">📅 Calendars (2)</div>
+        <div class="perm-list">
+          <div class="perm-item"><span class="perm-check">✓</span><div><div class="perm-name">Calendars.Read</div><div class="perm-desc">Aggrega riunioni</div></div></div>
+          <div class="perm-item"><span class="perm-check">✓</span><div><div class="perm-name">Calendars.ReadWrite</div><div class="perm-desc">Crea/modifica eventi</div></div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="font-weight: 700; font-size: 15px; margin-bottom: 12px; color: var(--navy);">👤 Contacts + Identity (3)</div>
+        <div class="perm-list">
+          <div class="perm-item"><span class="perm-check">✓</span><div><div class="perm-name">Contacts.Read</div><div class="perm-desc">Rubrica Outlook</div></div></div>
+          <div class="perm-item"><span class="perm-check">✓</span><div><div class="perm-name">User.Read.All</div><div class="perm-desc">Anagrafica dipendenti</div></div></div>
+          <div class="perm-item"><span class="perm-check">✓</span><div><div class="perm-name">User.Read</div><div class="perm-desc">OAuth login (legacy)</div></div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="font-weight: 700; font-size: 15px; margin-bottom: 12px; color: var(--navy);">📁 SharePoint + OneDrive (4)</div>
+        <div class="perm-list">
+          <div class="perm-item"><span class="perm-check">✓</span><div><div class="perm-name">Sites.Read.All</div><div class="perm-desc">Legge siti SharePoint</div></div></div>
+          <div class="perm-item"><span class="perm-check">✓</span><div><div class="perm-name">Sites.ReadWrite.All</div><div class="perm-desc">Crea cartelle</div></div></div>
+          <div class="perm-item"><span class="perm-check">✓</span><div><div class="perm-name">Files.Read.All</div><div class="perm-desc">Legge file OneDrive</div></div></div>
+          <div class="perm-item"><span class="perm-check">✓</span><div><div class="perm-name">Files.ReadWrite.All</div><div class="perm-desc">Crea/modifica file</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top: 16px; padding: 16px 20px; background: #fef3c7; border-left: 4px solid #f59e0b; border-radius: 8px; font-size: 13px; color: #78350f;">
+      <b>Privacy notice ai dipendenti</b> da pubblicare prima del go-live email import + SharePoint storage (bozza pronta in <code>apps/hub/docs/microsoft-365/README.md</code>). Vale come GDPR transparency requirement.
+    </div>
+  </section>
+
+  <!-- STORAGE FLOW -->
+  <section class="section">
+    <div class="section-title">Storage allegati</div>
+    <h2>💾 Come ogni webapp gestisce gli allegati</h2>
+
+    <div class="flow">
+      <div class="flow-row">
+        <div class="flow-step">
+          <div class="flow-step-num">1</div>
+          <div class="flow-step-title">Utente carica file</div>
+          <div class="flow-step-desc">Da una webapp (es. Q-WORK, ISO)</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <div class="flow-step-num">2</div>
+          <div class="flow-step-title">Webapp chiama Hub</div>
+          <div class="flow-step-desc">getStorageConfig("qwork")</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <div class="flow-step-num">3</div>
+          <div class="flow-step-title">Hub risponde</div>
+          <div class="flow-step-desc">"Modalità sharepoint, cartella qwork-{cliente}-{att}"</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <div class="flow-step-num">4</div>
+          <div class="flow-step-title">Pkg dispatcher</div>
+          <div class="flow-step-desc">@qualifica/storage routa al backend</div>
+        </div>
+      </div>
+
+      <div style="text-align: center; font-weight: 700; color: var(--slate-700); margin: 24px 0 12px; font-size: 14px;">
+        3 modalità configurabili per ogni webapp (gestite in <code>/admin/storage-settings</code>)
+      </div>
+
+      <div class="flow-modes">
+        <div class="flow-mode disabled">
+          <div class="flow-mode-title" style="color: var(--slate-700);">⛔ Disabled</div>
+          <div class="flow-mode-desc" style="color: var(--slate-600);">La webapp non gestisce allegati. Default per BP, CdG, SGI (no documenti cliente).</div>
+        </div>
+        <div class="flow-mode in-app">
+          <div class="flow-mode-title" style="color: var(--blue);">💽 In-app (Supabase)</div>
+          <div class="flow-mode-desc" style="color: #1e40af;">Allegati nel bucket Supabase della webapp. Semplice, veloce. Limite 25 MB.</div>
+        </div>
+        <div class="flow-mode sharepoint">
+          <div class="flow-mode-title" style="color: var(--green);">☁️ SharePoint/OneDrive</div>
+          <div class="flow-mode-desc" style="color: #14532d;">Default consigliato. Cartelle per cliente, link condivisi, backup Microsoft. Niente doppio storage.</div>
+        </div>
+      </div>
+
+      <div style="margin-top: 24px; background: var(--slate-50); padding: 16px 20px; border-radius: 10px; font-size: 13px; color: var(--slate-700);">
+        <b>Customer upload-only:</b> per ogni webapp puoi attivare il flag che permette ai clienti di SOLO CARICARE file (non leggere/cancellare). Esempio Q-WORK: il cliente carica il documento richiesto, il commerciale lo vede, ma il cliente non può sbirciare nella cartella di altri.
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 ROUND AUDIT -->
+  <section class="section">
+    <div class="section-title">Lavoro fatto</div>
+    <h2>📋 4 round audit + 28 fix in 9 giorni</h2>
+
+    <div class="timeline">
+      <div class="round round-r1">
+        <div class="round-num">R1<div class="round-num-sub">17-18 mag</div></div>
+        <div class="round-content">
+          <div class="round-title">Setup AI Chat su 8 webapp + Mission Control</div>
+          <div class="round-meta">AIChat condiviso · Claude Opus 4.5 · Mission Control con tool use cross-app</div>
+          <ul class="round-bullets">
+            <li>Endpoint /api/ai-chat unificato in 8 webapp</li>
+            <li>Hub Mission Control AI con 10 tool per query cross-app</li>
+            <li>Pacchetto @qualifica/ui condiviso con AIChat component</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="round round-r2">
+        <div class="round-num">R2<div class="round-num-sub">22-23 mag</div></div>
+        <div class="round-content">
+          <div class="round-title">AI log centralizzato + WeA BP BMC libero</div>
+          <div class="round-meta">Endpoint /api/ai/log Hub · Export JSON · Editor BlockNote stile Notion</div>
+          <ul class="round-bullets">
+            <li>Tabella ai_chat_log + integrazione 9 endpoint</li>
+            <li>BP: toggle "Guidata/Libera" su modal compilazione BMC + export JSON singolo + aggregato 28 FA</li>
+            <li>Hub: pkg @qualifica/mail Microsoft Graph + draft-outreach commerciale</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="round round-r3">
+        <div class="round-num">R3<div class="round-num-sub">23-24 mag</div></div>
+        <div class="round-content">
+          <div class="round-title">Q-WORK Step 1 + 12 permessi M365 + storage centralizzato</div>
+          <div class="round-meta">CRUD attività · Kanban + Calendar · Click-to-call · Pkg @qualifica/storage</div>
+          <ul class="round-bullets">
+            <li>Q-WORK: API CRUD attività + segnatempo timer + 3 viste (Tabella/Kanban/Calendar)</li>
+            <li>Click-to-call con auto-prompt nota post-chiamata + nota obbligatoria su chiusura</li>
+            <li>Hub: pagina /admin/storage-settings + pkg @qualifica/storage dispatcher</li>
+            <li>12 permessi Microsoft Graph concessi (da te direttamente, admin global)</li>
+            <li>Round 3 audit: 8 fix (XSS draft-outreach, retry mail, rate limit MC, durationMs su 8 endpoint)</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="round round-r4">
+        <div class="round-num">R4<div class="round-num-sub">25 mag</div></div>
+        <div class="round-content">
+          <div class="round-title">Audit cross-app · security + race + privacy</div>
+          <div class="round-meta">6 fix critici (1 security, 1 privacy, 1 race, 3 hardening)</div>
+          <ul class="round-bullets">
+            <li>SIC cron auth bypass risolto (header non-spoofabile)</li>
+            <li>Sales privacy leak su offerte (commerciale titolare vede sue offerte)</li>
+            <li>CdG race delete+insert allocazioni → RPC atomica con migration</li>
+            <li>ISO timezone Europe/Rome su cron scadenze (era UTC, 1gg drift)</li>
+            <li>BP tree_json validation + cap body 2MB (anti-DoS)</li>
+            <li>@qualifica/storage URL config obbligatorio (no hardcoded Vercel)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ROADMAP -->
+  <section class="section">
+    <div class="section-title">Roadmap prossimi step</div>
+    <h2>🗺️ Cosa arriverà nei prossimi giri</h2>
+
+    <div class="roadmap">
+      <div class="road-item">
+        <div class="road-state next">NEXT</div>
+        <div class="road-content">
+          <div class="road-title">Q-WORK Step 1.D · Email import (~1 settimana)</div>
+          <div class="road-desc">Cron scheduled ogni 2 min legge inbox <code>noreplyqg@</code> + caselle condivise, crea attività type=email in /inbox. Sbloccato dai permessi M365 che hai concesso ieri.</div>
+        </div>
+      </div>
+      <div class="road-item">
+        <div class="road-state next">NEXT</div>
+        <div class="road-content">
+          <div class="road-title">Q-WORK Step 1.6 · SharePoint allegati (~4 giorni)</div>
+          <div class="road-desc">Implementazione vera del backend <code>sharepoint</code> in @qualifica/storage. Upload via Graph, cartelle auto-generate <code>qwork-{cliente}-{attivita}/</code>.</div>
+        </div>
+      </div>
+      <div class="road-item">
+        <div class="road-state blocked">BLOCCATO</div>
+        <div class="road-content">
+          <div class="road-title">Q-WORK Step 1.5 · ETL Q-TASK (1303 attività)</div>
+          <div class="road-desc">Migrazione storica dal vecchio Q-TASK Laravel a Q-WORK. Bloccato in attesa intro a Nicola Eliseo per credenziali DB Q-TASK.</div>
+        </div>
+      </div>
+      <div class="road-item">
+        <div class="road-state future">FUTURO</div>
+        <div class="road-content">
+          <div class="road-title">Q-WORK Step 1.7 · Link condivisi clienti</div>
+          <div class="road-desc">Bottone "Condividi col cliente" su ogni allegato. Link Graph anonymous/organization con scadenza configurabile (default 30gg).</div>
+        </div>
+      </div>
+      <div class="road-item">
+        <div class="road-state future">FUTURO</div>
+        <div class="road-content">
+          <div class="road-title">Q-WORK Step 2 · AI Claude integrato</div>
+          <div class="road-desc">Pre-fill form nuova attività via Haiku, chat side-panel con Sonnet 4.6, prompt caching. Budget €300/mese cap.</div>
+        </div>
+      </div>
+      <div class="road-item">
+        <div class="road-state future">FUTURO</div>
+        <div class="road-content">
+          <div class="road-title">Q-WORK Step 2.5 · Microsoft Teams Phone (rimandato)</div>
+          <div class="road-desc">Trigger di rivalutazione: ≥10 chiamate/giorno per commerciale. Costo €960/anno + setup. Oggi click-to-call tel: + nota è sufficiente.</div>
+        </div>
+      </div>
+      <div class="road-item">
+        <div class="road-state done">FATTO</div>
+        <div class="road-content">
+          <div class="road-title">Pattern condivisi consolidati</div>
+          <div class="road-desc">@qualifica/ai, @qualifica/mail, @qualifica/storage. Le sessioni Claude parallele vedono i pattern via memoria/git → coerenza cross-app automatica.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS FINALI -->
+  <section class="section">
+    <div class="section-title">Numeri</div>
+    <h2>📊 Statistiche ecosistema oggi</h2>
+
+    <div class="grid grid-4">
+      <div class="stat-card">
+        <div class="stat-card-num">9</div>
+        <div class="stat-card-label">Webapp produzione</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-num">14</div>
+        <div class="stat-card-label">Pkg condivisi monorepo</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-num">12</div>
+        <div class="stat-card-label">Permessi M365 attivi</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-num">10</div>
+        <div class="stat-card-label">Tool Mission Control AI</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-num">28</div>
+        <div class="stat-card-label">Bug audit risolti</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-num">8/9</div>
+        <div class="stat-card-label">Webapp con AI chat</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-num">162</div>
+        <div class="stat-card-label">Utenti M365 tenant</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-num">3</div>
+        <div class="stat-card-label">Admin tecnici Group</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COSA SUCCEDE DIETRO -->
+  <section class="section">
+    <div class="section-title">Sotto il cofano</div>
+    <h2>🔧 Pattern fondamentali (per chi mantiene)</h2>
+
+    <div class="grid grid-2">
+      <div class="card">
+        <div style="font-weight: 700; font-size: 16px; color: var(--navy); margin-bottom: 10px;">🌐 Integrazioni esterne SOLO Hub</div>
+        <div style="font-size: 13px; color: var(--slate-700);">Microsoft 365, Anthropic, SharePoint, future API → un solo punto di config in Hub <code>/admin/integrazioni/</code>. Hub propaga env vars Vercel a tutte le webapp target. Nessuna webapp registra app Azure/Anthropic proprie.</div>
+      </div>
+
+      <div class="card">
+        <div style="font-weight: 700; font-size: 16px; color: var(--green); margin-bottom: 10px;">🚫 PEC mai integrata (regola ferma)</div>
+        <div style="font-size: 13px; color: var(--slate-700);">Decisione 24-05-2026: nessuna webapp Qualifica integra caselle PEC. Troppo serie legalmente. Si gestiscono solo manualmente sui client PEC nativi. Vale per ogni app presente e futura.</div>
+      </div>
+
+      <div class="card">
+        <div style="font-weight: 700; font-size: 16px; color: var(--orange); margin-bottom: 10px;">👥 3 admin tecnici Group</div>
+        <div style="font-size: 13px; color: var(--slate-700);">Felice = DNS Netsons (sottodomini). Lillo = Microsoft 365 + Azure AD (mail/permessi). Nicola = Qnet/Q-TASK (DB legacy). Non si sovrappongono — chi tocca cosa è chiaro.</div>
+      </div>
+
+      <div class="card">
+        <div style="font-weight: 700; font-size: 16px; color: var(--red); margin-bottom: 10px;">🔐 Secret rotation 22-05-2028</div>
+        <div style="font-size: 13px; color: var(--slate-700);">Il client_secret Azure dell'app "Qualifica Webapps – Mail Sender" scade il 22 maggio 2028. Da rinnovare 30 giorni prima. Procedura completa in <code>apps/hub/docs/microsoft-365/README.md</code> sezione "Rotazione Client Secret".</div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="footer-brand">Qualifica Group · Sistema Operativo · Snapshot 2026-05-25</div>
+    <div>Apri in browser per esperienza completa · Stampa con Cmd+P per versione PDF<br>
+    Generato dopo Round 4 audit · 28 fix mergiati · 2 action items pendenti per Enrico</div>
+  </footer>
+
+</div>
+</body>
+</html>
