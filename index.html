@@ -204,6 +204,13 @@
   .badge-aging{background:rgba(245,158,11,.15); color:#f59e0b}
   .badge-stale{background:rgba(239,68,68,.15); color:#ef4444}
   .badge-never{background:rgba(100,116,139,.12); color:#64748b}
+  .ilog-import-btn{
+    display:inline-flex; align-items:center; gap:4px;
+    margin-top:8px; padding:4px 10px; border-radius:5px; font-size:10px; font-weight:700;
+    background:rgba(99,102,241,.12); color:var(--accent); border:1px solid rgba(99,102,241,.25);
+    text-decoration:none; cursor:pointer; transition:background .15s,border-color .15s;
+  }
+  .ilog-import-btn:hover{background:rgba(99,102,241,.22); border-color:var(--accent)}
 
   .ilog-hist-table{width:100%; border-collapse:collapse; font-size:11px}
   .ilog-hist-table th{text-align:left; padding:7px 10px; border-bottom:1px solid var(--border); color:var(--text3); font-weight:700; font-size:10px; text-transform:uppercase; letter-spacing:.3px}
@@ -839,6 +846,7 @@ if (sessionStorage.getItem(CREDS_SESSION_KEY) === '1') credsRenderTable();
           <div class="ilog-date">${r ? fmtDate(r.importato_at) : 'Mai importato'}</div>
           <div class="ilog-rows">${r ? `${(r.righe_ok||0).toLocaleString('it-IT')} righe caricate` : ''}</div>
           ${freshnessBadge(days)}
+          <a href="dashboard_ADMIN/?bu=${bu}" class="ilog-import-btn" title="Importa Excel per ${bu}">📥 Importa</a>
         </div>
       `;
     });
@@ -856,6 +864,7 @@ if (sessionStorage.getItem(CREDS_SESSION_KEY) === '1') credsRenderTable();
           <div class="ilog-date">${r ? fmtDate(r.importato_at) : 'Mai importato'}</div>
           <div class="ilog-rows">${r ? `${(r.righe_ok||0).toLocaleString('it-IT')} righe caricate` : ''}</div>
           ${freshnessBadge(days)}
+          <a href="dashboard_ADMIN/?bu=${t}" class="ilog-import-btn" title="Importa Excel per ${label}">📥 Importa</a>
         </div>
       `);
     });
