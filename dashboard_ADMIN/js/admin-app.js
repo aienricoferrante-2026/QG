@@ -387,4 +387,24 @@ document.addEventListener('DOMContentLoaded', () => {
   dz.addEventListener('drop', e => handleFiles(e.dataTransfer.files));
 
   if (isAuthed()) showApp(); else showLogin();
+
+  // Auto-selezione BU da query param ?bu=FOR (link diretto dal Cruscotto)
+  const urlBu = new URLSearchParams(location.search).get('bu');
+  if (urlBu) {
+    // Attendi che populateForceBu() sia stato chiamato (è dentro showApp/showLogin)
+    setTimeout(() => {
+      const sel = document.getElementById('forceBu');
+      if (!sel) return;
+      for (const opt of sel.options) {
+        if (opt.value === `commesse|${urlBu}`) { sel.value = opt.value; break; }
+      }
+      // Evidenzia il selettore per segnalare la pre-selezione
+      sel.style.borderColor = '#f59e0b';
+      sel.style.boxShadow = '0 0 0 2px rgba(245,158,11,.25)';
+      const hint = document.createElement('p');
+      hint.style.cssText = 'margin-top:6px;color:#fbbf24;font-size:11px;font-weight:600';
+      hint.textContent = `⚡ BU pre-selezionata: ${urlBu} — trascina qui il file Excel.`;
+      sel.parentNode.appendChild(hint);
+    }, 200);
+  }
 });

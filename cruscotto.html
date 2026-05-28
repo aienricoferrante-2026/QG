@@ -18,25 +18,33 @@ body.light{
 }
 body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;min-height:100vh}
 
-/* ── Topbar ── */
-.topbar{
+/* ── App Tab Bar (condivisa Hub + Cruscotto) ── */
+.app-bar{
   position:sticky;top:0;z-index:100;
   background:var(--bg);border-bottom:1px solid var(--border);
-  padding:12px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:0 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;
+  height:52px;
 }
-.topbar-left{display:flex;align-items:center;gap:12px}
-.topbar-logo{font-size:20px}
-.topbar-title{font-size:16px;font-weight:700;letter-spacing:-.3px}
-.topbar-sub{color:var(--text3);font-size:10px;margin-top:1px}
-.topbar-right{display:flex;align-items:center;gap:8px}
-.tb-btn{
-  padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;
+.app-brand{font-size:13px;font-weight:800;letter-spacing:-.2px;white-space:nowrap;color:var(--text)}
+.app-brand span{color:var(--text3);font-weight:400}
+.app-tabs{display:flex;align-items:stretch;gap:2px;height:100%}
+.app-tab{
+  display:inline-flex;align-items:center;gap:6px;padding:0 16px;
+  font-size:12px;font-weight:600;text-decoration:none;color:var(--text3);
+  border-bottom:2px solid transparent;transition:color .15s,border-color .15s;
+  white-space:nowrap;
+}
+.app-tab:hover{color:var(--text)}
+.app-tab.active{color:var(--text);border-bottom-color:var(--accent)}
+.app-actions{display:flex;align-items:center;gap:6px}
+.ab-btn{
+  padding:5px 11px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;
   background:var(--card);border:1px solid var(--border);color:var(--text2);
-  text-decoration:none;display:inline-flex;align-items:center;gap:5px;
+  text-decoration:none;display:inline-flex;align-items:center;gap:4px;
   transition:border-color .15s,color .15s;
 }
-.tb-btn:hover{border-color:var(--accent);color:var(--text)}
-.tb-theme{width:32px;height:32px;border-radius:50%;padding:0;justify-content:center;font-size:14px}
+.ab-btn:hover{border-color:var(--accent);color:var(--text)}
+.ab-theme{width:30px;height:30px;border-radius:50%;padding:0;justify-content:center;font-size:13px}
 
 /* ── Layout ── */
 .main{max-width:1320px;margin:0 auto;padding:24px 20px 60px}
@@ -184,17 +192,16 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
 </head>
 <body>
 
-<div class="topbar">
-  <div class="topbar-left">
-    <span class="topbar-logo">📊</span>
-    <div>
-      <div class="topbar-title">Qualifica Group · Cruscotto Unificato</div>
-      <div class="topbar-sub" id="last-upd">Caricamento…</div>
-    </div>
+<div class="app-bar">
+  <div class="app-brand">Qualifica <span>Group · STW</span></div>
+  <div class="app-tabs">
+    <a class="app-tab" href="index.html">🏠 Hub</a>
+    <a class="app-tab active" href="cruscotto.html">📊 Cruscotto</a>
   </div>
-  <div class="topbar-right">
-    <a class="tb-btn" href="index.html">🏠 Hub</a>
-    <button class="tb-btn tb-theme" id="themeBtn" onclick="toggleTheme()" title="Cambia tema">🌙</button>
+  <div class="app-actions">
+    <span id="last-upd" style="font-size:10px;color:var(--text3);display:none" class="ab-btn" style="cursor:default">…</span>
+    <a class="ab-btn" href="dashboard_ADMIN/" title="Importa Excel">📥 Import</a>
+    <button class="ab-btn ab-theme" id="themeBtn" onclick="toggleTheme()" title="Tema">🌙</button>
   </div>
 </div>
 
@@ -363,7 +370,8 @@ function renderGlobal(results) {
   `;
 
   // Timestamp
-  document.getElementById('last-upd').textContent = 'Dati locali · ' + new Date().toLocaleDateString('it-IT',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  const updEl = document.getElementById('last-upd');
+  if (updEl) { updEl.textContent = 'Agg. ' + new Date().toLocaleDateString('it-IT',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}); updEl.style.display='inline-flex'; }
 
   // Anomalie
   const anoRicaviZero = results.filter(r => r.aggr.ricavi < 100);
@@ -550,7 +558,10 @@ function renderBuAccordion(results) {
         </div>
         <div class="status-row">${pills || '<span style="color:var(--text3);font-size:11px">Nessun dato status</span>'}</div>
         ${clientiHtml}
-        <a class="bu-link" href="${r.bu.url}" target="_blank">Apri dashboard ${r.bu.code} →</a>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+          <a class="bu-link" href="${r.bu.url}" target="_blank">📊 Dashboard ${r.bu.code} →</a>
+          <a class="bu-link" href="dashboard_ADMIN/?bu=${r.bu.code}" target="_blank" style="background:rgba(245,158,11,.12);color:#fbbf24;border-color:rgba(245,158,11,.3)">📥 Importa Excel ${r.bu.code}</a>
+        </div>
       </div>
     `;
     wrap.appendChild(panel);
