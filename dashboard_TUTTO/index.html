@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Totale · Tutte le BU — Qualifica Group</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+  <link rel="stylesheet" href="../shared/dashboard-core/css/variables.css">
+  <link rel="stylesheet" href="../shared/dashboard-core/css/layout.css">
+  <link rel="stylesheet" href="../shared/dashboard-core/css/tables.css">
+  <link rel="stylesheet" href="../shared/dashboard-core/css/modal.css">
+  <link rel="stylesheet" href="../shared/dashboard-core/css/manuale.css">
+  <link rel="stylesheet" href="../shared/upload.css">
+  <style>
+    /* BU badge nel filtro e nelle tabelle */
+    .bu-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px;vertical-align:middle}
+    .sec-nav-bu{color:var(--text3);font-size:9px;letter-spacing:.3px;text-transform:uppercase;margin:2px 0 0 22px}
+  </style>
+
+  <!-- ── SECTOR CONFIG (prima di tutto) ── -->
+  <script>
+  window.SECTOR_CONFIG = {
+    label:  'Tutte le BU · Vista Totale',
+    code:   'TUTTO',
+    defaultSection: 'executive',
+    filters: [
+      { id: 'fBu',      key: '_bu',         label: 'Settore (BU)',  ph: 'Tutti' },
+      { id: 'fStatus',  key: 'status',       label: 'Status',        ph: 'Tutti' },
+      { id: 'fCliente', key: 'cliente',      label: 'Cliente',       ph: 'Tutti' },
+      { id: 'fSocieta', key: 'societa',      label: 'Società',       ph: 'Tutte' },
+      { id: 'fSede',    key: 'sedeNorm',     label: 'Sede',          ph: 'Tutte' },
+      { id: 'fRegione', key: 'regione',      label: 'Regione',       ph: 'Tutte' },
+      { id: 'fResp',    key: 'responsabile', label: 'Responsabile',  ph: 'Tutti' },
+      { id: 'fAgente',  key: 'agente',       label: 'Agente / Comm.',ph: 'Tutti' },
+      { id: 'fSegnalatore', key: 'segnalatore', label: 'Segnalatore', ph: 'Tutti' },
+    ],
+    extraSections: ['perBu'],
+  };
+
+  // BU metadata (colori + icone per grafici e badge)
+  window.BU_META = {
+    FOR:     { label:'Formazione',       icon:'🎓', color:'#10b981' },
+    ISO:     { label:'ISO',              icon:'📜', color:'#3b82f6' },
+    SIC:     { label:'Sicurezza',        icon:'🛡️', color:'#06b6d4' },
+    APL_PAL: { label:'Politiche Attive', icon:'💼', color:'#a78bfa' },
+    GDPR:    { label:'GDPR',             icon:'🔒', color:'#ec4899' },
+    SOA:     { label:'SOA',              icon:'🏗️', color:'#f59e0b' },
+    AVV:     { label:'Avvalimenti',      icon:'🤝', color:'#7c3aed' },
+    GAR:     { label:'Gare',             icon:'🎯', color:'#0891b2' },
+    FIA:     { label:'Fin. Agevolata',   icon:'💰', color:'#d97706' },
+    APL_RES: { label:'PAL Risorse',      icon:'👥', color:'#059669' },
+    IST:     { label:'Istituti',         icon:'🏛️', color:'#34d399' },
+  };
+  </script>
+</head>
+<body>
+
+<!-- SIDEBAR TOGGLE -->
+<button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()" title="Nascondi/Mostra menu">&#9776;</button>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-brand">
+    <h2>Qualifica Group</h2>
+    <p>Dashboard Totale · Tutte le BU</p>
+    <p style="margin-top:6px">
+      <a href="../index.html" style="color:#94a3b8;font-size:10px;text-decoration:none">&larr; Hub</a>
+      &nbsp;·&nbsp;
+      <a href="../cruscotto.html" style="color:#94a3b8;font-size:10px;text-decoration:none">📊 Cruscotto</a>
+    </p>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-label">🔍 Esplora</div>
+    <a class="nav-item" data-sec="explore" onclick="showSec('explore')"><span class="nav-icon">&#9881;</span>Esplora</a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-label">📋 Overview</div>
+    <a class="nav-item active" data-sec="executive" onclick="showSec('executive')"><span class="nav-icon">&#9632;</span>Executive Summary</a>
+    <a class="nav-item" data-sec="perBu" onclick="showSec('perBu')"><span class="nav-icon">&#9672;</span>Analisi per BU</a>
+    <a class="nav-item" data-sec="ricavi" onclick="showSec('ricavi')"><span class="nav-icon">&#8364;</span>Ricavi &amp; MOL</a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-label">💰 Finanza</div>
+    <a class="nav-item" data-sec="econFin" onclick="showSec('econFin')"><span class="nav-icon">&#128202;</span>Econ. &amp; Finanziario</a>
+    <a class="nav-item" data-sec="analisiIncassi" onclick="showSec('analisiIncassi')"><span class="nav-icon">&#128181;</span>Analisi Incassi</a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-label">📊 Anagrafiche</div>
+    <a class="nav-item" data-sec="responsabili" onclick="showSec('responsabili')"><span class="nav-icon">&#9881;</span>Responsabili</a>
+    <a class="nav-item" data-sec="clienti" onclick="showSec('clienti')"><span class="nav-icon">&#9673;</span>Clienti</a>
+    <a class="nav-item" data-sec="sedi" onclick="showSec('sedi')"><span class="nav-icon">&#9660;</span>Sedi</a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-label">📈 Produttività</div>
+    <a class="nav-item" data-sec="produttivita" onclick="showSec('produttivita')"><span class="nav-icon">&#128202;</span>Produttività</a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-label">⚠️ Stato</div>
+    <a class="nav-item" data-sec="avanzamento" onclick="showSec('avanzamento')"><span class="nav-icon">&#9202;</span>Avanzamento</a>
+    <a class="nav-item" data-sec="alert" onclick="showSec('alert')"><span class="nav-icon">&#9888;</span>Alert</a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-label">❓ Aiuto</div>
+    <a class="nav-item" data-sec="wiki" onclick="showSec('wiki')"><span class="nav-icon">?</span>Wiki / Q&amp;A</a>
+  </div>
+</nav>
+
+<!-- MAIN CONTENT -->
+<main class="main">
+  <div class="header">
+    <div>
+      <h1>Dashboard Totale · Tutte le BU 🗂️</h1>
+      <div class="header-sub" id="header-sub">Qualifica Group · caricamento…</div>
+    </div>
+    <div id="qg-logout-btn" style="display:flex;align-items:center;gap:8px;margin-left:auto"></div>
+  </div>
+
+  <!-- Period Filters -->
+  <div id="periodFilter" class="period-filter"></div>
+  <div id="periodFilterFine" class="period-filter"></div>
+
+  <!-- Quick Filters -->
+  <div id="quickFilters" class="quick-filters"></div>
+
+  <!-- Global Filters -->
+  <div class="filters">
+    <div class="filter-group"><label>Settore (BU)</label><div class="ms-wrap" id="fBu"></div></div>
+    <div class="filter-group"><label>Status</label><div class="ms-wrap" id="fStatus"></div></div>
+    <div class="filter-group"><label>Cliente</label><div class="ms-wrap" id="fCliente"></div></div>
+    <div class="filter-group"><label>Società</label><div class="ms-wrap" id="fSocieta"></div></div>
+    <div class="filter-group"><label>Sede</label><div class="ms-wrap" id="fSede"></div></div>
+    <div class="filter-group"><label>Regione</label><div class="ms-wrap" id="fRegione"></div></div>
+    <div class="filter-group"><label>Responsabile</label><div class="ms-wrap" id="fResp"></div></div>
+    <div class="filter-group"><label>Agente / Comm.</label><div class="ms-wrap" id="fAgente"></div></div>
+    <div class="filter-group"><label>Segnalatore</label><div class="ms-wrap" id="fSegnalatore"></div></div>
+    <button class="filter-reset" onclick="resetFilters()">Reset filtri</button>
+  </div>
+
+  <!-- Active Filter Chips -->
+  <div id="activeFilters" class="active-filters"></div>
+
+  <!-- Filtered KPIs -->
+  <div id="filteredKpis" class="kpi-grid"></div>
+
+  <!-- Sections -->
+  <div id="sec-executive"></div>
+  <div id="sec-perBu" class="hidden"></div>
+  <div id="sec-ricavi" class="hidden"></div>
+  <div id="sec-econFin" class="hidden"></div>
+  <div id="sec-analisiIncassi" class="hidden"></div>
+  <div id="sec-responsabili" class="hidden"></div>
+  <div id="sec-clienti" class="hidden"></div>
+  <div id="sec-sedi" class="hidden"></div>
+  <div id="sec-avanzamento" class="hidden"></div>
+  <div id="sec-alert" class="hidden"></div>
+  <div id="sec-produttivita" class="hidden"></div>
+  <div id="sec-wiki" class="hidden"></div>
+  <div id="sec-explore" class="hidden"></div>
+</main>
+
+<!-- Drill-Down Modal -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modalTitle">Dettaglio</h3>
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<!-- Scripts: prima shared kit, poi override TUTTO -->
+<script src="../shared/dashboard-core/js/theme.js?v=2"></script>
+<script src="../shared/multiselect.js?v=1"></script>
+<script src="../shared/dashboard-core/js/utils.js?v=4"></script>
+<script src="../shared/dashboard-core/js/tables.js?v=3"></script>
+<script src="../shared/dashboard-core/js/charts.js?v=4"></script>
+<script src="../shared/dashboard-core/js/drilldown.js?v=4"></script>
+<script src="../shared/dashboard-core/js/filters.js?v=9"></script>
+<script src="../shared/dashboard-core/js/kpis.js?v=3"></script>
+<script src="../shared/dashboard-core/js/sections-overview.js?v=5"></script>
+<script src="../shared/dashboard-core/js/sections-finance.js?v=5"></script>
+<script src="../shared/dashboard-core/js/section-analisi-incassi.js?v=3"></script>
+<script src="../shared/dashboard-core/js/section-econfin.js?v=6"></script>
+<script src="../shared/dashboard-core/js/section-wiki.js?v=1"></script>
+<script src="../shared/dashboard-core/js/section-wiki-calcs.js?v=1"></script>
+<script src="../shared/dashboard-core/js/section-produttivita.js?v=1"></script>
+<script src="../shared/dashboard-core/js/section-explore-metrics.js?v=1"></script>
+<script src="../shared/dashboard-core/js/section-explore-tree.js?v=1"></script>
+<script src="../shared/dashboard-core/js/section-explore.js?v=1"></script>
+<!-- Sezione PerBU specifica TUTTO -->
+<script src="js/sections-tutto.js?v=1"></script>
+<!-- App loader TUTTO (sostituisce shared/app.js) -->
+<script src="js/app-tutto.js?v=1"></script>
+
+</body>
+</html>
