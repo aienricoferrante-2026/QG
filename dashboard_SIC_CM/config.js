@@ -4,6 +4,7 @@
  */
 window.SECTOR_CONFIG = {
   "code": "SIC",
+  "liveSupabase": true,
   "label": "Sicurezza Lavoro",
   "icon": "🛡️",
   "color": "#06b6d4",
