@@ -18,21 +18,24 @@ window.STW_ADMIN = {
   // Es. "Export ISO 18-05.xlsx", "ISO commesse maggio.xlsx", "iso_2026.xlsx"
   // funzionano tutti. Se manca il match, l'utente può "Forza BU" manualmente.
   fileRouting: [
-    // Pattern più specifici prima (per evitare falsi positivi)
-    { match: /opportunit[aà][_\s-]*for/i,    table: 'opportunita_for', bu: null, label: 'Opportunità FOR' },
-    { match: /\boff(erte)?\b/i,              table: 'offerte', bu: null, label: 'Offerte' },
-    { match: /\bapl[_\s-]*pal\b|politiche[_\s-]*attive/i, table: 'commesse', bu: 'APL_PAL', label: 'APL_PAL' },
-    { match: /\bapl[_\s-]*res\b|pal[_\s-]*risorse/i,      table: 'commesse', bu: 'APL_RES', label: 'APL_RES' },
-    { match: /\biso\b|certificazion/i,       table: 'commesse', bu: 'ISO', label: 'ISO' },
-    { match: /\bfor\b|formazion/i,           table: 'commesse', bu: 'FOR', label: 'FOR' },
-    { match: /\bsic\b|sicurezza/i,           table: 'commesse', bu: 'SIC', label: 'SIC' },
-    { match: /\bsoa\b|attestazion/i,         table: 'commesse', bu: 'SOA', label: 'SOA' },
-    { match: /\bavv\b|avvaliment/i,          table: 'commesse', bu: 'AVV', label: 'AVV' },
-    { match: /\bgar\b|gare/i,                table: 'commesse', bu: 'GAR', label: 'GAR' },
-    { match: /\bfia\b|finanza[_\s-]*agev/i,  table: 'commesse', bu: 'FIA', label: 'FIA' },
-    { match: /commesse[_\s-]*foi|commesse[_\s-]*fon|\bfoi\b|fondi[_\s-]*interprofes/i, table: 'commesse', bu: 'FOI', label: 'FOI · Fondi Interprofessionali' },
-    { match: /\bgdpr\b|privacy/i,            table: 'commesse', bu: 'GDPR', label: 'GDPR' },
-    { match: /\bist\b|istitut/i,             table: 'commesse', bu: 'IST', label: 'IST' },
+    // NOTA: usiamo (?<![a-zA-Z])BU(?![a-zA-Z]) invece di \b perché in JS
+    // l'underscore _ è un carattere di parola → \b non funziona con commesse_IST_data.xlsx
+    // Pattern più specifici prima (evitano falsi positivi)
+    { match: /opportunit[aà][_\s-]*for/i,                    table: 'opportunita_for', bu: null,      label: 'Opportunità FOR' },
+    { match: /(?<![a-zA-Z])off(erte)?(?![a-zA-Z])/i,         table: 'offerte',         bu: null,      label: 'Offerte' },
+    { match: /apl[_\s-]*pal|politiche[_\s-]*attive/i,        table: 'commesse',        bu: 'APL_PAL', label: 'APL_PAL · Politiche Attive' },
+    { match: /apl[_\s-]*res|pal[_\s-]*risorse/i,             table: 'commesse',        bu: 'APL_RES', label: 'APL_RES · PAL Risorse' },
+    { match: /(?<![a-zA-Z])gdpr(?![a-zA-Z])|privacy/i,       table: 'commesse',        bu: 'GDPR',    label: 'GDPR · Privacy' },
+    { match: /(?<![a-zA-Z])iso(?![a-zA-Z])|certificazion/i,  table: 'commesse',        bu: 'ISO',     label: 'ISO · Certificazioni' },
+    { match: /(?<![a-zA-Z])sic(?![a-zA-Z])|sicurezza/i,      table: 'commesse',        bu: 'SIC',     label: 'SIC · Sicurezza' },
+    { match: /(?<![a-zA-Z])soa(?![a-zA-Z])|attestazion/i,    table: 'commesse',        bu: 'SOA',     label: 'SOA · Attestazioni' },
+    { match: /(?<![a-zA-Z])avv(?![a-zA-Z])|avvaliment/i,     table: 'commesse',        bu: 'AVV',     label: 'AVV · Avvalimenti' },
+    { match: /(?<![a-zA-Z])gar(?![a-zA-Z])(?!e[^a])/i,       table: 'commesse',        bu: 'GAR',     label: 'GAR · Gare' },
+    { match: /(?<![a-zA-Z])fia(?![a-zA-Z])|finanza[_\s-]*agev/i, table: 'commesse',   bu: 'FIA',     label: 'FIA · Finanza Agevolata' },
+    { match: /(?<![a-zA-Z])ist(?![a-zA-Z])|istitut/i,        table: 'commesse',        bu: 'IST',     label: 'IST · Istituti' },
+    { match: /(?<![a-zA-Z])foi(?![a-zA-Z])|(?<![a-zA-Z])fon(?![a-zA-Z])|fondi[_\s-]*interprofes/i, table: 'commesse', bu: 'FOI', label: 'FOI · Fondi Interprofessionali' },
+    // FOR per ultimo: evita match su "formazion" dentro altri termini
+    { match: /(?<![a-zA-Z])for(?![a-zA-Z])|formazion/i,      table: 'commesse',        bu: 'FOR',     label: 'FOR · Formazione' },
   ],
 
   // Opzioni per il selettore manuale "Forza BU" (fallback)
@@ -96,6 +99,7 @@ window.STW_ADMIN = {
     'Società Aziendale': 'societa',
     'Sede': 'sede',
     'Sede Operativa': 'sedeOp',
+    'Sede Op.': 'sedeOp',
     'Città': 'citta',
     'Regione': 'regione',
     'Indirizzo': 'indirizzo',
