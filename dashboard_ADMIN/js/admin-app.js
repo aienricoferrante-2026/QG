@@ -122,6 +122,25 @@ async function upsertBatch(table, records, conflictCols) {
   }
 }
 
+/* Scrive una riga in import_log su Supabase (lettura libera via RLS SELECT). */
+async function writeImportLog({ bu, tabella, filename, righe, righe_ok, righe_err }) {
+  const cfg = window.STW_ADMIN;
+  const resp = await fetch(`${cfg.supabaseUrl}/rest/v1/import_log`, {
+    method: 'POST',
+    headers: {
+      'apikey': cfg.serviceKey,
+      'Authorization': `Bearer ${cfg.serviceKey}`,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=minimal',
+    },
+    body: JSON.stringify({ bu, tabella, filename, righe, righe_ok, righe_err }),
+  });
+  if (!resp.ok) {
+    const txt = await resp.text();
+    throw new Error(`HTTP ${resp.status} · ${txt.substring(0, 120)}`);
+  }
+}
+
 async function processFile(file, statusEl, forcedRoute) {
   // forcedRoute opzionale: { table, bu, label } selezionato manualmente
   const route = forcedRoute || detectFileRoute(file.name);
@@ -210,6 +229,22 @@ async function processFile(file, statusEl, forcedRoute) {
   msg += '</span>';
   if (errors.length) msg += '<div style="color:#dc2626;font-size:10px;margin-left:14px">' + errors[0] + '</div>';
   statusEl.innerHTML = msg;
+
+  // ── Scrivi log su Supabase import_log ──────────────────────────────────
+  try {
+    await writeImportLog({
+      bu: route.bu || route.table,
+      tabella: route.table,
+      filename: file.name,
+      righe: rows.length,
+      righe_ok: ok,
+      righe_err: err,
+    });
+    diagLog(`  ✓ import_log scritto per ${route.bu || route.table}`);
+  } catch(e) {
+    diagLog(`  ⚠ import_log non scritto: ${e.message}`);
+  }
+
   return { file: file.name, ok, err, skipped };
 }
 

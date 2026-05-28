@@ -166,6 +166,34 @@
   .hc-barfg{height:100%; border-radius:7px; transition:width .3s ease}
   .hc-barval{width:80px; text-align:right; color:var(--text2); font-variant-numeric:tabular-nums}
   .hc-pill{display:inline-block; padding:2px 6px; border-radius:3px; font-size:10px; font-weight:600; margin-right:3px}
+
+  /* ── Import Log panel ── */
+  .ilog-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:10px; margin-bottom:4px}
+  .ilog-card{
+    background:var(--card); border:1px solid var(--border); border-radius:8px; padding:12px 14px;
+    border-left:4px solid var(--border);
+  }
+  .ilog-card.fresh{border-left-color:#10b981}
+  .ilog-card.aging{border-left-color:#f59e0b}
+  .ilog-card.stale{border-left-color:#ef4444}
+  .ilog-card.never{border-left-color:#64748b; opacity:.7}
+  .ilog-bu{font-size:13px; font-weight:800; margin-bottom:2px}
+  .ilog-file{font-size:10px; color:var(--text2); margin-bottom:4px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  .ilog-date{font-size:11px; font-weight:600; margin-bottom:2px}
+  .ilog-rows{font-size:10px; color:var(--text3)}
+  .ilog-badge{
+    display:inline-block; padding:2px 7px; border-radius:3px; font-size:9px; font-weight:700;
+    text-transform:uppercase; letter-spacing:.4px; margin-top:5px;
+  }
+  .badge-fresh{background:rgba(16,185,129,.15); color:#10b981}
+  .badge-aging{background:rgba(245,158,11,.15); color:#f59e0b}
+  .badge-stale{background:rgba(239,68,68,.15); color:#ef4444}
+  .badge-never{background:rgba(100,116,139,.12); color:#64748b}
+
+  .ilog-hist-table{width:100%; border-collapse:collapse; font-size:11px}
+  .ilog-hist-table th{text-align:left; padding:7px 10px; border-bottom:1px solid var(--border); color:var(--text3); font-weight:700; font-size:10px; text-transform:uppercase; letter-spacing:.3px}
+  .ilog-hist-table td{padding:7px 10px; border-bottom:1px solid var(--border); color:var(--text); vertical-align:middle}
+  .ilog-hist-table tbody tr:hover{background:rgba(99,102,241,.04)}
 </style>
 </head>
 <body>
@@ -176,6 +204,7 @@
     <div class="meta">Analisi commesse multi-settore · agg. <span id="hub-date">…</span></div>
   </div>
   <div class="topbar-actions">
+    <a href="cruscotto.html" style="color:#10b981;font-size:11px;font-weight:700;text-decoration:none;padding:6px 12px;border:1px solid rgba(16,185,129,.4);border-radius:6px;background:rgba(16,185,129,.08)">📊 Cruscotto</a>
     <a href="#hubImport" title="Centralina Import Excel" style="color:#94a3b8;font-size:16px;text-decoration:none;padding:5px 10px;border:1px solid #1e293b;border-radius:6px">📥</a>
     <a href="#manuale" style="color:#94a3b8;font-size:11px;text-decoration:none;padding:6px 10px;border:1px solid #1e293b;border-radius:6px">📖 Manuale d'Uso</a>
     <button class="theme-btn" id="themeBtn" title="Cambia tema" onclick="qgToggleTheme()">🌙</button>
@@ -194,10 +223,14 @@
     <div class="kpi purple"><div class="lbl">% Incasso</div><div class="val" id="kInc">…</div><div class="sub">media pesata</div></div>
   </div>
 
-  <!-- ── Centralina Import Excel ────────────────────────────────────── -->
+  <!-- ── Log Import Excel da Supabase ─────────────────────────────── -->
   <section id="hubImport" style="margin-top:8px">
-    <h2 class="section">📥 Centralina Import · ultimo dato per BU + accesso diretto all'upload</h2>
-    <div id="hubImportBody"><p style="color:var(--text3);font-size:12px">Carico centralina…</p></div>
+    <h2 class="section">📥 Stato Excel · ultimo import per BU</h2>
+    <div id="importLogBody"><p style="color:var(--text3);font-size:12px">Carico stato aggiornamenti…</p></div>
+    <div style="margin-top:10px">
+      <h2 class="section" style="margin-top:16px">📋 Storico import (ultimi 30)</h2>
+      <div id="importLogHistory"><p style="color:var(--text3);font-size:12px">Carico storico…</p></div>
+    </div>
   </section>
 
   <!-- ── Accesso rapido (card cliccabili) ──────────────────────────── -->
@@ -722,6 +755,134 @@ document.getElementById('credsLoginBtn').addEventListener('click', (e) => {
 });
 
 if (sessionStorage.getItem(CREDS_SESSION_KEY) === '1') credsRenderTable();
+</script>
+
+<!-- ── Import Log Panel: legge import_log da Supabase ──────────────── -->
+<script>
+(function() {
+  const SUPA_URL = 'https://odjwvqabxkkpyblghruv.supabase.co';
+  const ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9kand2cWFieGtrcHlibGdocnV2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwNTg3MzYsImV4cCI6MjA5NDYzNDczNn0.KGLBChnozVzuCSDtPYHVkVk7tPzBwMo6JudKDYxv8Ys';
+
+  const ALL_BU = ['FOR','ISO','SIC','APL_PAL','GDPR','SOA','AVV','GAR','FIA','APL_RES','IST'];
+  const BU_ICON = {FOR:'🎓',ISO:'📜',SIC:'🛡️',APL_PAL:'💼',GDPR:'🔒',SOA:'🏗️',AVV:'🤝',GAR:'🎯',FIA:'💰',APL_RES:'👥',IST:'🏛️'};
+
+  function daysSince(isoDate) {
+    if (!isoDate) return Infinity;
+    return Math.floor((Date.now() - new Date(isoDate).getTime()) / 86400000);
+  }
+
+  function freshnessClass(days) {
+    if (days === Infinity) return 'never';
+    if (days <= 7) return 'fresh';
+    if (days <= 30) return 'aging';
+    return 'stale';
+  }
+
+  function freshnessBadge(days) {
+    if (days === Infinity) return '<span class="ilog-badge badge-never">Mai importato</span>';
+    if (days <= 7) return `<span class="ilog-badge badge-fresh">✓ ${days === 0 ? 'Oggi' : days + ' gg fa'}</span>`;
+    if (days <= 30) return `<span class="ilog-badge badge-aging">⚠ ${days} gg fa</span>`;
+    return `<span class="ilog-badge badge-stale">🔴 ${days} gg fa</span>`;
+  }
+
+  function fmtDate(iso) {
+    if (!iso) return '—';
+    return new Date(iso).toLocaleDateString('it-IT', {day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  }
+
+  async function loadImportLog() {
+    const headers = { 'apikey': ANON_KEY, 'Authorization': `Bearer ${ANON_KEY}` };
+
+    // 1. Prendi l'ultimo import per ogni BU
+    const respLast = await fetch(
+      `${SUPA_URL}/rest/v1/import_log?select=bu,tabella,filename,righe,righe_ok,righe_err,importato_at&order=importato_at.desc&limit=200`,
+      { headers }
+    );
+    const rows = await respLast.json();
+
+    // Raggruppa: tieni solo il più recente per ogni BU
+    const lastByBu = {};
+    for (const r of (Array.isArray(rows) ? rows : [])) {
+      const key = r.bu || r.tabella;
+      if (!lastByBu[key]) lastByBu[key] = r;
+    }
+
+    // 2. Render cards (una per BU)
+    const cardEl = document.getElementById('importLogBody');
+    const buList = ALL_BU.map(bu => {
+      const r = lastByBu[bu];
+      const days = r ? daysSince(r.importato_at) : Infinity;
+      const cls = freshnessClass(days);
+      const icon = BU_ICON[bu] || '📦';
+      return `
+        <div class="ilog-card ${cls}">
+          <div class="ilog-bu">${icon} ${bu}</div>
+          <div class="ilog-file" title="${r?.filename||''}">${r?.filename || '—'}</div>
+          <div class="ilog-date">${r ? fmtDate(r.importato_at) : 'Mai importato'}</div>
+          <div class="ilog-rows">${r ? `${(r.righe_ok||0).toLocaleString('it-IT')} righe caricate` : ''}</div>
+          ${freshnessBadge(days)}
+        </div>
+      `;
+    });
+
+    // Aggiungi anche OFFERTE e OPP_FOR se presenti
+    ['offerte','opportunita_for'].forEach(t => {
+      const r = lastByBu[t];
+      const days = r ? daysSince(r.importato_at) : Infinity;
+      const cls = freshnessClass(days);
+      const label = t === 'offerte' ? '📋 OFFERTE' : '🎯 OPP FOR';
+      buList.push(`
+        <div class="ilog-card ${cls}">
+          <div class="ilog-bu">${label}</div>
+          <div class="ilog-file" title="${r?.filename||''}">${r?.filename || '—'}</div>
+          <div class="ilog-date">${r ? fmtDate(r.importato_at) : 'Mai importato'}</div>
+          <div class="ilog-rows">${r ? `${(r.righe_ok||0).toLocaleString('it-IT')} righe caricate` : ''}</div>
+          ${freshnessBadge(days)}
+        </div>
+      `);
+    });
+
+    cardEl.innerHTML = `<div class="ilog-grid">${buList.join('')}</div>
+      <p style="color:var(--text3);font-size:10px;margin-top:6px">
+        🟢 < 7 gg &nbsp;·&nbsp; 🟡 7–30 gg &nbsp;·&nbsp; 🔴 > 30 gg &nbsp;·&nbsp;
+        <a href="dashboard_ADMIN/" style="color:var(--text2);text-decoration:none">📥 Vai all'Admin per caricare nuovi Excel</a>
+      </p>`;
+
+    // 3. Storico ultimi 30
+    const histEl = document.getElementById('importLogHistory');
+    const recent = Array.isArray(rows) ? rows.slice(0, 30) : [];
+    if (!recent.length) {
+      histEl.innerHTML = '<p style="color:var(--text3);font-size:12px">Nessun import registrato. Carica il primo Excel dall\'Admin.</p>';
+      return;
+    }
+    histEl.innerHTML = `
+      <div style="overflow-x:auto">
+        <table class="ilog-hist-table">
+          <thead><tr>
+            <th>Data</th><th>BU</th><th>File</th><th>Righe totali</th><th>OK</th><th>Errori</th>
+          </tr></thead>
+          <tbody>
+            ${recent.map(r=>`<tr>
+              <td style="white-space:nowrap">${fmtDate(r.importato_at)}</td>
+              <td><b>${BU_ICON[r.bu]||''} ${r.bu||r.tabella}</b></td>
+              <td style="color:var(--text2);max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.filename||''}">${r.filename||'—'}</td>
+              <td style="text-align:right">${(r.righe||0).toLocaleString('it-IT')}</td>
+              <td style="text-align:right;color:#10b981"><b>${(r.righe_ok||0).toLocaleString('it-IT')}</b></td>
+              <td style="text-align:right;color:${r.righe_err?'#ef4444':'var(--text3)'}">
+                ${r.righe_err ? '<b>'+r.righe_err+'</b>' : '—'}
+              </td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>`;
+  }
+
+  loadImportLog().catch(() => {
+    document.getElementById('importLogBody').innerHTML =
+      '<p style="color:var(--text3);font-size:12px">⚠ Impossibile caricare il log (Supabase non raggiungibile o nessun dato).</p>';
+    document.getElementById('importLogHistory').innerHTML = '';
+  });
+})();
 </script>
 
 <!-- Vista cross-settore (consuma window.crossSectorData dopo loadGlobalKpis) -->
