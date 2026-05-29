@@ -18,8 +18,8 @@
 (function () {
   // MASTER (sempre valido, override globale)
   const MASTER_USER = 'direzione@qualificagroup.it';
-  // SHA-256("QG!Dir26#Mstr@STW")
-  const MASTER_PASS_HASH = '5d0c7eb2cd5d037414c60dd85ebecf987d74953c6fec5e724191b91117171329';
+  // SHA-256 della password unica direzione@ (vedi credenziali-STW.md locale)
+  const MASTER_PASS_HASH = '6350fc4943f63230ae6eb49a270d197f41563e52612f1500a7c79f47c40830ef';
   // SETTORE (specifico, fallback al master se la BU non ha config dedicata)
   const ADMIN_USER = (window.SECTOR_CONFIG && window.SECTOR_CONFIG.adminEmail) || MASTER_USER;
   const ADMIN_PASS_HASH = (window.SECTOR_CONFIG && window.SECTOR_CONFIG.adminPassHash) || MASTER_PASS_HASH;
