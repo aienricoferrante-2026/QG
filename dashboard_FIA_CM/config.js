@@ -4,6 +4,7 @@
  */
 window.SECTOR_CONFIG = {
   "code": "FIA",
+  "liveSupabase": true,
   "label": "Finanza Agevolata",
   "icon": "💼",
   "color": "#fbbf24",

@@ -4,6 +4,7 @@
  */
 window.SECTOR_CONFIG = {
   "code": "APL_PAL",
+  "liveSupabase": true,
   "label": "Politiche Attive",
   "icon": "💼",
   "color": "#a78bfa",

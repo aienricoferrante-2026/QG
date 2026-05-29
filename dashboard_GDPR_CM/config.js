@@ -4,6 +4,7 @@
  */
 window.SECTOR_CONFIG = {
   "code": "GDPR",
+  "liveSupabase": true,
   "label": "Privacy / GDPR",
   "icon": "🔒",
   "color": "#ec4899",

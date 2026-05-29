@@ -11,6 +11,7 @@
  */
 window.SECTOR_CONFIG = {
   code: 'SOA',
+  liveSupabase: true,
   label: 'Attestazioni SOA',
   icon: '🏗️',
   color: '#f59e0b',

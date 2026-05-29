@@ -4,6 +4,7 @@
  */
 window.SECTOR_CONFIG = {
   "code": "AVV",
+  "liveSupabase": true,
   "label": "Avvalimenti",
   "icon": "🤝",
   "color": "#a78bfa",
