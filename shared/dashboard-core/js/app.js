@@ -127,8 +127,52 @@ function _uiInitToggles() {
 
 const _CORE_DATA_URL = (window.SECTOR_CONFIG && window.SECTOR_CONFIG.dataFile) || 'data/commesse.json';
 
-fetch(window.DATA_URL || _CORE_DATA_URL)
-  .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+// --- Lettura LIVE da Supabase (opt-in per dashboard) -----------------------
+// Attivabile con SECTOR_CONFIG.liveSupabase = true. Legge le commesse fresche
+// dal DB invece del JSON statico. Se fallisce o torna vuoto → fallback al JSON,
+// così la dashboard non si rompe mai. Usa la chiave anon (sola lettura, RLS).
+const _SUPA_URL = 'https://odjwvqabxkkpyblghruv.supabase.co';
+const _SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9kand2cWFieGtrcHlibGdocnV2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwNTg3MzYsImV4cCI6MjA5NDYzNDczNn0.KGLBChnozVzuCSDtPYHVkVk7tPzBwMo6JudKDYxv8Ys';
+
+function _snakeToCamel(s) { return s.replace(/_([a-z])/g, (_, c) => c.toUpperCase()); }
+
+function _rowToCommessa(row) {
+  const out = {};
+  for (const k in row) {
+    if (k === 'meta' || k === 'bu' || k === 'imported_at') continue;
+    out[_snakeToCamel(k)] = row[k];
+  }
+  // I campi BU-specifici stanno in meta (JSONB) → spread sopra
+  if (row.meta && typeof row.meta === 'object') Object.assign(out, row.meta);
+  return out;
+}
+
+async function _loadCommesseLive(bu) {
+  const url = `${_SUPA_URL}/rest/v1/commesse?bu=eq.${encodeURIComponent(bu)}&select=*&limit=20000`;
+  const r = await fetch(url, { headers: { apikey: _SUPA_ANON, Authorization: `Bearer ${_SUPA_ANON}` } });
+  if (!r.ok) throw new Error('Supabase HTTP ' + r.status);
+  const rows = await r.json();
+  if (!Array.isArray(rows) || rows.length === 0) throw new Error('Supabase: 0 righe');
+  return rows.map(_rowToCommessa);
+}
+
+async function _loadData() {
+  const cfg = window.SECTOR_CONFIG || {};
+  if (cfg.liveSupabase && cfg.code) {
+    try {
+      const live = await _loadCommesseLive(cfg.code);
+      console.info(`[STW] Dati LIVE da Supabase: ${live.length} commesse (${cfg.code})`);
+      return live;
+    } catch (e) {
+      console.warn('[STW] Live Supabase fallito, uso il file statico:', e.message);
+    }
+  }
+  const r = await fetch(window.DATA_URL || _CORE_DATA_URL);
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  return r.json();
+}
+
+_loadData()
   .then(data => {
     D = Array.isArray(data) ? data : [];
     filtered = [...D];

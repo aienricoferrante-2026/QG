@@ -4,6 +4,7 @@
  */
 window.SECTOR_CONFIG = {
   "code": "IST",
+  "liveSupabase": true,
   "label": "Istituti",
   "icon": "🏛️",
   "color": "#34d399",

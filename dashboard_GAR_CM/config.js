@@ -4,6 +4,7 @@
  */
 window.SECTOR_CONFIG = {
   "code": "GAR",
+  "liveSupabase": true,
   "label": "Gare d'appalto",
   "icon": "🎯",
   "color": "#06b6d4",

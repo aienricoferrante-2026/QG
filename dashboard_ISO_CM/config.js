@@ -4,6 +4,7 @@
  */
 window.SECTOR_CONFIG = {
   "code": "ISO",
+  "liveSupabase": true,
   "label": "Certificazioni ISO",
   "icon": "📜",
   "color": "#3b82f6",

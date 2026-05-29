@@ -4,6 +4,7 @@
  */
 window.SECTOR_CONFIG = {
   "code": "APL_RES",
+  "liveSupabase": true,
   "label": "PAL Risorse",
   "icon": "👥",
   "color": "#10b981",
