@@ -131,6 +131,12 @@
         console.log('[auth] user=' + u + ' isMaster=' + isMaster + ' isSector=' + isSector);
         if (isMaster || isSector) {
           setAuthed(u);
+          // Chiede al browser di salvare email+password (no navigazione → va esplicitato)
+          try {
+            if (window.PasswordCredential && navigator.credentials) {
+              await navigator.credentials.store(new window.PasswordCredential({ id: u, password: p }));
+            }
+          } catch (_) { /* non-bloccante */ }
           ov.style.transition = 'opacity .25s';
           ov.style.opacity = '0';
           setTimeout(() => { ov.remove(); installLogoutBtn(); }, 260);
