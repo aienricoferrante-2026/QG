@@ -91,7 +91,13 @@
     <label for="loginUser">Email Master</label>
     <input id="loginUser" type="email" placeholder="direzione@qualificagroup.it" required autocomplete="username">
     <label for="loginPass">Password</label>
-    <input id="loginPass" type="password" required autocomplete="current-password">
+    <div style="display:flex;align-items:center;border:1px solid var(--border);border-radius:5px;background:var(--bg2,var(--bg))">
+      <input id="loginPass" type="password" required autocomplete="current-password"
+        style="flex:1;border:none;background:transparent;padding:9px 12px;color:var(--text);outline:none;font-size:inherit;min-width:0">
+      <button type="button" id="loginPassEye" title="Mostra/nascondi password"
+        onclick="var i=document.getElementById('loginPass');var e=document.getElementById('loginPassEye');if(i.type==='password'){i.type='text';e.textContent='🙈';}else{i.type='password';e.textContent='👁';}"
+        style="padding:0 10px;background:transparent;border:0;cursor:pointer;font-size:15px;color:var(--text3);flex-shrink:0;line-height:1">👁</button>
+    </div>
     <button type="submit">Entra</button>
     <div class="err" id="loginErr"></div>
   </form>
