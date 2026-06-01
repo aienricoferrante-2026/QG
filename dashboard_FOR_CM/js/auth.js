@@ -6,15 +6,15 @@
  * accessi casuali a chi capita sull'URL senza essere autorizzato.
  *
  * Schema allineato alle altre dashboard sul kit (vedi shared/dashboard-core/js/auth.js):
- *  1. MASTER  direzione@qualificagroup.it / QG!Dir26#Mstr@STW  (Enrico, accesso ovunque)
+ *  1. MASTER  direzione@qualificagroup.it / iydhA4q#vkA3uu  (Enrico, accesso ovunque)
  *  2. SETTORE for@qualificagroup.it / 256FOR913           (responsabile Formazione)
  */
 
 (function () {
   // MASTER (sempre valido, override globale — uguale alle altre dashboard)
   const MASTER_USER = 'direzione@qualificagroup.it';
-  // SHA-256("QG!Dir26#Mstr@STW")
-  const MASTER_PASS_HASH = '5d0c7eb2cd5d037414c60dd85ebecf987d74953c6fec5e724191b91117171329';
+  // SHA-256("iydhA4q#vkA3uu")
+  const MASTER_PASS_HASH = '6350fc4943f63230ae6eb49a270d197f41563e52612f1500a7c79f47c40830ef';
   // SETTORE Formazione (specifica per il responsabile FOR)
   const ADMIN_USER = 'for@qualificagroup.it';
   // SHA-256("256FOR913")

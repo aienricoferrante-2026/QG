@@ -5,7 +5,7 @@
  * contro accessi casuali.
  *
  * Credenziali accettate (entrambe valide su qualunque dashboard sul kit):
- *  1. MASTER: direzione@qualificagroup.it / QG!Dir26#Mstr@STW
+ *  1. MASTER: direzione@qualificagroup.it / iydhA4q#vkA3uu
  *     Sempre valida, indipendente dal settore. È l'account di Enrico
  *     (Direzione) che lo fa entrare ovunque, FOR incluso (vedi
  *     dashboard_FOR_CM/js/auth.js che ha lo stesso schema).

@@ -11,7 +11,7 @@ window.STW_ADMIN = {
   serviceKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9kand2cWFieGtrcHlibGdocnV2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTA1ODczNiwiZXhwIjoyMDk0NjM0NzM2fQ.haV4laiJDShga22OAshuRXcSxne1j9PO4gV8HpyHWlw',
   // Riusa l'hash Master di passwords.html
   masterUser: 'direzione@qualificagroup.it',
-  masterHash: '5d0c7eb2cd5d037414c60dd85ebecf987d74953c6fec5e724191b91117171329',
+  masterHash: '6350fc4943f63230ae6eb49a270d197f41563e52612f1500a7c79f47c40830ef',
 
   // Mapping nome file Excel → tabella + BU
   // Pattern permissivi: cerca la BU come keyword OVUNQUE nel filename.
