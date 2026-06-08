@@ -62,7 +62,7 @@ function renderCurrentSection() {
 /* ── UI toggles: nasconde/mostra i blocchi Filtri e KPI globali ──
    Preferenza per BU in localStorage (qg_ui_<BU>). Tasti F (toggle filtri),
    K (toggle KPI) attivi se non si sta digitando in un input. */
-const _UI_TOGGLE_DEFAULT = { hideFilters: false, hideKpis: false };
+const _UI_TOGGLE_DEFAULT = { hideFilters: true, hideKpis: false }; // filtri CHIUSI di default (freccette chiuse) — si aprono col pulsante ▶ Filtri
 function _uiKey() { return 'qg_ui_' + (typeof sectorCode === 'function' ? sectorCode() : 'GEN'); }
 function _uiState() {
   if (!window._uiStateCache) {
@@ -148,12 +148,27 @@ function _rowToCommessa(row) {
 }
 
 async function _loadCommesseLive(bu) {
-  const url = `${_SUPA_URL}/rest/v1/commesse?bu=eq.${encodeURIComponent(bu)}&select=*&limit=20000`;
-  const r = await fetch(url, { headers: { apikey: _SUPA_ANON, Authorization: `Bearer ${_SUPA_ANON}` } });
-  if (!r.ok) throw new Error('Supabase HTTP ' + r.status);
-  const rows = await r.json();
-  if (!Array.isArray(rows) || rows.length === 0) throw new Error('Supabase: 0 righe');
-  return rows.map(_rowToCommessa);
+  // Supabase taglia ogni risposta a 1000 righe (cap server, ignora limit=20000).
+  // Leggiamo a BLOCCHI di 1000 con header Range finché non finiscono → TUTTE le commesse.
+  const PAGE = 1000;
+  let from = 0, tutte = [];
+  for (let giro = 0; giro < 100; giro++) {   // safety cap: 100.000 righe
+    const url = `${_SUPA_URL}/rest/v1/commesse?bu=eq.${encodeURIComponent(bu)}&select=*`;
+    const r = await fetch(url, {
+      headers: {
+        apikey: _SUPA_ANON, Authorization: `Bearer ${_SUPA_ANON}`,
+        Range: `${from}-${from + PAGE - 1}`, 'Range-Unit': 'items',
+      },
+    });
+    if (!r.ok) throw new Error('Supabase HTTP ' + r.status);
+    const rows = await r.json();
+    if (!Array.isArray(rows) || rows.length === 0) break;
+    tutte = tutte.concat(rows);
+    if (rows.length < PAGE) break;            // ultima pagina raggiunta
+    from += PAGE;
+  }
+  if (tutte.length === 0) throw new Error('Supabase: 0 righe');
+  return tutte.map(_rowToCommessa);
 }
 
 async function _loadData() {

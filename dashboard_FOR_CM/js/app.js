@@ -62,12 +62,26 @@ function _rowToCommessa(row) {
 async function _loadDataFor() {
   if (!window.DATA_URL) {
     try {
-      const url = `${_SUPA_URL}/rest/v1/commesse?bu=eq.FOR&select=*&limit=20000`;
-      const r = await fetch(url, { headers: { apikey: _SUPA_ANON, Authorization: `Bearer ${_SUPA_ANON}` } });
-      if (r.ok) {
+      // Supabase taglia ogni risposta a 1000 righe (cap server, ignora limit=20000).
+      // Leggiamo a BLOCCHI di 1000 con header Range finché non finiscono → TUTTE le commesse.
+      const PAGE = 1000;
+      let from = 0, tutte = [];
+      for (let giro = 0; giro < 100; giro++) {   // safety cap: 100.000 righe
+        const url = `${_SUPA_URL}/rest/v1/commesse?bu=eq.FOR&select=*`;
+        const r = await fetch(url, {
+          headers: {
+            apikey: _SUPA_ANON, Authorization: `Bearer ${_SUPA_ANON}`,
+            Range: `${from}-${from + PAGE - 1}`, 'Range-Unit': 'items',
+          },
+        });
+        if (!r.ok) throw new Error('HTTP ' + r.status);
         const rows = await r.json();
-        if (Array.isArray(rows) && rows.length) { console.info('[FOR] dati LIVE da Supabase:', rows.length); return rows.map(_rowToCommessa); }
+        if (!Array.isArray(rows) || rows.length === 0) break;
+        tutte = tutte.concat(rows);
+        if (rows.length < PAGE) break;            // ultima pagina raggiunta
+        from += PAGE;
       }
+      if (tutte.length) { console.info('[FOR] dati LIVE da Supabase (tutte le pagine):', tutte.length); return tutte.map(_rowToCommessa); }
     } catch (e) { console.warn('[FOR] live Supabase fallito, uso il file:', e.message); }
   }
   const r = await fetch(window.DATA_URL || 'data/commesse_for.json');
