@@ -36,6 +36,57 @@
 
 window._pivotState = window._pivotState || {};
 
+/* ── Colonne metriche del pivot (ordine = colonne tabella) ──────────────────
+ * `val(c)` = valore della metrica sulla SINGOLA commessa, usato dal filtro
+ * per colonna. Le colonne di CONTEGGIO (Commesse, Clienti) hanno filterable
+ * false: su una sola riga varrebbero sempre 1 → filtro ingannevole. */
+var PIVOT_COLS = [
+  { id: 'commesse', label: 'Commesse', filterable: false },
+  { id: 'ric',      label: 'Ricavi',    val: function (c) { return c.consulenza || 0; } },
+  { id: 'mol',      label: 'MOL',       val: function (c) { return c.mol || 0; } },
+  { id: 'marg',     label: 'Margine %', val: function (c) { var r = c.consulenza || 0; return r ? (c.mol || 0) / r * 100 : 0; } },
+  { id: 'inc',      label: 'Incassato', val: function (c) { return c.giaIncassato || 0; } },
+  { id: 'incpct',   label: '% Inc.',    val: function (c) { var r = c.consulenza || 0; return r ? (c.giaIncassato || 0) / r * 100 : 0; } },
+  { id: 'dainc',    label: 'Da Inc.',   val: function (c) { return Math.max(0, (c.consulenza || 0) - (c.giaIncassato || 0)); } },
+  { id: 'clienti',  label: 'Clienti',   filterable: false },
+  { id: 'ticket',   label: 'Ticket €',  val: function (c) { return c.consulenza || 0; } },
+];
+
+/* Icona imbuto (stessa forma di lucide "Filter"). active=true → riempita. */
+function _pivotFunnelSvg(active) {
+  return '<svg width="11" height="11" viewBox="0 0 24 24" fill="' + (active ? 'currentColor' : 'none') +
+    '" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle">' +
+    '<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>';
+}
+
+/* Esito di UNA condizione sul valore per-riga. */
+function _pivotPassOp(v, f) {
+  switch (f.op) {
+    case 'gt':  return v > f.a;
+    case 'gte': return v >= f.a;
+    case 'lt':  return v < f.a;
+    case 'lte': return v <= f.a;
+    case 'eq':  return v === f.a;
+    case 'neq': return v !== f.a;
+    case 'between': return v >= f.a && v <= (f.b != null ? f.b : f.a);
+    default: return true;
+  }
+}
+
+/* Filtra le commesse grezze: tiene solo quelle che passano TUTTE le condizioni
+ * attive. L'albero e ogni totale si ricalcolano poi su ciò che resta. */
+function _pivotApplyFilters(items, state) {
+  var fs = (state && state.filters) || [];
+  if (!fs.length) return items;
+  return items.filter(function (c) {
+    return fs.every(function (f) {
+      var col = PIVOT_COLS.find(function (x) { return x.id === f.col; });
+      if (!col || !col.val) return true;
+      return _pivotPassOp(col.val(c), f);
+    });
+  });
+}
+
 function buildPivotCard(opts) {
   const ns = opts.stateNamespace || 'default';
   if (!window._pivotState[ns]) {
@@ -45,6 +96,7 @@ function buildPivotCard(opts) {
     };
   }
   const state = window._pivotState[ns];
+  if (!state.filters) state.filters = [];
   // Salva config per re-render
   window._pivotState[ns]._opts = opts;
 
@@ -88,7 +140,13 @@ function buildPivotCard(opts) {
     });
     h += '</select></label>';
   }
-  h += '<button onclick="_pivotExpandAll(\'' + ns + '\')" style="margin-left:auto;align-self:flex-end;padding:6px 12px;border-radius:5px;background:rgba(99,102,241,.1);border:1px solid var(--accent);color:var(--text);cursor:pointer;font-size:11px">Espandi tutto</button>';
+  // Chip "filtri attivi · pulisci" (solo se almeno un filtro colonna è attivo)
+  if (state.filters && state.filters.length) {
+    h += '<div style="margin-left:auto;align-self:flex-end;display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:5px;background:rgba(99,102,241,.14);border:1px solid var(--accent);color:var(--accent);font-size:11px;cursor:pointer" ' +
+      'onclick="_pivotClearAllFilters(\'' + ns + '\')" title="Rimuovi tutti i filtri colonna">' +
+      _pivotFunnelSvg(true) + state.filters.length + ' ' + (state.filters.length === 1 ? 'filtro' : 'filtri') + ' ✕</div>';
+  }
+  h += '<button onclick="_pivotExpandAll(\'' + ns + '\')" style="' + (state.filters && state.filters.length ? '' : 'margin-left:auto;') + 'align-self:flex-end;padding:6px 12px;border-radius:5px;background:rgba(99,102,241,.1);border:1px solid var(--accent);color:var(--text);cursor:pointer;font-size:11px">Espandi tutto</button>';
   h += '<button onclick="_pivotCollapseAll(\'' + ns + '\')" style="align-self:flex-end;padding:6px 12px;border-radius:5px;background:var(--card);border:1px solid var(--border);color:var(--text);cursor:pointer;font-size:11px">Comprimi</button>';
   h += '</div>';
 
@@ -101,15 +159,31 @@ function buildPivotCard(opts) {
        dims.map((d, i) => '<span style="color:' + ['#3b82f6','#10b981','#f59e0b','#a78bfa'][i] + ';font-weight:600">' +
                           (i + 1) + '. ' + opts.dims[d].label + '</span>').join(' <span style="color:var(--text3)">→</span> ') +
        '</div>';
+  // Commesse filtrate (per colonna): l'albero e i totali si ricalcolano su queste
+  const items = _pivotApplyFilters(opts.items, state);
   h += '<div class="tbl-scroll"><table class="coge-tbl" style="width:100%;font-size:11px"><thead><tr>';
   h += '<th style="width:32px"></th>';
   h += '<th>Voce</th>';
-  h += '<th style="text-align:right">Commesse</th><th style="text-align:right">Ricavi</th><th style="text-align:right">MOL</th>' +
-    '<th style="text-align:right">Margine %</th><th style="text-align:right">Incassato</th><th style="text-align:right">% Inc.</th>' +
-    '<th style="text-align:right">Da Inc.</th><th style="text-align:right">Clienti</th><th style="text-align:right">Ticket €</th><th style="width:60px"></th>';
+  PIVOT_COLS.forEach(function (col) {
+    if (col.filterable === false) {
+      h += '<th style="text-align:right">' + col.label + '</th>';
+    } else {
+      const fActive = state.filters.some(function (f) { return f.col === col.id; });
+      h += '<th style="text-align:right"><span style="display:inline-flex;align-items:center;gap:4px;justify-content:flex-end">' + col.label +
+        '<button onclick="event.stopPropagation();_pivotOpenFilter(\'' + ns + '\',\'' + col.id + '\',this)" ' +
+        'title="Filtra ' + col.label + '" style="cursor:pointer;border:none;padding:2px;border-radius:3px;line-height:0;' +
+        (fActive ? 'background:rgba(99,102,241,.18);color:var(--accent)' : 'background:transparent;color:var(--text3)') + '">' +
+        _pivotFunnelSvg(fActive) + '</button></span></th>';
+    }
+  });
+  h += '<th style="width:60px"></th>';
   let rowsHtml = '';
   try {
-    rowsHtml = _pivotRenderRows(ns, opts.items, dims, [], opts);
+    rowsHtml = _pivotRenderRows(ns, items, dims, [], opts);
+    if (!rowsHtml && dims.length) {
+      rowsHtml = '<tr><td colspan="20" style="padding:20px;text-align:center;color:var(--text3)">' +
+        (state.filters.length ? 'Nessuna commessa con i filtri attivi.' : 'Nessun dato.') + '</td></tr>';
+    }
   } catch (e) {
     console.error('[pivot-tree] errore render ns=' + ns + ':', e);
     rowsHtml = '<tr><td colspan="20" style="padding:20px;text-align:center;color:#dc2626">' +
@@ -237,7 +311,7 @@ function _pivotDrill(ns, pathKey) {
   const opts = state._opts;
   const path = pathKey.split('>');
   const dims = state.dims.filter(Boolean).slice(0, path.length);
-  const list = opts.items.filter(c => {
+  const list = _pivotApplyFilters(opts.items, state).filter(c => {
     for (let i = 0; i < path.length; i++) {
       const vals = _pivotValAt(c, dims[i], opts);
       if (!vals.includes(path[i])) return false;
@@ -273,11 +347,99 @@ function _pivotExpandAll(ns) {
     const g = _pivotAggrLevel(items, dims[d], opts);
     Object.entries(g).forEach(([v, vd]) => { const np = [...path, v]; s.open.add(_pivotPathKey(np)); _walk(vd.items, d + 1, np); });
   }
-  _walk(opts.items, 0, []);
+  _walk(_pivotApplyFilters(opts.items, s), 0, []);
   _pivotRerender(ns);
 }
 
 function _pivotCollapseAll(ns) {
   window._pivotState[ns].open.clear();
+  _pivotRerender(ns);
+}
+
+/* ── Filtro per colonna · pannello a comparsa (imbuto) ──────────────────────
+ * Numeri che si ricalcolano: la condizione si applica alla SINGOLA commessa,
+ * poi l'albero e ogni totale ripartono da ciò che resta. */
+function _pivotOpenFilter(ns, colId, btn) {
+  _pivotCloseFilter();
+  const state = window._pivotState[ns];
+  const col = PIVOT_COLS.find(function (c) { return c.id === colId; });
+  if (!col) return;
+  const cur = (state.filters || []).find(function (f) { return f.col === colId; }) || {};
+  const r = btn.getBoundingClientRect();
+  const pop = document.createElement('div');
+  pop.id = '_pivotFilterPop';
+  pop.style.cssText = 'position:fixed;z-index:99999;width:232px;background:var(--card);border:1px solid var(--border);' +
+    'border-radius:8px;box-shadow:0 8px 28px rgba(0,0,0,.35);padding:12px;font-size:12px;color:var(--text);' +
+    'left:' + Math.max(8, r.right - 232) + 'px;top:' + (r.bottom + 6) + 'px';
+  const ops = [['gte', '≥ maggiore o uguale a'], ['gt', '> maggiore di'], ['lte', '≤ minore o uguale a'],
+    ['lt', '< minore di'], ['eq', '= uguale a'], ['neq', '≠ diverso da'], ['between', 'tra (intervallo)']];
+  const curOp = cur.op || 'gte';
+  let oh = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">' +
+    '<b>Filtra · ' + col.label + '</b>' +
+    '<span onclick="_pivotCloseFilter()" style="cursor:pointer;color:var(--text3);font-size:13px">✕</span></div>';
+  oh += '<select id="_pivotFilterOp" onchange="_pivotFilterToggleSecond()" ' +
+    'style="width:100%;padding:6px;border-radius:4px;background:var(--bg);color:var(--text);border:1px solid var(--border);margin-bottom:8px">';
+  ops.forEach(function (o) { oh += '<option value="' + o[0] + '"' + (curOp === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; });
+  oh += '</select>';
+  oh += '<div style="display:flex;gap:6px;align-items:center">';
+  oh += '<input id="_pivotFilterA" type="number" inputmode="decimal" value="' + (cur.a != null ? cur.a : '') + '" placeholder="valore" ' +
+    'style="width:100%;padding:6px;border-radius:4px;background:var(--bg);color:var(--text);border:1px solid var(--border)">';
+  oh += '<span id="_pivotFilterSep" style="color:var(--text3);' + (curOp === 'between' ? '' : 'display:none') + '">e</span>';
+  oh += '<input id="_pivotFilterB" type="number" inputmode="decimal" value="' + (cur.b != null ? cur.b : '') + '" placeholder="a" ' +
+    'style="width:100%;padding:6px;border-radius:4px;background:var(--bg);color:var(--text);border:1px solid var(--border);' + (curOp === 'between' ? '' : 'display:none') + '">';
+  oh += '</div>';
+  oh += '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px">';
+  oh += (cur.op ? '<button onclick="_pivotClearFilter(\'' + ns + '\',\'' + colId + '\')" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:11px">Azzera</button>' : '<span></span>');
+  oh += '<button onclick="_pivotApplyFilter(\'' + ns + '\',\'' + colId + '\')" style="background:var(--accent);color:#fff;border:none;border-radius:4px;padding:6px 14px;cursor:pointer;font-size:11px;font-weight:600">Applica</button>';
+  oh += '</div>';
+  pop.innerHTML = oh;
+  document.body.appendChild(pop);
+  pop.addEventListener('keydown', function (e) { if (e.key === 'Enter') _pivotApplyFilter(ns, colId); if (e.key === 'Escape') _pivotCloseFilter(); });
+  setTimeout(function () { document.addEventListener('mousedown', _pivotFilterOutside); }, 0);
+  const a = document.getElementById('_pivotFilterA'); if (a) a.focus();
+}
+
+function _pivotFilterToggleSecond() {
+  const op = document.getElementById('_pivotFilterOp').value;
+  const sep = document.getElementById('_pivotFilterSep');
+  const b = document.getElementById('_pivotFilterB');
+  const show = op === 'between';
+  if (sep) sep.style.display = show ? '' : 'none';
+  if (b) b.style.display = show ? '' : 'none';
+}
+
+function _pivotFilterOutside(e) {
+  const pop = document.getElementById('_pivotFilterPop');
+  if (pop && !pop.contains(e.target)) _pivotCloseFilter();
+}
+
+function _pivotCloseFilter() {
+  document.removeEventListener('mousedown', _pivotFilterOutside);
+  const pop = document.getElementById('_pivotFilterPop');
+  if (pop) pop.remove();
+}
+
+function _pivotApplyFilter(ns, colId) {
+  const op = document.getElementById('_pivotFilterOp').value;
+  const a = parseFloat(String(document.getElementById('_pivotFilterA').value).replace(',', '.'));
+  const b = parseFloat(String(document.getElementById('_pivotFilterB').value).replace(',', '.'));
+  if (!isFinite(a)) return;
+  if (op === 'between' && !isFinite(b)) return;
+  const s = window._pivotState[ns];
+  s.filters = (s.filters || []).filter(function (f) { return f.col !== colId; });
+  s.filters.push({ col: colId, op: op, a: a, b: op === 'between' ? b : undefined });
+  _pivotCloseFilter();
+  _pivotRerender(ns);
+}
+
+function _pivotClearFilter(ns, colId) {
+  const s = window._pivotState[ns];
+  s.filters = (s.filters || []).filter(function (f) { return f.col !== colId; });
+  _pivotCloseFilter();
+  _pivotRerender(ns);
+}
+
+function _pivotClearAllFilters(ns) {
+  window._pivotState[ns].filters = [];
   _pivotRerender(ns);
 }
