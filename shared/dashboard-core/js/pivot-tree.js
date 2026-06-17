@@ -99,6 +99,8 @@ function buildPivotCard(opts) {
   if (!state.filters) state.filters = [];
   // Salva config per re-render
   window._pivotState[ns]._opts = opts;
+  // Carica (una volta) le viste salvate dell'utente dall'Hub
+  if (!state.savedViewsLoaded && !state._viewsLoading) _pivotLoadViews(ns);
 
   const root = document.getElementById(opts.containerId);
   if (!root) return;
@@ -128,6 +130,9 @@ function buildPivotCard(opts) {
     });
     h += '</div>';
   }
+
+  // Riga "Le mie viste" (preferiti salvati sull'Hub, per-utente)
+  h += _pivotSavedViewsRowHtml(ns, state, opts);
 
   // 4 dropdown livelli
   h += '<div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px;padding:10px;background:rgba(99,102,241,.04);border-radius:5px">';
@@ -442,4 +447,290 @@ function _pivotClearFilter(ns, colId) {
 function _pivotClearAllFilters(ns) {
   window._pivotState[ns].filters = [];
   _pivotRerender(ns);
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+ *  VISTE SALVATE (preferiti) · centralizzate sull'Hub /api/views, per-utente.
+ *  Una vista salva: livelli (dims) + filtri colonna. Si ritrovano su qualsiasi
+ *  computer (login unico). Se l'utente non è loggato o l'Hub è giù → ripiego
+ *  sulle viste salvate su QUESTO computer (localStorage), senza errori.
+ * ══════════════════════════════════════════════════════════════════════════ */
+
+function _pivotHubUrl() {
+  return (typeof window !== 'undefined' && window.__QUALIFICA_HUB_URL__) || 'https://qualifica-wea-hub.vercel.app';
+}
+
+/* Legge il gettone di login (token Supabase) da cookie o localStorage, come fa
+ * il kit tabelle. Login unico Hub → valido anche chiamando l'Hub da qui. */
+function _pivotAuthToken() {
+  if (typeof window === 'undefined') return null;
+  function extract(raw) {
+    try { var p = JSON.parse(raw); return p && (p.access_token || (p.currentSession && p.currentSession.access_token) || (Array.isArray(p) ? p[0] : null)) || null; }
+    catch (e) { return null; }
+  }
+  try {
+    for (var i = 0; i < localStorage.length; i++) {
+      var k = localStorage.key(i);
+      if (!k || k.indexOf('sb-') !== 0 || k.indexOf('-auth-token') < 0) continue;
+      var t = extract(localStorage.getItem(k) || '');
+      if (t) return t;
+    }
+  } catch (e) { /* localStorage non disponibile */ }
+  try {
+    var jar = {};
+    document.cookie.split(/;\s*/).forEach(function (part) { var eq = part.indexOf('='); if (eq > 0) jar[part.slice(0, eq)] = part.slice(eq + 1); });
+    var basi = {};
+    Object.keys(jar).forEach(function (k) { var m = k.match(/^(sb-.+-auth-token)(?:\.\d+)?$/); if (m) basi[m[1]] = 1; });
+    var keys = Object.keys(basi);
+    for (var b = 0; b < keys.length; b++) {
+      var base = keys[b];
+      var raw = jar[base] || '';
+      if (!raw) { for (var n = 0; jar[base + '.' + n] != null; n++) raw += jar[base + '.' + n]; }
+      if (!raw) continue;
+      var dec; try { dec = decodeURIComponent(raw); } catch (e) { dec = raw; }
+      if (dec.indexOf('base64-') === 0) {
+        var b64 = dec.slice(7).replace(/-/g, '+').replace(/_/g, '/');
+        try { dec = atob(b64 + '==='.slice((b64.length + 3) % 4)); } catch (e) { continue; }
+      }
+      var tok = extract(dec);
+      if (tok) return tok;
+    }
+  } catch (e) { /* cookie illeggibili */ }
+  return null;
+}
+
+/* ── Viste salvate solo su QUESTO computer (fallback) ────────────────────────*/
+function _pivotLocalKey(ns) { return 'qualifica:pivot-views:' + ns; }
+function _pivotLocalList(ns) { try { return JSON.parse(localStorage.getItem(_pivotLocalKey(ns)) || '[]'); } catch (e) { return []; } }
+function _pivotLocalWrite(ns, arr) { try { localStorage.setItem(_pivotLocalKey(ns), JSON.stringify(arr)); } catch (e) { /* quota piena */ } }
+function _pivotLocalAdd(ns, nome, cfg) {
+  var arr = _pivotLocalList(ns);
+  var v = { id: 'local-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), nome: nome, dims: cfg.dims, filters: cfg.filters, ordine: cfg.ordine || 0, is_favorite: true, local: true };
+  arr.push(v); _pivotLocalWrite(ns, arr); return v;
+}
+function _pivotLocalUpdate(ns, v) { _pivotLocalWrite(ns, _pivotLocalList(ns).map(function (x) { return x.id === v.id ? v : x; })); return Promise.resolve(); }
+function _pivotLocalRemove(ns, id) { _pivotLocalWrite(ns, _pivotLocalList(ns).filter(function (x) { return x.id !== id; })); }
+
+/* ── Chiamate all'Hub (con ripiego locale) ──────────────────────────────────*/
+function _pivotViewsGet(ns) {
+  var token = _pivotAuthToken();
+  var locals = _pivotLocalList(ns).map(function (v) { v.local = true; return v; });
+  if (!token) return Promise.resolve(locals);
+  return fetch(_pivotHubUrl() + '/api/views?table_id=' + encodeURIComponent('pivot.' + ns), { headers: { Authorization: 'Bearer ' + token }, cache: 'no-store' })
+    .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
+    .then(function (j) {
+      var server = (j.views || []).map(function (v) {
+        var f = v.filtri || {};
+        return { id: v.id, nome: v.nome, dims: f.dims || [], filters: f.filters || [], ordine: f.ordine || 0, is_favorite: !!v.is_favorite, local: false };
+      });
+      return locals.concat(server);
+    })
+    .catch(function () { return locals; });
+}
+function _pivotViewsCreate(ns, nome, cfg) {
+  var token = _pivotAuthToken();
+  if (!token) return Promise.resolve(_pivotLocalAdd(ns, nome, cfg));
+  return fetch(_pivotHubUrl() + '/api/views', {
+    method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+    body: JSON.stringify({ table_id: 'pivot.' + ns, nome: nome, filtri: cfg, sort: [], condivisione: 'private', is_favorite: true }),
+  }).then(function (r) { if (!r.ok) throw r.status; return r.json(); })
+    .catch(function () { return _pivotLocalAdd(ns, nome, cfg); });
+}
+function _pivotViewsPatch(id, patch) {
+  var token = _pivotAuthToken(); if (!token) return Promise.resolve();
+  return fetch(_pivotHubUrl() + '/api/views/' + id, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token }, body: JSON.stringify(patch) }).catch(function () {});
+}
+function _pivotViewsDeleteRemote(id) {
+  var token = _pivotAuthToken(); if (!token) return Promise.resolve();
+  return fetch(_pivotHubUrl() + '/api/views/' + id, { method: 'DELETE', headers: { Authorization: 'Bearer ' + token } }).catch(function () {});
+}
+function _pivotViewsUse(id) {
+  var token = _pivotAuthToken(); if (!token) return;
+  fetch(_pivotHubUrl() + '/api/views/' + id + '?action=use', { method: 'POST', headers: { Authorization: 'Bearer ' + token } }).catch(function () {});
+}
+
+/* ── Caricamento + re-render ─────────────────────────────────────────────────*/
+function _pivotLoadViews(ns) {
+  var s = window._pivotState[ns]; if (!s || s._viewsLoading) return;
+  s._viewsLoading = true;
+  _pivotViewsGet(ns).then(function (list) { s.savedViews = list; s.savedViewsLoaded = true; s._viewsLoading = false; _pivotRerender(ns); });
+}
+function _pivotReloadViews(ns) {
+  var s = window._pivotState[ns];
+  return _pivotViewsGet(ns).then(function (list) { s.savedViews = list; s.savedViewsLoaded = true; _pivotRerender(ns); });
+}
+
+/* ── Config corrente + confronto ─────────────────────────────────────────────*/
+function _pivotCurrentConfig(state) {
+  return { dims: state.dims.slice(0, 4), filters: (state.filters || []).map(function (f) { return { col: f.col, op: f.op, a: f.a, b: f.b }; }) };
+}
+function _pivotConfigEq(a, b) {
+  return JSON.stringify({ d: a.dims || [], f: a.filters || [] }) === JSON.stringify({ d: b.dims || [], f: b.filters || [] });
+}
+/* La combinazione attuale è "nuova" (→ mostra Salva) se non combacia con un
+ * preset (solo dims, niente filtri) né con una vista già salvata. */
+function _pivotComboIsNew(ns, state, opts) {
+  if (!state.dims.some(Boolean)) return false;
+  var cur = _pivotCurrentConfig(state);
+  var noFilters = !(state.filters && state.filters.length);
+  if (noFilters && opts.presets && opts.presets.some(function (p) { return JSON.stringify(p.dims) === JSON.stringify(state.dims); })) return false;
+  var views = state.savedViews || [];
+  if (views.some(function (v) { return _pivotConfigEq(cur, { dims: v.dims, filters: v.filters }); })) return false;
+  return true;
+}
+
+function _pivotSaveIconSvg() {
+  return '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle">' +
+    '<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>';
+}
+
+/* ── Riga "Le mie viste" ─────────────────────────────────────────────────────*/
+function _pivotSavedViewsRowHtml(ns, state, opts) {
+  var views = (state.savedViews || []).slice().sort(function (a, b) { return (a.ordine || 0) - (b.ordine || 0); });
+  var cur = _pivotCurrentConfig(state);
+  var h = '<div style="margin-bottom:10px;display:flex;flex-wrap:wrap;gap:6px;align-items:center">';
+  h += '<span style="color:var(--text3);font-size:11px;text-transform:uppercase;letter-spacing:.3px;margin-right:6px">⭐ Le mie viste:</span>';
+  if (!state.savedViewsLoaded) {
+    h += '<span style="color:var(--text3);font-size:11px">carico…</span>';
+  } else if (!views.length) {
+    h += '<span style="color:var(--text3);font-size:11px;font-style:italic">nessuna ancora — scegli una combinazione e premi Salva</span>';
+  } else {
+    var INLINE = 6;
+    views.slice(0, INLINE).forEach(function (v) {
+      var active = _pivotConfigEq(cur, { dims: v.dims, filters: v.filters });
+      h += '<button onclick="_pivotApplyView(\'' + ns + '\',\'' + v.id + '\')" title="' + _pivotEscAttr(v.nome) + (v.local ? ' (solo su questo computer)' : '') + '" ' +
+        'style="padding:5px 10px;border-radius:14px;font-size:10px;cursor:pointer;border:1px solid ' + (active ? 'var(--accent)' : 'var(--border)') + ';background:' + (active ? 'rgba(99,102,241,.18)' : 'var(--card)') + ';color:var(--text)">⭐ ' + _pivotEscHtml(v.nome) + (v.local ? ' •' : '') + '</button>';
+    });
+    h += '<button id="_pivotManageBtn_' + ns + '" onclick="_pivotOpenManage(\'' + ns + '\',this)" title="Gestisci le viste (riordina, rinomina, elimina)" ' +
+      'style="padding:5px 9px;border-radius:14px;font-size:12px;line-height:1;cursor:pointer;border:1px solid var(--border);background:var(--card);color:var(--text)">⋯</button>';
+  }
+  if (state.savedViewsLoaded && _pivotComboIsNew(ns, state, opts)) {
+    h += '<button onclick="_pivotSaveView(\'' + ns + '\',this)" title="Salva questa combinazione tra le tue viste" ' +
+      'style="margin-left:6px;padding:5px 12px;border-radius:14px;font-size:10px;cursor:pointer;border:1px solid var(--accent);background:var(--accent);color:#fff;display:inline-flex;align-items:center;gap:4px">' + _pivotSaveIconSvg() + ' Salva vista</button>';
+  }
+  h += '</div>';
+  return h;
+}
+
+/* ── Applica / salva / rinomina / elimina / riordina ────────────────────────*/
+function _pivotApplyView(ns, id) {
+  var s = window._pivotState[ns];
+  var v = (s.savedViews || []).find(function (x) { return String(x.id) === String(id); });
+  if (!v) return;
+  var opts = s._opts;
+  var dims = (v.dims || ['', '', '', '']).slice(0, 4);
+  while (dims.length < 4) dims.push('');
+  s.dims = dims.map(function (d) { return (d && opts.dims[d]) ? d : ''; });
+  s.filters = (v.filters || []).map(function (f) { return { col: f.col, op: f.op, a: f.a, b: f.b }; });
+  s.open.clear();
+  _pivotClosePops();
+  _pivotRerender(ns);
+  if (!v.local) _pivotViewsUse(v.id);
+}
+function _pivotSaveView(ns, btn) { _pivotOpenNamePop(ns, btn, 'create', null, ''); }
+function _pivotRenameView(ns, id, btn) {
+  var s = window._pivotState[ns];
+  var v = (s.savedViews || []).find(function (x) { return String(x.id) === String(id); });
+  _pivotOpenNamePop(ns, btn, 'rename', id, v ? v.nome : '');
+}
+function _pivotDoCreate(ns, nome) {
+  var s = window._pivotState[ns];
+  var cfg = _pivotCurrentConfig(s);
+  cfg.ordine = (s.savedViews || []).reduce(function (m, v) { return Math.max(m, v.ordine || 0); }, 0) + 1;
+  _pivotViewsCreate(ns, nome, cfg).then(function () { _pivotReloadViews(ns); });
+}
+function _pivotDoRename(ns, id, nome) {
+  var s = window._pivotState[ns];
+  var v = (s.savedViews || []).find(function (x) { return String(x.id) === String(id); });
+  if (!v) return;
+  if (v.local) { v.nome = nome; _pivotLocalUpdate(ns, v); _pivotReloadViews(ns).then(function () { _pivotReopenManage(ns); }); return; }
+  _pivotViewsPatch(id, { nome: nome }).then(function () { _pivotReloadViews(ns).then(function () { _pivotReopenManage(ns); }); });
+}
+function _pivotDeleteView(ns, id) {
+  var s = window._pivotState[ns];
+  var v = (s.savedViews || []).find(function (x) { return String(x.id) === String(id); });
+  if (!window.confirm('Eliminare la vista "' + (v ? v.nome : '') + '"? Non si può annullare.')) return;
+  var done = function () { _pivotReloadViews(ns).then(function () { _pivotReopenManage(ns); }); };
+  if (v && v.local) { _pivotLocalRemove(ns, id); done(); }
+  else _pivotViewsDeleteRemote(id).then(done);
+}
+function _pivotMoveView(ns, id, dir) {
+  var s = window._pivotState[ns];
+  var views = (s.savedViews || []).slice().sort(function (a, b) { return (a.ordine || 0) - (b.ordine || 0); });
+  var idx = views.findIndex(function (v) { return String(v.id) === String(id); });
+  var j = idx + dir;
+  if (idx < 0 || j < 0 || j >= views.length) return;
+  var a = views[idx], b = views[j], ao = a.ordine || 0, bo = b.ordine || 0;
+  a.ordine = bo; b.ordine = ao;
+  Promise.all([_pivotViewsSetOrdine(a), _pivotViewsSetOrdine(b)]).then(function () { _pivotRerender(ns); _pivotReopenManage(ns); });
+}
+function _pivotViewsSetOrdine(v) {
+  if (v.local) { var ns = _pivotNsForLocal(v); if (ns) _pivotLocalUpdate(ns, v); return Promise.resolve(); }
+  return _pivotViewsPatch(v.id, { filtri: { dims: v.dims, filters: v.filters, ordine: v.ordine } });
+}
+/* Trova il namespace di una vista locale (per aggiornare il localStorage giusto). */
+function _pivotNsForLocal(v) {
+  var states = window._pivotState || {};
+  var found = null;
+  Object.keys(states).forEach(function (ns) { if ((states[ns].savedViews || []).some(function (x) { return x.id === v.id; })) found = ns; });
+  return found;
+}
+
+/* ── Pannelli a comparsa: nome (salva/rinomina) + gestione ───────────────────*/
+function _pivotOpenNamePop(ns, anchorEl, mode, viewId, initial) {
+  _pivotClosePops();
+  var r = anchorEl.getBoundingClientRect();
+  var pop = document.createElement('div'); pop.id = '_pivotNamePop';
+  pop.style.cssText = 'position:fixed;z-index:99999;width:264px;background:var(--card);border:1px solid var(--border);border-radius:8px;box-shadow:0 8px 28px rgba(0,0,0,.35);padding:12px;font-size:12px;color:var(--text);left:' + Math.max(8, r.left) + 'px;top:' + (r.bottom + 6) + 'px';
+  pop.innerHTML = '<div style="margin-bottom:8px;font-weight:600">' + (mode === 'rename' ? 'Rinomina vista' : 'Salva vista') + '</div>' +
+    '<input id="_pivotNameInput" type="text" value="' + _pivotEscAttr(initial || '') + '" placeholder="Nome (es. Solo non incassate)" ' +
+    'style="width:100%;padding:6px;border-radius:4px;background:var(--bg);color:var(--text);border:1px solid var(--border);margin-bottom:10px">' +
+    '<div style="display:flex;justify-content:flex-end;gap:8px">' +
+    '<button onclick="_pivotClosePops()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:11px">Annulla</button>' +
+    '<button onclick="_pivotConfirmName()" style="background:var(--accent);color:#fff;border:none;border-radius:4px;padding:6px 14px;cursor:pointer;font-size:11px;font-weight:600">' + (mode === 'rename' ? 'Rinomina' : 'Salva') + '</button></div>';
+  document.body.appendChild(pop);
+  window._pivotPendingName = { ns: ns, mode: mode, viewId: viewId };
+  var inp = document.getElementById('_pivotNameInput');
+  if (inp) { inp.focus(); inp.addEventListener('keydown', function (e) { if (e.key === 'Enter') _pivotConfirmName(); if (e.key === 'Escape') _pivotClosePops(); }); }
+}
+function _pivotConfirmName() {
+  var p = window._pivotPendingName; if (!p) return;
+  var inp = document.getElementById('_pivotNameInput');
+  var nome = ((inp && inp.value) || '').trim();
+  if (!nome) { if (inp) inp.style.borderColor = '#dc2626'; return; }
+  _pivotClosePops();
+  if (p.mode === 'create') _pivotDoCreate(p.ns, nome);
+  else _pivotDoRename(p.ns, p.viewId, nome);
+}
+function _pivotOpenManage(ns, btn) {
+  _pivotClosePops();
+  var s = window._pivotState[ns];
+  var views = (s.savedViews || []).slice().sort(function (a, b) { return (a.ordine || 0) - (b.ordine || 0); });
+  var r = btn.getBoundingClientRect();
+  var pop = document.createElement('div'); pop.id = '_pivotManagePop';
+  pop.style.cssText = 'position:fixed;z-index:99999;width:320px;max-height:60vh;overflow:auto;background:var(--card);border:1px solid var(--border);border-radius:8px;box-shadow:0 8px 28px rgba(0,0,0,.35);padding:8px;font-size:12px;color:var(--text);left:' + Math.max(8, r.right - 320) + 'px;top:' + (r.bottom + 6) + 'px';
+  var h = '<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 6px 8px"><b>Le mie viste</b><span onclick="_pivotClosePops()" style="cursor:pointer;color:var(--text3)">✕</span></div>';
+  if (!views.length) h += '<div style="padding:10px;color:var(--text3);font-style:italic">Nessuna vista salvata.</div>';
+  views.forEach(function (v, i) {
+    h += '<div style="display:flex;align-items:center;gap:2px;padding:5px 6px;border-top:1px solid var(--border)">';
+    h += '<button onclick="_pivotApplyView(\'' + ns + '\',\'' + v.id + '\')" title="Applica questa vista" style="flex:1;text-align:left;background:none;border:none;color:var(--text);cursor:pointer;font-size:12px;padding:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">⭐ ' + _pivotEscHtml(v.nome) + (v.local ? ' <span style="color:var(--text3);font-size:9px">(questo PC)</span>' : '') + '</button>';
+    h += '<button onclick="_pivotMoveView(\'' + ns + '\',\'' + v.id + '\',-1)" title="Sposta su" ' + (i === 0 ? 'disabled style="opacity:.3;' : 'style="') + 'background:none;border:none;color:var(--text2);cursor:pointer;padding:2px 4px">▲</button>';
+    h += '<button onclick="_pivotMoveView(\'' + ns + '\',\'' + v.id + '\',1)" title="Sposta giù" ' + (i === views.length - 1 ? 'disabled style="opacity:.3;' : 'style="') + 'background:none;border:none;color:var(--text2);cursor:pointer;padding:2px 4px">▼</button>';
+    h += '<button onclick="_pivotRenameView(\'' + ns + '\',\'' + v.id + '\',this)" title="Rinomina" style="background:none;border:none;color:var(--text2);cursor:pointer;padding:2px 4px">✎</button>';
+    h += '<button onclick="_pivotDeleteView(\'' + ns + '\',\'' + v.id + '\')" title="Elimina" style="background:none;border:none;color:#dc2626;cursor:pointer;padding:2px 4px">🗑</button>';
+    h += '</div>';
+  });
+  pop.innerHTML = h;
+  document.body.appendChild(pop);
+  setTimeout(function () { document.addEventListener('mousedown', _pivotManageOutside); }, 0);
+}
+function _pivotManageOutside(e) {
+  var p = document.getElementById('_pivotManagePop');
+  var np = document.getElementById('_pivotNamePop');
+  if (p && !p.contains(e.target) && !(np && np.contains(e.target))) _pivotClosePops();
+}
+function _pivotReopenManage(ns) { var btn = document.getElementById('_pivotManageBtn_' + ns); if (btn) _pivotOpenManage(ns, btn); }
+function _pivotClosePops() {
+  document.removeEventListener('mousedown', _pivotManageOutside);
+  ['_pivotManagePop', '_pivotNamePop'].forEach(function (id) { var e = document.getElementById(id); if (e) e.remove(); });
 }
