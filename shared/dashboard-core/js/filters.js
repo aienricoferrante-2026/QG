@@ -345,6 +345,7 @@ function initFilters() {
       countFn: v => D.filter(c => _splitVal(_norm(c[f.key]), f.splitBy).includes(v)).length
     });
   });
+  _injectDefButtons();
 }
 
 function rebuildFilterCounts() {
@@ -427,6 +428,8 @@ function initQuickFilters() {
   renderQuickFilters();
   if (typeof renderPeriodFilter === 'function') renderPeriodFilter();
   if (typeof renderPeriodFilterFine === 'function') renderPeriodFilterFine();
+  // Filtri predefiniti salvati dall'utente → applicati per ultimi (vincono sul default inLav)
+  if (typeof applyDefaultFilters === 'function') applyDefaultFilters();
 }
 
 function renderActiveFilters() {
@@ -443,4 +446,93 @@ function renderActiveFilters() {
     }
   });
   el.innerHTML = h;
+}
+
+/* ── Filtri PREDEFINITI per postazione ──
+   L'utente imposta i filtri che vuole (es. Sede = Latina), clicca
+   "★ Salva predefiniti" e da lì in poi la dashboard si riapre sempre con
+   quei filtri già applicati. Persistenza per BU in localStorage. */
+function _defFiltersKey() {
+  return 'qg_deffilters_' + ((typeof sectorCode === 'function') ? sectorCode() : 'GEN');
+}
+function hasDefaultFilters() {
+  try { return !!localStorage.getItem(_defFiltersKey()); } catch (e) { return false; }
+}
+function saveDefaultFilters() {
+  const ms = {};
+  _filterDefs().forEach(f => {
+    const sel = [...MultiSelect.getSelected(f.id)];
+    if (sel.length) ms[f.id] = sel;
+  });
+  const payload = {
+    ms,
+    period: { kind: _periodFilter.kind, from: _toIso(_periodFilter.from), to: _toIso(_periodFilter.to) },
+    periodFine: { kind: _periodFilterFine.kind, from: _toIso(_periodFilterFine.from), to: _toIso(_periodFilterFine.to) },
+    quick: [..._activeQuickFilters]
+  };
+  try { localStorage.setItem(_defFiltersKey(), JSON.stringify(payload)); } catch (e) {}
+  _renderDefBtns();
+  _flashDef('★ Filtri salvati come predefiniti');
+}
+function clearDefaultFilters() {
+  try { localStorage.removeItem(_defFiltersKey()); } catch (e) {}
+  _renderDefBtns();
+  _flashDef('Predefiniti rimossi');
+  resetFilters();
+}
+function applyDefaultFilters() {
+  let raw = null;
+  try { raw = localStorage.getItem(_defFiltersKey()); } catch (e) {}
+  if (!raw) return false;
+  let p; try { p = JSON.parse(raw); } catch (e) { return false; }
+  if (p.ms && MultiSelect.setSelected) {
+    Object.keys(p.ms).forEach(id => MultiSelect.setSelected(id, p.ms[id]));
+  }
+  if (p.period) { _periodFilter = { kind: p.period.kind || 'all', from: _fromIso(p.period.from), to: _fromIso(p.period.to) }; }
+  if (p.periodFine) { _periodFilterFine = { kind: p.periodFine.kind || 'all', from: _fromIso(p.periodFine.from), to: _fromIso(p.periodFine.to) }; }
+  if (Array.isArray(p.quick)) { _activeQuickFilters = new Set(p.quick); }
+  applyFilters();
+  if (typeof renderQuickFilters === 'function') renderQuickFilters();
+  return true;
+}
+/* Inietta i pulsanti "Salva/Rimuovi predefiniti" accanto al Reset, su ogni
+   dashboard (HTML duplicato per BU → inserimento via JS, una volta sola). */
+function _injectDefButtons() {
+  document.querySelectorAll('.filters').forEach(box => {
+    if (box.querySelector('.filter-savedef')) return;
+    const save = document.createElement('button');
+    save.className = 'filter-reset filter-savedef';
+    save.style.cssText = 'background:rgba(59,130,246,.14);border-color:#3b82f6;color:#3b82f6';
+    save.title = 'Salva i filtri attuali come predefiniti: la dashboard si riaprirà sempre così';
+    save.onclick = saveDefaultFilters;
+    box.appendChild(save);
+    const del = document.createElement('button');
+    del.className = 'filter-reset filter-deldef';
+    del.style.cssText = 'background:rgba(239,68,68,.10);border-color:#ef4444;color:#ef4444';
+    del.title = 'Rimuovi i filtri predefiniti salvati';
+    del.innerHTML = '&#10005; Rimuovi predefiniti';
+    del.onclick = clearDefaultFilters;
+    box.appendChild(del);
+  });
+  _renderDefBtns();
+}
+function _renderDefBtns() {
+  const on = hasDefaultFilters();
+  document.querySelectorAll('.filter-savedef').forEach(b => {
+    b.innerHTML = on ? '&#9733; Aggiorna predefiniti' : '&#9733; Salva predefiniti';
+  });
+  document.querySelectorAll('.filter-deldef').forEach(b => { b.style.display = on ? '' : 'none'; });
+}
+function _flashDef(msg) {
+  let t = document.getElementById('def-flash');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'def-flash';
+    t.style.cssText = 'position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#3b82f6;color:#fff;padding:9px 18px;border-radius:9px;font-size:13px;font-weight:700;z-index:9999;box-shadow:0 8px 30px rgba(0,0,0,.35);transition:opacity .3s';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity = '1';
+  clearTimeout(t._tmo);
+  t._tmo = setTimeout(() => { t.style.opacity = '0'; }, 2200);
 }

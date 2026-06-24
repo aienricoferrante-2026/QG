@@ -175,6 +175,25 @@
     return _state[id] || new Set();
   }
 
+  /** Programmatically set selected values (array). Updates state + button label.
+   *  Used to restore "filtri predefiniti" salvati dall'utente. */
+  function setSelected(id, values) {
+    if (!_state[id]) _state[id] = new Set();
+    _state[id].clear();
+    (values || []).forEach(v => _state[id].add(v));
+    const wrap = document.getElementById(id);
+    if (wrap && wrap._ms) {
+      const { btn, placeholder } = wrap._ms;
+      const n = _state[id].size;
+      if (n === 0)
+        btn.innerHTML = `<span class="ms-text">${placeholder}</span><span class="ms-arrow">&#9660;</span>`;
+      else if (n === 1)
+        btn.innerHTML = `<span class="ms-text">${[..._state[id]][0]}</span><span class="ms-badge-count">1</span><span class="ms-arrow">&#9660;</span>`;
+      else
+        btn.innerHTML = `<span class="ms-text">${n} selezionati</span><span class="ms-badge-count">${n}</span><span class="ms-arrow">&#9660;</span>`;
+    }
+  }
+
   /** Check if a value matches the filter (true if nothing selected OR value is in set). */
   function matches(id, value) {
     const s = _state[id];
@@ -262,5 +281,5 @@
   // Close panels on outside click
   document.addEventListener('click', closeAll);
 
-  window.MultiSelect = { create, getSelected, matches, reset, resetAll, updateOptions };
+  window.MultiSelect = { create, getSelected, setSelected, matches, reset, resetAll, updateOptions };
 })();
