@@ -26,8 +26,28 @@ Il tuo piano "fai tutto e deploi tutto in automatico = errore 0" **è rovesciato
    - ✅ dump Qnet 341 tabelle → **perso** (solo `.DS_Store`).
 4. **Topologia DB reale** documentata (le 3 zone di rischio).
 5. **Piano v2 blindato** con le 6 regole di sicurezza (doppio-nome, migration inversa, gate e2e vero, FK in 3 tempi, manuale-vince-sul-sync, ledger migration).
-6. **Cantiere 0 (registro parità Qnet↔WeA)** lanciato — _in corso, lo trovi qui sotto quando finisce_.
+6. **Cantiere 0 (registro parità Qnet↔WeA)** completato → **[REGISTRO_PARITA_QNET_WEA.md](REGISTRO_PARITA_QNET_WEA.md)**. Sintesi sotto.
 7. Worktree pulito di lavoro creato da origin/main (`chore/notte-pulizia-27-06`), senza toccare nulla degli altri 17 worktree né i tuoi file in sospeso.
+
+## 📊 Cantiere 0 — Registro Parità Qnet↔WeA (246 campi mappati)
+Registro completo in **[REGISTRO_PARITA_QNET_WEA.md](REGISTRO_PARITA_QNET_WEA.md)**. Numeri:
+
+| Stato | Quanti | Cosa vuol dire |
+|---|---|---|
+| ✅ portato | 119 | il dato Qnet arriva nel Workspace |
+| ❌ mancante | 47 | esiste in Qnet ma da noi manca/è vuoto |
+| 🟡 da-verificare | 27 | non confermabile finché manca il dump Qnet |
+| 🔵 divergente-voluto | 39 | **diverso per scelta nostra — NON "correggere"** |
+| ⚪ scartato-apposta | 14 | solo-Workspace, va bene così |
+
+**I 3 buchi più rischiosi (dal registro):**
+1. 🔴 **SOLDI — provvigioni partner non automatiche** _(da verificare)_: il bridge è una-tantum senza cron, wallet a €0, 3 anagrafiche partner senza FK comune → partner pagati a mano, importi non riconciliabili.
+2. 🔴 **DATI — `commesse.meta` non scritto** _(✅ verificato vero su origin/main)_: il sync principale non conserva il record grezzo Qnet. I campi non mappati non restano da noi. _(Nota: il dato è ancora in Qnet vivo, ri-sincronizzabile; abilitare `meta` però appesantisce il sync → decisione tua.)_
+3. 🔴 **IDENTITÀ — `qnet_mirror_users` vuoto (0/176)** _(da verificare)_: non si risolve `qnet_user_id → persona` per il 76% dei dipendenti → "chi ha fatto cosa" non tracciabile.
+
+**Violazione "1 fonte via Hub":** 3 mirror `/customers` (STW 18.310 / Hub 18.268 / Sales 17.621) si sincronizzano in modo **indipendente** invece di leggere da Hub. È il Cantiere 4.
+
+**⚠️ 2 "bug" del registro erano FALSI POSITIVI** (sync CdG e `/api/fatture` che scriverebbero `bu_codice`): **verificati su origin/main → già `fa_codice`**. Gli agenti leggevano il checkout locale stale. Nessuna azione necessaria.
 
 ## 📦 Pronto-da-premere (aspetta il tuo OK)
 Niente è stato deployato. I cantieri rischiosi sono **progettati e ordinati** nel piano v2, ognuno con: come si verifica, rollback, e perché serve il tuo OK. Quando dai il via, parto dalla **vittima sicura** (Cantiere 3: rename su CDG, DB dedicato + test) e procedo una app alla volta.
@@ -44,4 +64,12 @@ Niente è stato deployato. I cantieri rischiosi sono **progettati e ordinati** n
 
 ---
 
-_Ultimo aggiornamento: piano v2 scritto; Cantiere 0 audit ancora in corso._
+## 🧭 Cosa propongo appena ti svegli (in ordine)
+1. Leggi questo report + dai **OK / modifiche al [piano v2](PIANO_PULIZIA_DB_V2_BLINDATO.md)**.
+2. "**Invia a Ciro**" → parte la richiesta dump + API (sblocca parità e contabilità attiva).
+3. Decidi su **GAP 2** (`commesse.meta`): lo abilito? (preserva i dati grezzi, ma appesantisce il sync).
+4. Con l'OK al piano, parto **autonomo** dai cantieri sicuri (reti e2e per qwork/iso/for/sic) e ti porto il **primo rename (CDG)** pronto al gate.
+
+---
+
+_Report FINALE. Tutto il lavoro sicuro autonomo è completato e committato nel repo STW. Nessun deploy, nessun DB toccato. In attesa del tuo OK per i cantieri al gate._
