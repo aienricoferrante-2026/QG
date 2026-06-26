@@ -34,7 +34,7 @@ Niente è stato deployato. I cantieri rischiosi sono **progettati e ordinati** n
 
 ## 🔴 Decisioni per te (in ordine)
 1. **OK al piano v2?** Se sì, parto coi cantieri autonomi (audit + reti e2e) senza altro disturbo, e ti porto il primo rename (CDG) pronto al gate.
-2. **Ciro: 2 muri da sbloccare** — (a) il **dump schema Qnet** (perso, serve ri-fornirlo) e (b) le **4 API ciclo attivo**. Senza, parità e contabilità attiva restano parziali. _(Posso prepararti la mail per Ciro.)_
+2. **Ciro: 2 muri da sbloccare** — (a) il **dump schema Qnet** (perso, serve ri-fornirlo) e (b) le **4 API ciclo attivo**. Senza, parità e contabilità attiva restano parziali. **Bozza email già pronta** in [BOZZA_EMAIL_CIRO_2_MURI.md](BOZZA_EMAIL_CIRO_2_MURI.md) — dimmi "invia a Ciro" e parte.
 3. **Branch & worktree**: 488 branch locali e 17 worktree (2 su `/tmp`, volatili). Vanno potati, ma **non lo faccio mentre dormi** (rischio di cancellare lavoro vivo di un'altra sessione). Te lo propongo come operazione assistita.
 4. **"Una sola app" (Guscio Unico)**: confermato come cantiere a sé (UX, non dati). Lo tengo separato dalla pulizia DB.
 
