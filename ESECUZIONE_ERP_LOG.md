@@ -35,3 +35,22 @@
 
 ## Rollback (se mai servisse)
 Per la slice 1: applicare `migration-erp-aziende-s1-expand-DOWN.sql` (DROP tabella + DROP 5 colonne). Reversibile al 100%, additivo = zero dati pre-esistenti persi.
+
+---
+
+## 🏗️ EXPAND scaffold 6 domini restanti (workflow autonomo, 27/06)
+122 tabelle create nel DB unico `bqyqr`, uno schema per dominio — additivo, reversibile (`DROP SCHEMA … CASCADE`), Hub 200 su tutti:
+
+| Schema | Tabelle |
+|---|---|
+| `commerciale` | 11 |
+| `commesse` | 17 |
+| `formazione` | 15 |
+| `sedi_partner` | 16 |
+| `contabilita_attiva` | 22 |
+| `trasversale` | 41 |
+
+**58 FK rimandate** (si agganciano in fase migrate, quando i target sono popolati). 2 viste formazione + repoint codice = fasi successive. **Scaffold TABELLE dell'ERP: completo** (anagrafica in `public` + 6 schemi dominio).
+
+## 🔁 Esecuzione auto-sostenuta (27/06)
+Cron `7a37140b` ogni 20 min ri-spinge l'esecuzione del piano (regola [[feedback_decido_non_far_girare]]): fa la prossima slice col protocollo, si ferma SOLO ai 2 gate (login, spegnimento). Sessione-only, scade in 7gg, stop con CronDelete.
