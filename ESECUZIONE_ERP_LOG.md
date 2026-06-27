@@ -9,7 +9,11 @@
 
 | 3 | 2026-06-27 | Aziende S3 — migrate referente* → `aziende_commerciale` (9.892 righe) | migrate (doppio-nome, reversibile) | n/a (dati in struttura additiva) | ✅ applicato + verificato (match esatto 9.892, Hub 200, referente* ancora su aziende) | `TRUNCATE aziende_commerciale` |
 
-> **Aziende:** expand completo + primo migrate fatto. Prossimo: backfill `is_cliente`/`is_partner` (logica 3-anagrafiche) + campi da Qnet (sync), poi **repoint** codice (gate deploy) → **contract** (drop referente* da aziende). Logica già decisa.
+| 4 | 2026-06-27 | Anagrafica S4 — `contatti`+tags, `contatti_aziende` (N:N), `utenti`+avatar_url, `utenti_qnet_mapping`, vista `v_aziende_full` | expand (additivo) | ✅ CONFORME | ✅ applicato + verificato (vista 18.268 righe, Hub 200) | `migration-erp-anagrafica-s4-...-DOWN.sql` |
+
+> **🎯 ANAGRAFICA MASTER — EXPAND COMPLETO:** Aziende (nucleo+commerciale+qualifiche+indirizzi) · Contatti (+contatti_aziende N:N) · Utenti (+utenti_qnet_mapping) · vista piatta `v_aziende_full`. Tutto live in `bqyqr`, additivo, reversibile, Hub 200.
+> **Nota divergenza:** `aziende_commerciale` (S1) ha `referente*` che il piano mette nei Contatti → si sposteranno al migrate Contatti, poi drop. Dato salvo (doppio posto).
+> **Prossimo:** migrate Contatti (referente*→contatti+contatti_aziende) · is_partner (match cross-DB) · sync Qnet (gestore/commerciale/qnet_user_id) → **repoint** codice (gate deploy) → **contract**.
 
 ## Protocollo per ogni apply (rispettato)
 1. Referto ✅ custode-modello-dati-erp (regola per regola).
