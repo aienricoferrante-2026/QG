@@ -76,3 +76,22 @@ Cron `7a37140b` ogni 20 min ri-spinge l'esecuzione del piano (regola [[feedback_
 
 ## ⏭️ Prossima fase = CUTOVER (repoint codice + contract) — SUPERVISIONATA
 È il passo che fa USARE il nuovo ERP: ricablare le app sui nuovi schemi (1.033 siti) + spegnere il vecchio. Per regola F4 (verifica visiva prima di "fatto") + rischio deploy, NON si fa alla cieca: si fa app per app, build-verificato, con screenshot prima/dopo. Più le FK "text→uuid" da risolvere e le viste piatte.
+
+## 🔗 FK pulite (workflow autonomo, 27/06)
+**~15 FK aggiunte** (intra-schema uuid pulite): commerciale 7 (created_by/validata/responsabile/contatto), commesse 1, formazione 1, sedi_partner 1 (sedi.azienda_id→aziende ✅), contabilita_attiva 5 (cliente_id→anagrafica, proforma/iso). Hub 200.
+
+### ⚠️ SCOPERTA CRITICA (l'orphan-check ha fatto il suo lavoro)
+Le FK verso il MASTER consolidato sono **100% orfane** → i dati migrati referenziano gli **id LOCALI della sorgente**, non il master:
+- `commerciale.deal/opportunita/ordine_cliente.azienda_id` → 5.245 / 15.820 / 5.295 orfani vs `public.aziende` (puntano all'anagrafica locale di sales, non al master)
+- `*.operatore_id / titolare_id` → orfani vs `public.utenti` (utenti locali sales)
+- `contabilita_attiva.fattura_attiva.cliente_id` → 1 orfano
+
+**Significa:** serve uno step di **RIMAPPATURA ID** (sorgente→master) prima di agganciare queste FK e prima del cutover. È lavoro di consolidamento atteso, NON un disastro — ma va fatto con cura (match per qnet_id/P.IVA/email).
+
+### ⚠️ Tabelle parent MANCANTI (gap di schema)
+FK rimandate perché il parent non esiste: `prodotti`, `campagne`, `partner`, `oda`, `fornitori`, `aula`, `materia`, `modulo`, `tenant`, `filiali`. → alcune entità referenziate non sono state create nell'expand (da colmare).
+
+---
+
+# ⏸️ STOP AUTONOMIA — siamo al CUTOVER SUPERVISIONATO
+Cron `d10b4313` FERMATO. Il lavoro DB-sicuro è esaurito. Resta: (1) **rimappatura id** sorgente→master (cura), (2) colmare i parent mancanti, (3) **repoint codice** (deploy+visivo F4), (4) contract. Tutto da fare CON Enrico (verifica visiva), non alla cieca.
