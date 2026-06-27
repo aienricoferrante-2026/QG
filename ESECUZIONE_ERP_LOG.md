@@ -13,7 +13,10 @@
 
 > **🎯 ANAGRAFICA MASTER — EXPAND COMPLETO:** Aziende (nucleo+commerciale+qualifiche+indirizzi) · Contatti (+contatti_aziende N:N) · Utenti (+utenti_qnet_mapping) · vista piatta `v_aziende_full`. Tutto live in `bqyqr`, additivo, reversibile, Hub 200.
 > **Nota divergenza:** `aziende_commerciale` (S1) ha `referente*` che il piano mette nei Contatti → si sposteranno al migrate Contatti, poi drop. Dato salvo (doppio posto).
-> **Prossimo:** migrate Contatti (referente*→contatti+contatti_aziende) · is_partner (match cross-DB) · sync Qnet (gestore/commerciale/qnet_user_id) → **repoint** codice (gate deploy) → **contract**.
+| 5 | 2026-06-27 | Anagrafica S5 — migrate referente*→Contatti (dedup email) | migrate (reversibile) | n/a | ✅ applicato + verificato: 9.892 link, 1.500 dedup su esistenti + 8.392 creati, contatti 14.113→22.505, Hub 200 | `migration-erp-anagrafica-s5-...-DOWN.sql` |
+
+> **Anagrafica: expand completo + migrate Aziende(is_cliente, referente) + migrate Contatti (referente→contatti_aziende) fatti.**
+> **Prossimo:** is_partner (match cross-DB qcont/sales→aziende) · sync Qnet (gestore/commerciale/qnet_user_id su utenti_qnet_mapping) → **repoint** codice (gate deploy) → **contract** (drop referente* da aziende + azienda_qnet_id da contatti).
 
 ## Protocollo per ogni apply (rispettato)
 1. Referto ✅ custode-modello-dati-erp (regola per regola).
