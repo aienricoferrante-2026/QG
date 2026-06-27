@@ -16,7 +16,8 @@
 | 5 | 2026-06-27 | Anagrafica S5 — migrate referente*→Contatti (dedup email) | migrate (reversibile) | n/a | ✅ applicato + verificato: 9.892 link, 1.500 dedup su esistenti + 8.392 creati, contatti 14.113→22.505, Hub 200 | `migration-erp-anagrafica-s5-...-DOWN.sql` |
 
 > **Anagrafica: expand completo + migrate Aziende(is_cliente, referente) + migrate Contatti (referente→contatti_aziende) fatti.**
-> **Prossimo:** is_partner (match cross-DB qcont/sales→aziende) · sync Qnet (gestore/commerciale/qnet_user_id su utenti_qnet_mapping) → **repoint** codice (gate deploy) → **contract** (drop referente* da aziende + azienda_qnet_id da contatti).
+> **⚠️ is_partner — BLOCCATO (non forzato):** né qcont (56 partner, ~0 P.IVA) né sales (1 partner) hanno identificativi per un match certo al master. Regola "match certo o non fondo" applicata. Serve slice dedicata di **risoluzione identità partner** (GAP 1 audit: STW/FOR/Q-CONT senza FK comune). NON automatizzabile — probabile match per ragione sociale + conferma, o fix dati sorgente. Stesso problema per is_fornitore (1/18.268).
+> **Prossimo (passi pesanti, non backfill):** sync Qnet → `utenti_qnet_mapping` (gestore/commerciale/qnet_user_id) · **repoint** codice (gate deploy) → **contract**.
 
 ## Protocollo per ogni apply (rispettato)
 1. Referto ✅ custode-modello-dati-erp (regola per regola).
