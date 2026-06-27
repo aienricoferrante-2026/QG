@@ -5,6 +5,9 @@
 | # | Data | Slice | Tipo | Referto custode | Esito | DOWN |
 |---|---|---|---|---|---|---|
 | 1 | 2026-06-27 | Aziende S1 — nucleo (5 col) + `aziende_commerciale` (17 col) | expand (additivo) | ✅ CONFORME | ✅ applicato + verificato (Hub 200, 18.268 righe intatte) | `migration-erp-aziende-s1-expand-DOWN.sql` |
+| 2 | 2026-06-27 | Aziende S2 — `aziende_qualifiche` (11 col) + `aziende_indirizzi` (9 col) | expand satelliti (additivo) | ✅ CONFORME | ✅ applicato + verificato (Hub 200) | `migration-erp-aziende-s2-satelliti-DOWN.sql` |
+
+> **Aziende — fase EXPAND completa:** nucleo + 3 estensioni (commerciale, qualifiche, indirizzi) tutte live. Prossimo per Aziende: migrate (backfill) → repoint codice → contract (drop vecchie), logica già decisa.
 
 ## Protocollo per ogni apply (rispettato)
 1. Referto ✅ custode-modello-dati-erp (regola per regola).
