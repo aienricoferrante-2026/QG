@@ -15,6 +15,7 @@
 > **Nota divergenza:** `aziende_commerciale` (S1) ha `referente*` che il piano mette nei Contatti → si sposteranno al migrate Contatti, poi drop. Dato salvo (doppio posto).
 | 5 | 2026-06-27 | Anagrafica S5 — migrate referente*→Contatti (dedup email) | migrate (reversibile) | n/a | ✅ applicato + verificato: 9.892 link, 1.500 dedup su esistenti + 8.392 creati, contatti 14.113→22.505, Hub 200 | `migration-erp-anagrafica-s5-...-DOWN.sql` |
 | 6 | 2026-06-27 | Anagrafica S6 — risoluzione PARTNER (55 contatti tag `Partner_Sede` + azienda placeholder) | migrate (reversibile) | n/a | ✅ create-only (1° tentativo over-tag 74 da match-nome → DOWN OK → 55 esatti, Hub 200) | `migration-erp-anagrafica-s6-partner-DOWN.sql` |
+| 7 | 2026-06-27 | Anagrafica S7 — `utenti_qnet_mapping` da HR (38 con qnet_user_id → 35 match email) | migrate (reversibile) | n/a | ✅ 35 identità risolte (da 0; era qnet_mirror_users vuota), Hub 200 | `migration-erp-anagrafica-s7-...-DOWN.sql` |
 
 > **Anagrafica: expand completo + migrate Aziende(is_cliente, referente) + migrate Contatti (referente→contatti_aziende) fatti.**
 > **✅ PARTNER RISOLTO (S6, modello Enrico 27/06):** un partner = CONTATTO con tag `Partner_Sede` agganciato a un'azienda; senza azienda propria → placeholder unico "Partner Sede — azienda di prova (CONT SEDI)". 55 partner da qcont.agente_commerciale. NON è azienda-con-flag. (is_fornitore 1/18.268 lo risolve il ciclo passivo).
