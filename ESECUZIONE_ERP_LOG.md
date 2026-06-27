@@ -54,3 +54,8 @@ Per la slice 1: applicare `migration-erp-aziende-s1-expand-DOWN.sql` (DROP tabel
 
 ## 🔁 Esecuzione auto-sostenuta (27/06)
 Cron `7a37140b` ogni 20 min ri-spinge l'esecuzione del piano (regola [[feedback_decido_non_far_girare]]): fa la prossima slice col protocollo, si ferma SOLO ai 2 gate (login, spegnimento). Sessione-only, scade in 7gg, stop con CronDelete.
+
+## 📦 MIGRATE dati domini (workflow autonomo, 27/06)
+**34.370 righe** copiate nei 6 schemi (per nome tabella, colonne comuni, conteggi verificati, Hub 200, reversibile TRUNCATE):
+- trasversale 39 tab (~8.904: audit_log 1.744, ruoli_template 5.898, hub_accesso_app 330…) · commesse 5 tab (~23.627: commesse 14.903, costi 3.761, dettagli_for 1.483…) · contabilita_attiva 5 · sedi_partner 6 · formazione 5 · commerciale 0 (no-match nomi → da indagare).
+**Flag (follow-up):** tabelle >20k saltate → **bulk dedicato**: `offerte` (46.157), `opportunita_for` (24.491); catena FK `opportunita_for→discenti(10.833)→discente_origine_gol(3.220)` da caricare in ordine. Schema non-REST → insert via SQL raw.
