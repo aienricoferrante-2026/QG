@@ -59,3 +59,7 @@ Cron `7a37140b` ogni 20 min ri-spinge l'esecuzione del piano (regola [[feedback_
 **34.370 righe** copiate nei 6 schemi (per nome tabella, colonne comuni, conteggi verificati, Hub 200, reversibile TRUNCATE):
 - trasversale 39 tab (~8.904: audit_log 1.744, ruoli_template 5.898, hub_accesso_app 330…) · commesse 5 tab (~23.627: commesse 14.903, costi 3.761, dettagli_for 1.483…) · contabilita_attiva 5 · sedi_partner 6 · formazione 5 · commerciale 0 (no-match nomi → da indagare).
 **Flag (follow-up):** tabelle >20k saltate → **bulk dedicato**: `offerte` (46.157), `opportunita_for` (24.491); catena FK `opportunita_for→discenti(10.833)→discente_origine_gol(3.220)` da caricare in ordine. Schema non-REST → insert via SQL raw.
+
+## 📦 BULK migrate commesse FK-chain (background, 27/06)
+~84.559 righe in ordine FK, conteggi esatti, Hub 200: `opportunita_for` 24.491 · `discenti` 10.691 (−142 id duplicati sorgente, dedup corretto sotto PK) · `discente_origine_gol` 3.220 · `offerte` 46.157. Edge gestiti: opportunita_for.data text→date validata (non-date→NULL), id bigint→uuid omesso col default. **Totale dati staged nei nuovi schemi: ~119.000 righe.**
+**Follow-up aperti:** (1) `commerciale` migrate 0 → indagare nomi tabella sorgente sales; (2) FK rimandate (58): molte sono "oggi testo" → richiedono risoluzione text→uuid prima dell'aggancio (entangled, non semplice ADD); (3) repoint codice (fase grossa, app+deploy+visivo).
