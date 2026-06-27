@@ -63,3 +63,16 @@ Cron `7a37140b` ogni 20 min ri-spinge l'esecuzione del piano (regola [[feedback_
 ## 📦 BULK migrate commesse FK-chain (background, 27/06)
 ~84.559 righe in ordine FK, conteggi esatti, Hub 200: `opportunita_for` 24.491 · `discenti` 10.691 (−142 id duplicati sorgente, dedup corretto sotto PK) · `discente_origine_gol` 3.220 · `offerte` 46.157. Edge gestiti: opportunita_for.data text→date validata (non-date→NULL), id bigint→uuid omesso col default. **Totale dati staged nei nuovi schemi: ~119.000 righe.**
 **Follow-up aperti:** (1) `commerciale` migrate 0 → indagare nomi tabella sorgente sales; (2) FK rimandate (58): molte sono "oggi testo" → richiedono risoluzione text→uuid prima dell'aggancio (entangled, non semplice ADD); (3) repoint codice (fase grossa, app+deploy+visivo).
+
+## ✅ MIGRATE COMMERCIALE (background, 27/06)
+~39.921 righe: opportunita 15.820 · offerta 13.559 · ordine_cliente 5.295 · deal 5.245 · opportunita_bu 2 · offerta_riga 0(vuota). Zero scarto, Hub 200. Mapping chiave: sorgente `anagrafica_id` → target `azienda_id` (NOT NULL) mappato esplicitamente; enum→text ok.
+
+---
+
+# 🎉 MILESTONE — NUOVO ERP COSTRUITO + POPOLATO (in parallelo al vivo)
+- **Struttura:** anagrafica (public) + 6 schemi dominio = ~150 tabelle nel DB unico `bqyqr`.
+- **Dati:** anagrafica consolidata + **~199.000 righe** staged nei domini (trasversale, commesse, formazione, contabilità, sedi, commerciale).
+- **Stato sistema:** NULLA è rotto — le app leggono ancora i DB vecchi (doppio-nome); il nuovo ERP vive ACCANTO, pieno e verificato (conteggi quadrati, Hub 200 a ogni passo). Tutto reversibile.
+
+## ⏭️ Prossima fase = CUTOVER (repoint codice + contract) — SUPERVISIONATA
+È il passo che fa USARE il nuovo ERP: ricablare le app sui nuovi schemi (1.033 siti) + spegnere il vecchio. Per regola F4 (verifica visiva prima di "fatto") + rischio deploy, NON si fa alla cieca: si fa app per app, build-verificato, con screenshot prima/dopo. Più le FK "text→uuid" da risolvere e le viste piatte.
