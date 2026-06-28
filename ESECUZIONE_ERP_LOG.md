@@ -158,3 +158,21 @@ Dopo la remediation del core (anagrafica+commerciale+system = puliti), il residu
 9. **Schemi dominio non avviati** (cdg/controllo_gestione, fia, bp, hr, iso, sic, contabilità passiva) — M3/M4, con albero-campi + split tabelle-dio (incentivi 47col, commessa_economica 58col).
 
 Principio: ogni slice si DECIDE intera + ri-audita VERDE prima del suo cutover ([[feedback_risultato_100_percento]], [[feedback_pdca_checkpoint_continuo]]). Il re-audit 28/06 (run wf_5cfbcc14) raffina questa mappa.
+
+## ✅ RE-AUDIT round 2 (28/06) + PDCA round 3 — il loop funziona
+Ri-lanciato `checkpoint-audit-erp` DOPO la remediation (principio ri-audit, [[feedback_pdca_checkpoint_continuo]]). Referto: `tasks/w0n8slzq9.output`.
+- **0 BLOCKER residui** — i 2 blocker strutturali (trasversale, twins) SPARITI: la remediation ha tenuto. ✅
+- **Core (anagrafica+commerciale+system) = cutover-ready.** I 7 item `clean_before_cutover` sono prevalentemente **slice di dominio R3** (formazione/commesse/sedi/contabilità) già nella ROADMAP RESIDUO — da fare DENTRO la slice del dominio, non a pezzi sul core.
+- L'audit ha **auto-corretto un proprio falso positivo** (UNIQUE su qnet_id già esiste).
+- **Verifica adversariale mia:** `public.audit_log_unified` segnalata "tabella duplicata" è in realtà una **VISTA** (no duplicazione dati) → NON droppata, lasciata.
+
+### PDCA round 3 applicato (fix-now cross-cutting, Hub 200):
+- `contabilita_attiva.{fattura_attiva,proforma,rateizzo_iso,scadenza_contabile_iso}.cliente_id` → **`azienda_id`** (convenzione: link al master = sempre azienda_id).
+- **DROP `_map_azienda`/`_map_utente`** (rimappatura chiusa, builder riproducibile). `_bak_remap*` tenuti per DOWN fino a cutover.
+- **STANDARD**: fissata la regola naming tabelle (singolare per entità-dominio; plurale solo i 3 master) + "link master = azienda_id" + "nessun `_bak_`/`_map_` sopravvive al cutover".
+
+### Differito ALLE SLICE DI DOMINIO (non frammentare):
+- Viste `v_commessa_full` (aggiungere azienda_id) + `v_sede_partner_full` (JOIN contatti per partner) → slice commesse/sedi (le viste si rifanno comunque lì).
+- Cluster relocation FOR + commesse PK/inglese → slice formazione/commesse (roadmap #1).
+
+**STATO: il CORE è validato 100% cutover-ready. PROSSIMO = primo cutover di prova (Hub, vista commerciale) con verifica visiva F4.**
