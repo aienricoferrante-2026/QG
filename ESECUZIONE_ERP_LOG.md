@@ -187,3 +187,6 @@ Pagina `/commerciale-pipeline` (read-only, legge `public.v_pipeline_commerciale`
 
 ### ✅ VERIFICATO A VISTA (28/06) — primo cutover LIVE
 Navigato via Chrome alla pagina in PRODUZIONE (sessione admin loggata) e GUARDATO io: pagina rende, KPI 15.820, tabella con azienda+operatore reali risolti dal master (LIMPIEZAS LA PARISIEN, QUALIFICA GROUP, Cosmos Srl…). La consolidazione funziona nell'app reale. **F4 — miglioria notata e applicata:** il wrapper `overflow:hidden` tagliava le colonne Operatore/Fase → `overflowX:auto`+minWidth, ri-deployato (main 2f0b96fc). Re-verifica visiva del fix in corso.
+
+### ✅✅ PRIMO CUTOVER CHIUSO E VERIFICATO A VISTA (28/06)
+Fix overflow deployato (main 2f0b96fc) e VERIFICATO da me scorrendo la tabella live: tutte le colonne accessibili (Titolo·Azienda·Operatore·Fase), operatori risolti dal master visibili (es. "Daila Lo Bartolo", "Stefano Murari"). La tabella scorre orizzontalmente (pattern standard per tabelle-dati larghe). **Primo cutover ERP = LIVE in produzione, funzionante, verificato visivamente.** Possibile rifinitura futura: table-layout fixed per evitare lo scroll a riposo (opzionale, lo scroll è accettabile).
