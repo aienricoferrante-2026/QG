@@ -320,6 +320,14 @@ Schema `cdg` creato (foundation, `migration-erp-cdg-CP1-schema.sql`, main `938fa
 - **Decisioni modello CdG (cementate):** (1) `cdg.sede`(765)=indirizzi SPORCHI da import Qnet, NON sedi vere → master = filiali HR; **bonifica 765→filiale HR = task MANUALE Luigi** (sede_codice resta testo opaco finché non bonificato); `sedi_partner.sedi`(115)=dominio diverso (spazi partner). (2) `cdg.societa`(15 giuridiche→aziende; GRP=consolidato/NCL=placeholder→NULL+tipo_riga). (3) `cdg.bu`(27)→master già esiste = **`public.struttura_gerarchia`** (no doppione). (4) conto_periodo = aggregato BI RIC/COS/MOL (`is_aggregato`), NON ledger granulare (quello viene da fatture+segnatempo).
 > **RESTA CdG:** wire fa_codice→struttura_gerarchia + societa altri master (piano_ricavo 132/settori/gerarchia_prodotto) + viste budget-vs-consuntivo + **bonifica sede (Luigi, manuale)**. Altri domini M3/M4 (hr/iso/sic/fia/bp) = stessa costruzione.
 
+### 🏛️ MILESTONE — TUTTI I DOMINI ERP CONSOLIDATI (28/06)
+Costruiti in batch (regola anti-parcheggio attiva, controllo auto a ogni step):
+- **HR** (`migration-erp-hr-masters.sql`, main `502073bb`): 11 master — dipendenti 161, **sedi/filiali 55** (= master sede vero per bonifica CdG), funzioni_aziendali 30 (BU/BS), mansioni 47, organigramma, costi_personale.
+- **ISO/SIC/FIA/BP** (`migration-erp-{iso,sic,bp,fia}-masters.sql` + `migration-erp-fia-incentivi.sql`, main `46d2009e`): schemi + master core. FIA **incentivi/bandi 4590** (chunk da 150 per jsonb pesanti). SIC (materia/catalogo/fondo), BP (okr 367/budget/bmc), ISO (standard/kit_documenti).
+- **CONTROLLO FINALE INTEGRITÀ: 0 FK non valide · 12 schemi dominio · 146 tabelle dominio · Hub 200.**
+> **STATO ERP: consolidamento DATI invisibile = COMPLETO su TUTTI i domini** (anagrafica, commerciale, formazione, commesse, sedi, contabilità attiva+passiva, CdG, HR, ISO, SIC, FIA, BP). Tutto in bqyqr, referenzialmente pulito, reversibile.
+> **RESTA = fase CUTOVER + rifiniture (non più costruzione):** (1) 🔴 GATE qcont (provvigioni/pagamenti live → sblocca 1,66M, sì/no); (2) repoint app per dominio = deploy gate; (3) bonifica sede CdG 765→filiali HR = task MANUALE Luigi; (4) wiring cross-dominio fine (dipendenti↔utenti, cdg.fa_codice→struttura_gerarchia, hr.funzioni↔struttura_gerarchia). Le viste/cutover-pagine come /formazione-discenti si fanno per dominio.
+
 ### ✅ sedi.is_partner droppato (28/06)
 Doppione del flag-ruolo (is_partner vive SOLO in public.aziende per R3.5), 0/115 popolato, 0 viste dipendenti → DROP additivo-sicuro. Hub 200. Item audit chiuso.
 > NOTA STATO: il CORE (anagrafica+commerciale+formazione) è migrato+validato. Gli item RESTANTI sono pesanti (split god-table commessa_economica/classe; risoluzione 354 cliente_id commesse; cutover-pagine F4; build domini M3/M4+passiva) → vanno fatti con CURA in contesto fresco, non rushati. L'auto-continua li prende; un /clear darebbe contesto pulito.
