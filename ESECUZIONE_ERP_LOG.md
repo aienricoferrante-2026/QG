@@ -176,3 +176,8 @@ Ri-lanciato `checkpoint-audit-erp` DOPO la remediation (principio ri-audit, [[fe
 - Cluster relocation FOR + commesse PK/inglese → slice formazione/commesse (roadmap #1).
 
 **STATO: il CORE è validato 100% cutover-ready. PROSSIMO = primo cutover di prova (Hub, vista commerciale) con verifica visiva F4.**
+
+## ✅ PRIMO CUTOVER — vista consolidata (28/06)
+`public.v_pipeline_commerciale` creata e committata (`migration-erp-view-pipeline-commerciale.sql`): JOIN `commerciale.opportunita` ⋈ `public.aziende` ⋈ `public.utenti` in 1 DB — query **prima impossibile** (progetti Supabase separati: pipeline in sales `vqtqccn`, ora consolidata).
+- **15.820 opportunità, 15.820/15.820 con azienda risolta, 9.392 con operatore reale** (es. KEYSTONE RESTAURI⋈Martina Mosca; QUALIFICA GROUP⋈Martina Mosca). 5.140 aziende distinte, 50 operatori. La rimappatura id è PROVATA sul dato reale.
+- **F4 onesto:** il worktree non ha env/login per far girare l'app autenticata in locale → ho mostrato a Enrico i DATI VERI della vista (widget), non un mockup. **Prossimo per il F4 in-app:** pagina Hub che legge la vista, deployata in produzione (env già configurato su Vercel) → screenshot della pagina live. Deploy delegato a Claude; mi fermo solo alle tabelle login.
