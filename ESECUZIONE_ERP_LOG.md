@@ -305,7 +305,13 @@ Build dominio passiva (piano PIANO_MASTER_CONTABILITA_PASSIVA, 28 tab, CP-1→CP
 - ✅ **CP-1 — schema unificato:** `ALTER SCHEMA contabilita_attiva RENAME TO contabilita` (decisione 28/06: 1 schema, sotto-aree attiva/passiva). Atomico, 23 tab attiva intatte, vista ciclo-attivo regge (579), 0 codice/FK esterna rotta. Main `f1fbfc31`.
 - ✅ **piano_conti master** (`migration-erp-contabilita-CP-piano-conti.sql`): 175 conti ← qcont (cross-DB via JSON, dollar-quoting per apostrofi), PK naturale `codice` (convenzione piano dei conti) + parent self-FK gerarchico (143 figli, 15 categorie). Hub 200.
 - **Quadro sorgenti passive (qcont):** solo 4 popolate — piano_conti 175 ✅, anagrafica 65, agente_commerciale 55, oda 34; il resto VUOTO (modulo giovane). Il valore 1,66M provvigioni arriva da CP-13 (sync Qnet, futuro).
-> **RESTA passiva (auto-continua):** anagrafica 65 → **riconciliare con master aziende** (NO 2° master: fornitori = aziende is_fornitore + estensione, non nuova contabilita.anagrafica) · agente_commerciale 55 → estensione su aziende is_partner · oda 34 · scaffold tabelle ciclo (rda/oda/fattura_passiva/bef/provvigioni…) · CP-13 sync Qnet (sblocca 1,66M) · CP-14 repoint qcont (gate deploy). NOTA: `_bak_remap_fattura` in contabilita = drift da pulire.
+> **✅ PASSIVA STRUTTURA + DATI POPOLATI = FATTI (28/06, batch "procedi con TUTTO"):**
+> - anagrafica qcont(65) → **riconciliata col master aziende** (NO 2° master): 3 link nome + 62 aziende create coi flag ruolo + `contabilita.fornitore_ext` (65, azienda_id 100% risolto), is_fornitore 64. `migration-erp-contabilita-CP-anagrafica-fornitore.sql`.
+> - `contabilita.agente_commerciale`(55, azienda_id risolto via fornitore_ext, 55 validati). `...CP-agente-commerciale.sql`.
+> - `contabilita.oda`(34, mirror workflow approvativo; fornitore vuoto sugli ODA=fedele). `...CP-oda.sql`.
+> - **18 tabelle scaffold ciclo** (rda/arrivo_merce/fattura_passiva/fp_anticipo/matching_log/notula/bef/lista_bonifici(+riga)/regola_provvigione/provvigione_calcolata/imputazione_*/anticipo_*/costo_partner/adempimento_fiscale/partner_dettagli) mirror qcont. `...CP-scaffold-ciclo.sql`. **Schema contabilita = 43 tab.**
+> - Drift `_bak_remap_fattura` droppato. **Controllo auto a ogni step: 0 FK non valide, 0 orfani, Hub 200.** Main fino a `d3f99068`.
+> **RESTA passiva:** **CP-13 sync Qnet→provvigioni** (popola provvigione_calcolata, sblocca 1,66M — richiede integrazione API Qnet service_commissions) · **CP-14 repoint app qcont eqprz→bqyqr.contabilita** = GATE deploy (cutover app LIVE, proposta sì/no). conto_codice/commessa link sugli ODA da agganciare quando popolati.
 
 ### ✅ sedi.is_partner droppato (28/06)
 Doppione del flag-ruolo (is_partner vive SOLO in public.aziende per R3.5), 0/115 popolato, 0 viste dipendenti → DROP additivo-sicuro. Hub 200. Item audit chiuso.
