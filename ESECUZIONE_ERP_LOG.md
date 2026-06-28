@@ -193,3 +193,6 @@ Fix overflow deployato (main 2f0b96fc) e VERIFICATO da me scorrendo la tabella l
 
 ## 🌳 SLICE Formazione/FOR — albero-campi pronto (28/06)
 `ALBERO_FORMAZIONE_28-06.md` scritto (R7: dizionario prima delle tabelle). Decisioni R3 prese: `formazione.discente` (persona-learner, identità inline, PK uuid + qnet business-key) + estensione `discente_economia` (provvigioni/ricavi) + satellite `discente_origine_gol`; `commerciale.opportunita_for` (opportunità=pipeline commerciale); `commerciale.offerte_mirror_stw` (offerte=MIRROR Qnet, NON merge — deciso); `formazione.decreto_regione` (rendicontazione). Ordine migrate catena FK: opportunita_for→discente→origine_gol; offerte+decreto indipendenti. PROSSIMO (auto-continua job 2115d899 + io): firma custode → expand target → migrate cluster INSIEME (id-preservati) → re-audit VERDE → cutover. Auto-continua ARMATO: l'esecuzione prosegue da sola, Enrico non deve dire "procedi".
+
+### ✅ decreto_regione → formazione (28/06)
+Migrato `contabilita_attiva.decreto_regione` (296) → `formazione.decreto_regione` (296, 19 col comuni, doppio-nome: source resta finché repoint). Hub 200. Pezzo indipendente della slice formazione (fuori catena FK). RESTA il cluster entangled (opportunita_for→discente→origine_gol + offerte) → firma custode sull'albero → expand → migrate INSIEME (auto-continua job 2115d899).
