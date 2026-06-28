@@ -120,3 +120,26 @@ Migration: `migration-erp-parents-campagne-aula.sql` (+DOWN, +builder). Hub 200.
 
 ## ⏸️ STOP AUTONOMIA — siamo al CUTOVER SUPERVISIONATO
 Cron `d10b4313` FERMATO. **Il consolidamento dati invisibile è COMPLETO: 0 orfani cross-master in tutto l'ERP.** Restano: (1) ✅ rimappatura + sweep + parent reali FATTI; (2) due note non bloccanti: **oda** (al build dominio passiva), **filiale** (sorgente da chiarire); (3) **repoint codice** (deploy+visivo F4) — gate supervisionato, primo cutover di prova UNA app; (4) contract. Repoint/contract CON Enrico (verifica visiva), non alla cieca.
+
+---
+
+# 🔬 CHECKPOINT AUDIT PRE-CUTOVER + REMEDIATION (28/06)
+Audit di conformità (workflow `checkpoint-audit-erp`, 6 auditor + sintesi, 507k token) PRIMA del cutover → **DB NON cutover-ready**: 2 blocker strutturali + 9 item clean-before-cutover + 12 nice + 9 confermate-intenzionali. L'istinto di Enrico (checkup prima di procedere) ha intercettato drift serio mentre era ancora economico. Reportistica completa: `tasks/wngp3qh8d.output`.
+
+## Remediation applicata (autonoma, staged/reversibile, Hub 200 a ogni passo)
+| # | Fix | Esito |
+|---|---|---|
+| A1 | `aziende` flag-ruolo (is_cliente/is_partner/is_fornitore/presente_in_qnet) nullable→**DEFAULT false+backfill+NOT NULL** | is_partner 18.269 NULL→0; ogni query ruolo ora corretta |
+| B2 | `commerciale.offerta.operatore_id` **13.555 rimappati** (era 13.559 orfani — dimenticati nel remap), reso nullable come i fratelli, FK; `opportunita.created_by_utente_id` rimappato+FK | 0 orfani |
+| B2 | `v_deal_aggregato`/`v_pipeline_commerciale` (TABELLE vuote col prefisso v_) **droppate** (si ricreano VIEW al wiring); `aziende.meta jsonb` aggiunto; `utenti_qnet_mapping` qnet_*_id→**bigint+UNIQUE** | ok |
+| FK | **10 FK NOT VALID → VALIDATE** (commesse.*) | 0 residui |
+| 🔴BLOCKER1 | **DROP SCHEMA `trasversale`** (41 tabelle = copia 1:1 stagnante di public; verificato 0 FK entranti, 0 tabelle uniche, ogni conteggio ⊆ public) | seconda-fonte system tables eliminata |
+| 🔴BLOCKER2 | `documento` dedup (auto col drop trasversale); strays `sedi_partner.commessa_filiale_*` droppati | triplicazione→risolta; resta rifinitura commessa_filiale public↔commesse (al cutover commesse) |
+| C | `commesse.commesse` (14.903) **+azienda_id uuid + backfill via qnet_id (14.445) + FK** al master | era cliente_id TEXT senza legame |
+
+Snapshot DOWN: `commerciale._bak_remap2_*`. 
+
+## ⏳ Remediation RESTANTE (prossimo batch, technical/R3 — decido io)
+- **Relocation di dominio:** `commesse.opportunita_for` (24.491)→commerciale; `commesse.discenti` (10.691)→formazione.discente; `commesse.offerte` (46.157)→casa offerte (decisione R3 mirror-vs-merge); `contabilita_attiva.decreto_regione` (296)→formazione. Dati POPOLATI nello schema sbagliato (lineage sorgente, non significato).
+- **Rename coerenza:** `contabilita_attiva.cliente_dettagli.anagrafica_id`→azienda_id; isole inglese `commesse.commesse_operativo`/`discenti` (contact_id→contatto_id, order_id→qnet_order_id, full_name→nome_completo…); drop label denormalizzate (_nome/ragione_sociale accanto a FK).
+- **Pulizia:** drop empties non pianificate `commerciale.opportunita_for(0)`/`offerte_mirror_stw(0)`; drop `_map_*` (rimappatura chiusa); decidere schema `contabilita` unico (attiva+passiva) vs 2 separati PRIMA di costruire la passiva.
