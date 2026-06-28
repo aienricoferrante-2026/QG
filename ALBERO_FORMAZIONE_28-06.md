@@ -5,8 +5,15 @@
 ## Cluster da rialloccare (conteggi reali)
 discenti 10.691 · opportunita_for 24.491 · discente_origine_gol 3.220 · offerte 46.157 · decreto_regione 296.
 
-## 1. `formazione.discente` ← `commesse.discenti` (10.691)
-Il discente è una PERSONA-learner (non nel master Contatti: i Contatti sono contatti di business, i discenti sono allievi → entità propria con identità inline; eventuale dedup futuro a "Contatti-persone" = decisione separata, non ora).
+## 1. ⚠️ REVISIONE 28/06 — discente=PERSONA vs iscrizione=ENROLLMENT (grane diverse!)
+**Scoperta:** `formazione.discente` ESISTE già come master PERSONA (chiave FormaLab `formalab_id`, + data_nascita, luogo_nascita, CF, nome, email, tel — 0 righe, alimentato da sync FormaLab). `commesse.discenti` (10.691) NON è la stessa grana: è l'ISCRIZIONE (persona-in-un-corso, con frequenza/esito/economia/GA/opportunita_id). NON sovrascrivere discente con discenti.
+**Modello R3 corretto:**
+- `formazione.discente` = **PERSONA** (master, dedup per `codice_fiscale`; **2 fonti**: FormaLab `formalab_id` + Qnet-FOR da commesse.discenti → merge per CF, con source-of-truth da decidere; CF NULL = persona non dedupabile, riga propria).
+- `formazione.iscrizione` (NUOVA) = **ENROLLMENT**: discente_id→discente, opportunita_for_id→commerciale.opportunita_for, qnet_order_id; frequenza (ore_previste/frequentate_decimali/assenze_decimali, esito, corso_superato, data_iscrizione).
+- `formazione.iscrizione_economia` (estensione 1:1) = importo_oda, ricavo_*, partner provvigioni, agente_commerciale_id, operatore_nome.
+**Esecuzione (prossimo ciclo auto-continua, con cura — è un merge cross-fonte):** (a) popola discente (persona) da DISTINCT CF di commesse.discenti + tieni legacy_discente_id integer per la catena; (b) crea iscrizione + iscrizione_economia, migra da commesse.discenti mappando discente_id via CF/legacy; (c) discente_origine_gol.discente_id (integer)→iscrizione o discente via legacy. NON rushare (lezione offerte 28/06).
+
+### (storico, superato) Il discente è una PERSONA-learner
 - **PK**: `id uuid` (nuovo) · business-key Qnet: `qnet_order_id` (era order_id text), `qnet_opportunita_id` (era opportunita_id text)
 - **Identità persona (nucleo, inline)**: codice_fiscale, cognome, nome, `nome_completo` (era full_name), email, telefono
 - **Iscrizione/frequenza (nucleo 1:1)**: data_iscrizione (text→date), ore_previste, ore_frequentate_decimali, ore_assenze_decimali, esito, corso_superato
