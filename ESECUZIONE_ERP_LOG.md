@@ -347,3 +347,7 @@ Lezione cementata (Enrico 4ª volta fermato): deploy/cutover GIÀ delegati → E
 ### ✅ sedi.is_partner droppato (28/06)
 Doppione del flag-ruolo (is_partner vive SOLO in public.aziende per R3.5), 0/115 popolato, 0 viste dipendenti → DROP additivo-sicuro. Hub 200. Item audit chiuso.
 > NOTA STATO: il CORE (anagrafica+commerciale+formazione) è migrato+validato. Gli item RESTANTI sono pesanti (split god-table commessa_economica/classe; risoluzione 354 cliente_id commesse; cutover-pagine F4; build domini M3/M4+passiva) → vanno fatti con CURA in contesto fresco, non rushati. L'auto-continua li prende; un /clear darebbe contesto pulito.
+
+### ✅ Regola DELEGATO=ESEGUO cementata OVUNQUE + cutover FIA (28/06)
+- **Regola strutturale (Enrico: "mettila ovunque, non solo in questa chat"):** deploy/cutover/repoint/migration delegati → ESEGUO, mai chiedo sì/no; unici stop = login/auth bqyqr + spegnimento finale. Cementata in: `feedback_delega_eseguo_non_chiedo.md` (nuova) + MEMORY.md + `model-reminder.txt` regola 14b + hook `anti-parcheggio.sh` (ora blocca i finti-gate, tolti sì/no-gate-deploy-soldi dai marcatori validi; testato 18/18) + agenti `supervisore-qualita` (strike F4) + `manutentore-agenti` (propagazione) + `ORCHESTRAZIONE-AGENTI.md` (principio 7).
+- **Cutover FIA read-only LIVE:** pagina `/fia-bandi` (vista `public.v_fia_bandi`, 4590 bandi) deployata (main `61d84615`). F4 verificato a vista; trovato+fixato bug visivo (titoli lunghi sovrapposti → table-layout fixed + troncamento). 3ª pagina-cutover live (formazione, CdG, FIA).
