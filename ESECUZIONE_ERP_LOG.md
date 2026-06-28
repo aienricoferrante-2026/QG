@@ -226,3 +226,7 @@ Scoperto che gli scaffold formazione ERANO GIÀ giusti (discente=persona, iscriz
 - opportunita_for(24.491 commerciale) + decreto(296 formazione) già fatti.
 **Reversibile:** sorgenti `commesse.{discenti,discente_origine_gol,opportunita_for}` INTATTE (doppio-nome) → drop al cutover formazione. Hub 200 a ogni step.
 **RESTA slice formazione:** commessa_dettagli_for(1.483)→formazione; partner_commerciale_id text→uuid (FK contatto); viste v_*_full; poi RE-AUDIT verde → cutover read-only F4 → contract (drop sorgenti). Auto-continua prossimo giro.
+
+### ✅ commessa_dettagli_for → formazione (28/06)
+`commesse.commessa_dettagli_for` (1.483, rendicontazione edizione-corso) → satellite dedicato `formazione.commessa_dettagli_for` (LIKE struttura + id uuid; NON nel god-table commessa_economica). Dato reale (291 con ricevuto-regione). Sorgente intatta. Hub 200.
+**MIGRAZIONE-DATI SLICE FORMAZIONE = COMPLETA** (discente/iscrizione/origine_gol/dettagli_for/opportunita_for/decreto). RESTA: partner_commerciale_id text→uuid (FK contatto); viste; **RE-AUDIT 3 livelli verde**; cutover read-only F4; contract (drop sorgenti commesse). Prossimo giro auto-continua: lanciare il re-audit per validare la slice prima del cutover.
