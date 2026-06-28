@@ -313,6 +313,11 @@ Build dominio passiva (piano PIANO_MASTER_CONTABILITA_PASSIVA, 28 tab, CP-1→CP
 > - Drift `_bak_remap_fattura` droppato. **Controllo auto a ogni step: 0 FK non valide, 0 orfani, Hub 200.** Main fino a `d3f99068`.
 > **RESTA passiva:** **CP-13 sync Qnet→provvigioni** (popola provvigione_calcolata, sblocca 1,66M — richiede integrazione API Qnet service_commissions) · **CP-14 repoint app qcont eqprz→bqyqr.contabilita** = GATE deploy (cutover app LIVE, proposta sì/no). conto_codice/commessa link sugli ODA da agganciare quando popolati.
 
+### ▶️ DOMINIO CdG (controllo gestione) — avviato (28/06)
+Schema `cdg` creato (foundation, `migration-erp-cdg-CP1-schema.sql`, main `938fa2b3`). Sorgente = DB cdg `oentbu`. Scoping fatto: dominio PIENO (non solo reporting) — `conto_periodo` 14.689 (ledger analitico budget/consuntivo), societa 17, bu 27, sede 765, piano_ricavo 132, gerarchia_prodotto 27, settori 15.
+- **Riconciliazioni note (modello, da validare con specialista prima del migrate):** `cdg.societa`(17: QGFL/QFOR/QSKI/QGRP/QHOL…) → **aziende gruppo** (ho già il mapping dal lavoro sedi/contabilità); `cdg.sede`(765) ↔ `sedi_partner.sedi`(115, grana diversa — verificare); `conto_periodo.conto_codice` → `contabilita.piano_conti` ✅(esiste); `commessa_codice`→commesse; `fornitore_codice`→aziende; `bu`(linea)=BU master.
+> **RESTA CdG:** validare modello (societa/sede/bu vs master esistenti, no doppioni) → migrate conto_periodo(14.689) linkato ai 4 master → bu/societa/settori master → viste budget-vs-consuntivo. È il prossimo slice (auto-continua).
+
 ### ✅ sedi.is_partner droppato (28/06)
 Doppione del flag-ruolo (is_partner vive SOLO in public.aziende per R3.5), 0/115 popolato, 0 viste dipendenti → DROP additivo-sicuro. Hub 200. Item audit chiuso.
 > NOTA STATO: il CORE (anagrafica+commerciale+formazione) è migrato+validato. Gli item RESTANTI sono pesanti (split god-table commessa_economica/classe; risoluzione 354 cliente_id commesse; cutover-pagine F4; build domini M3/M4+passiva) → vanno fatti con CURA in contesto fresco, non rushati. L'auto-continua li prende; un /clear darebbe contesto pulito.
