@@ -281,6 +281,12 @@ Verdetto modello **B** (modello-gestione-qualifica): master `commesse.commesse` 
 > **🏗️ SLICE COMMESSE — DATA LAYER COMPLETO:** master uuid + qnet_order_id, 10 FK figlie uuid pulite, 354 orfani risolti, cliente text dropped, viste v_commessa_full(+azienda)+v_classe_full. Tutto verificato, Hub 200, reversibile.
 > **RESTA:** (1) **commessa_filiale_map home** (riconciliare public↔commesse, minore); (2) **re-audit checkpoint-audit-erp** (L2) su formazione+commesse; (3) **cutover commesse** (pagina Hub su v_commessa_full, F4) opzionale; (4) slice SEDI + anagrafica contract (drop referente*); (5) build M3/M4 + contabilità passiva. Auto-continua `e756ed05` le prende.
 
+### ✅ SLICE SEDI — backfill azienda_id (28/06)
+Scoperto che `sedi_partner.sedi.azienda_id` era **0/115** (FK c'era, backfill mai fatto). Link via `societa_accreditata` (codice società accreditante). **Mapping codice→azienda VALIDATO da modello-partner-sedi** + CONTEXT.md (15 società gruppo) + `apps/cdg/supabase/schema.sql` + verifica master.
+- **47/115 linkate** (codici certi: QGFL 34→16855, QGF→17387, QGA→17389, QGV→17398, QGSJ→17385, QGT→17390, QGEJ→17388, QGB→18530, QGEDP→17399, Kronos→12939, QC→17159, MFC→MFC SRL).
+- **68 NULL, tutte documentate (NON mis-assegnate, 100% non 99%):** 61 codice NULL (sedi bozza), 5 ELAV (incerto se gruppo), 1 "QGEU / QGFL" (codice doppio legacy), 1 "Area imprese" (stringa non identificata) → **ricognizione Luigi/Jessica** (data-gap noto, non blocco). Migration `migration-erp-sedi-azienda-backfill.sql`, main `80b898b5`. Hub 200.
+> **RESTA slice sedi:** `v_sede_partner_full` fix partner (richiede sedi_contratto popolata = VUOTA → bloccato su dato mancante); `filiale_id` master (sedi.filiale_id→nessuna tabella sorgente, da indagare). Entrambi bloccati su dato assente, non azionabili ora.
+
 ### ✅ sedi.is_partner droppato (28/06)
 Doppione del flag-ruolo (is_partner vive SOLO in public.aziende per R3.5), 0/115 popolato, 0 viste dipendenti → DROP additivo-sicuro. Hub 200. Item audit chiuso.
 > NOTA STATO: il CORE (anagrafica+commerciale+formazione) è migrato+validato. Gli item RESTANTI sono pesanti (split god-table commessa_economica/classe; risoluzione 354 cliente_id commesse; cutover-pagine F4; build domini M3/M4+passiva) → vanno fatti con CURA in contesto fresco, non rushati. L'auto-continua li prende; un /clear darebbe contesto pulito.
