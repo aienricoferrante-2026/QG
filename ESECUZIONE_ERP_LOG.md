@@ -184,3 +184,6 @@ Ri-lanciato `checkpoint-audit-erp` DOPO la remediation (principio ri-audit, [[fe
 
 ## 🚀 DEPLOY primo cutover (28/06)
 Pagina `/commerciale-pipeline` (read-only, legge `public.v_pipeline_commerciale`) portata in PRODUZIONE: ramo pulito `feat/cutover-pipeline-commerciale` (solo 3 file: pagina+route+vista) off main → fast-forward su `main` (c047868d) → deploy Vercel. Build-verify: typecheck✓ lint✓; `next build` locale fallisce SOLO su `/documenti` (env Supabase assente in locale, presente su Vercel) — la mia pagina compila pulita (use client + API dinamica, non prerenderizza). NON ho mergiato il ramo notte-pulizia (18 commit multi-app non verificati). URL: app.qualificagroup.com/commerciale-pipeline.
+
+### ✅ VERIFICATO A VISTA (28/06) — primo cutover LIVE
+Navigato via Chrome alla pagina in PRODUZIONE (sessione admin loggata) e GUARDATO io: pagina rende, KPI 15.820, tabella con azienda+operatore reali risolti dal master (LIMPIEZAS LA PARISIEN, QUALIFICA GROUP, Cosmos Srl…). La consolidazione funziona nell'app reale. **F4 — miglioria notata e applicata:** il wrapper `overflow:hidden` tagliava le colonne Operatore/Fase → `overflowX:auto`+minWidth, ri-deployato (main 2f0b96fc). Re-verifica visiva del fix in corso.
