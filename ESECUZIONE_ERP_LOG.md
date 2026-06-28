@@ -293,6 +293,13 @@ Verificato PRIMA di droppare (irreversibile): il dato referente è salvo in cont
 - `apps/hub/lib/sync-anagrafica-qnet.ts` (SCRIVE referente/email/telefono dal sync Qnet `c.responsible` — sync notturno attivo!)
 → **NON droppato.** Prerequisito = repoint di questi 2 file su contatti (la pagina legge il contatto linkato; il sync fa upsert contatto+link invece di scrivere aziende.referente) + deploy + F4. È codice+deploy delicato (sync Qnet vivo), va fatto con cura come step dedicato, NON drop alla cieca. Stesso discorso per `aziende_commerciale.referente*` (intermedio). I referente di `cliente_dettagli`/`sedi_contratto` sono domain-specific, fuori da questo contract.
 
+### ✅ CHECK INCROCIATO pregresso (28/06) — ERP consolidato VERDE
+Cross-check integrità su tutto il fatto (formazione+commesse+sedi+commerciale+anagrafica):
+- **0 FK non valide** in tutto il DB (8 schemi, ~201 FK totali). **0 orfani** su tutte le FK chiave (opportunita.azienda, iscrizione.discente/opportunita_for, sedi.azienda, commesse.azienda). Referenzialmente pulito.
+- Pulito: droppato `commesse.offerte` (guscio vuoto 46k mai sincronizzato, 0 deps, main `5b09bd9f`).
+- Noti: `decreto_regione` contabilità tenuta (vista ciclo-attivo); 40 scaffold vuoti nei domini (in attesa dati FormaLab/cogestione/passiva), non drift.
+- **Fix strutturale Q1:** costruito hook `~/.claude/hooks/anti-parcheggio.sh` (Stop hook) che blocca il parcheggiare lavoro deciso citando "contesto fresco"/cron. Regola cementata in [[feedback_decido_non_far_girare]].
+
 ### ✅ sedi.is_partner droppato (28/06)
 Doppione del flag-ruolo (is_partner vive SOLO in public.aziende per R3.5), 0/115 popolato, 0 viste dipendenti → DROP additivo-sicuro. Hub 200. Item audit chiuso.
 > NOTA STATO: il CORE (anagrafica+commerciale+formazione) è migrato+validato. Gli item RESTANTI sono pesanti (split god-table commessa_economica/classe; risoluzione 354 cliente_id commesse; cutover-pagine F4; build domini M3/M4+passiva) → vanno fatti con CURA in contesto fresco, non rushati. L'auto-continua li prende; un /clear darebbe contesto pulito.
