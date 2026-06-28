@@ -109,5 +109,14 @@ Verificate tutte le colonne uuid azienda/cliente/fornitore dei 6 schemi senza FK
 - **Esito: 0 orfani cross-master azienda/cliente in TUTTO l'ERP.**
 > Nota modellazione (futura, non urgente): le **società infragruppo** (es. QSI) non sono nel master anagrafica → quando servirà la fatturazione infragruppo a regime andranno create in `public.aziende`. Decisione a parte.
 
+# ✅ PARENT MANCANTI (28/06) — i 2 reali fatti, gli altri = defer motivato
+Verificata la popolazione di tutte le colonne uuid che referenziano i 10 "parent mancanti": **solo 4 hanno dati**; il resto è 0-popolato (FK rimandata, nessun orfano — incl. tutti i `partner_id`, coerente con partner=contatto-con-tag, **nessuna tabella partner**).
+- ✅ **campagne** ← `sales.campagna` (60 righe, id preservato) → FK `opportunita_campagna_fk` (106 ref) + `offerta_campagna_fk`. 0 orfani.
+- ✅ **aula** ← `for.aula` (1 riga) → FK `calendario_lezione_aula_fk` (2) + `classe_aula_fk` (1). 0 orfani.
+- ⏸️ **oda**: sorgente reale `qcont.oda` (34 righe), ma dominio canonico = **contabilità PASSIVA** (schema non ancora costruito) → defer al build dominio passiva (no placement improvvisato in sedi_partner). 0 orfani.
+- ⏸️ **filiale**: **nessuna tabella sorgente** in alcun DB (solo vista cdg `v_budget_vs_consuntivo_filiale`). I 56 `sedi.filiale_id` non hanno master → indagine necessaria. 0 orfani.
+- ⚪ prodotto/materia/modulo/tenant/partner_*: 0-popolati → FK rimandata, nessuna azione.
+Migration: `migration-erp-parents-campagne-aula.sql` (+DOWN, +builder). Hub 200.
+
 ## ⏸️ STOP AUTONOMIA — siamo al CUTOVER SUPERVISIONATO
-Cron `d10b4313` FERMATO. Restano: (1) ✅ rimappatura id + sweep orfani FATTI (0 orfani); (2) colmare i parent mancanti (prodotti, campagne, partner, oda, fornitori, aula, materia, modulo, tenant, filiali) — additivo, indagabile; (3) **repoint codice** (deploy+visivo F4) — gate supervisionato; (4) contract. Repoint/contract da fare CON Enrico (verifica visiva), non alla cieca.
+Cron `d10b4313` FERMATO. **Il consolidamento dati invisibile è COMPLETO: 0 orfani cross-master in tutto l'ERP.** Restano: (1) ✅ rimappatura + sweep + parent reali FATTI; (2) due note non bloccanti: **oda** (al build dominio passiva), **filiale** (sorgente da chiarire); (3) **repoint codice** (deploy+visivo F4) — gate supervisionato, primo cutover di prova UNA app; (4) contract. Repoint/contract CON Enrico (verifica visiva), non alla cieca.
