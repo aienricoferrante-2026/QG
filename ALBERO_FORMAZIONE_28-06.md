@@ -25,8 +25,8 @@ Origine GOL del discente. FK `discente_id` → formazione.discente. (id-preserva
 ## 4. `commerciale.opportunita_for` ← `commesse.opportunita_for` (24.491)
 Opportunità = pipeline COMMERCIALE (anche se FOR/GOL) → schema commerciale (scaffold già lì, 0 righe). Migra preservando id (la catena discenti.opportunita_id text vi punta). Campi: corso, tipologia_corso, cpi, annualita, status, fonte… (mirror Qnet).
 
-## 5. `commerciale.offerte_mirror_stw` ← `commesse.offerte` (46.157)
-`offerte` è un MIRROR quotation Qnet (payload, status_quotation, qnet_updated_at) ≠ master strutturato `commerciale.offerta`. NON merge → resta mirror, casa = `offerte_mirror_stw` (già scaffold). Decisione mirror-vs-merge RISOLTA: mirror separato.
+## 5. `commerciale.offerta_qnet_mirror` (NUOVO) ← `commesse.offerte` (46.157)
+`offerte` è un MIRROR quotation Qnet (id,titolo,status_quotation,status_label,cliente_qnet_id,opportunita_qnet_id,assegnato_nome,importo_totale,data_offerta,data_scadenza,note,payload jsonb,…). ⚠️ CORREZIONE 28/06: `offerte_mirror_stw` NON è il suo home — è un mirror DIVERSO (colonne cliente/agente/totale, non combaciano: solo 4 col comuni). Va creato un target NUOVO con la struttura ESATTA di `commesse.offerte` (es. `commerciale.offerta_qnet_mirror`), poi migrate id-preservato. Lezione: verificare la struttura del target PRIMA di migrare (expand-ricco prima del copy).
 
 ## 6. `formazione.decreto_regione` ← `contabilita_attiva.decreto_regione` (296)
 Finanziamento regionale corsi = rendicontazione/FORMAZIONE, non contabilità attiva. Migra 296 righe → formazione, DROP doppione vuoto.

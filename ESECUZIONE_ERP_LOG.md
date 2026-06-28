@@ -196,3 +196,8 @@ Fix overflow deployato (main 2f0b96fc) e VERIFICATO da me scorrendo la tabella l
 
 ### ✅ decreto_regione → formazione (28/06)
 Migrato `contabilita_attiva.decreto_regione` (296) → `formazione.decreto_regione` (296, 19 col comuni, doppio-nome: source resta finché repoint). Hub 200. Pezzo indipendente della slice formazione (fuori catena FK). RESTA il cluster entangled (opportunita_for→discente→origine_gol + offerte) → firma custode sull'albero → expand → migrate INSIEME (auto-continua job 2115d899).
+
+### SLICE Formazione — progressi + 1 correzione (28/06)
+- ✅ `opportunita_for` migrato commesse→**commerciale** (24.491, id-preservato, 18 col comuni) — parent della catena pronto.
+- ⚠️ `offerte`→mirror: TENTATO in `commerciale.offerte_mirror_stw` ma ANNULLATO (TRUNCATE): quel mirror ha struttura DIVERSA (solo 4 col comuni). Serve un target NUOVO `commerciale.offerta_qnet_mirror` con la struttura esatta di commesse.offerte. Albero corretto. LEZIONE: verificare struttura target PRIMA del copy (no rush).
+- ⏭️ RESTA (auto-continua, con cura): expand offerta_qnet_mirror + migrate offerte; conversione discente (integer→uuid PK + identità inline + estensione economia) + discente_origine_gol catena FK. Ordine: opportunita_for(fatto)→discente→origine_gol.
