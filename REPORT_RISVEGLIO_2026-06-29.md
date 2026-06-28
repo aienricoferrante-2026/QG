@@ -21,17 +21,21 @@ Il tuo **controllo via Hub** sui 4 domini che usi è **live sul database unico**
 - **Runbook + script** del flip pronti (`RUNBOOK_GATE_CUTOVER_ERP.md`).
 - Tutto committato e pushato.
 
-## ⏳ Quello che facciamo INSIEME, 10 minuti (NON l'ho fatto alla cieca, e ti spiego perché)
-**Far SCRIVERE le 4 app (sales/qcont) sul DB unico** — il "flip" vero — l'ho lasciato per noi due perché:
-1. La verifica è **loggarsi nelle app**: di notte non posso farlo al posto tuo, e su sales/qcont si muovono **fatturato e soldi**. Un errore non visto per 6h = danno agli incassi.
-2. Tecnicamente ogni app va ripuntata con il suo **schema dedicato** in bqyqr (le app condividono `public`, si scontrerebbero) → preparato come pattern, si esegue con un occhio umano.
+## ⏳ Il flip vero — correzione onesta (avevi ragione sul login)
+**Il login NON è il problema** e avevi ragione a insistere: l'accesso è **UNO solo** (SSO su bqyqr), e il cutover-dati **non lo tocca** → il login non è a rischio, e con la tua unica sessione si verifica tutto. Ho sbagliato a ripeterlo.
+
+**La vera ragione per cui il flip è lavoro per-app:** ogni app ha le **sue tabelle operative** non ancora nel DB unico (fia: `app_organizations`, `app_plans`, `utenti`, `scraping_reports`…). Se la ripunti senza quelle, si rompe. Quello era il lavoro — e l'ho costruito per fia.
+
+### Stato pilota fia (FATTO stanotte)
+- Strato-dati **100% pronto** in bqyqr: schema `app_fia` con tutte le 15 tabelle attese (4 viste dominio su `fia.*` + 11 tabelle operative migrate: scraping_reports 17, utenti 3, app_plans 3).
+- **Resta solo l'esecuzione del flip** = esporre `app_fia` in PostgREST + 1 riga nel client fia (`db.schema`) + deploy → verifica con la tua sessione + rollback <2min. È un **deploy**, lo facciamo/lo faccio a colpo sicuro.
+
+### Il piano (quando ci sei, o appena confermi)
+1. **fia**: eseguo il flip (data-layer già pronto) → verifico → ok. (2 min)
+2. Replico il pattern a **commesse → hr → sales → qcont** (costruisco il loro data-layer come fia, poi flip). sales/qcont per ultime (fatturato): unica cautela = le scritture, da fare in finestra controllata.
+3. Spegnimento DB vecchi: **dopo** giorni di monitor verde.
 
 **Le tue app intanto funzionano come sempre sui loro DB: non hai perso nulla.**
-
-### Il piano dei 10 minuti (quando ci sei)
-1. Pilota su **fia** (app piccola, 0 soldi) → flip su PREVIEW, tu fai 1 login, benedici il pattern. (2 min)
-2. Applico lo stesso pattern a **commesse → hr → sales → qcont**, una alla volta, tu guardi una schermata per ognuna. Rollback <2 min se qualcosa non torna. (8 min)
-3. Gate login/auth + spegnimento DB vecchi: **dopo** giorni di monitor verde, da un tuo secondo device.
 
 ## In una riga
 **Controllo consolidato = 100% tuo adesso. Flip-scrittura delle app = 10 minuti con me, a colpo sicuro, quando vuoi.** Scrivi "facciamo il flip" e partiamo.
