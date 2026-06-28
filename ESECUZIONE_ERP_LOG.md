@@ -364,3 +364,10 @@ commerciale-pipeline · formazione-discenti · cdg-consuntivo (€102M) · fia-b
 - **Cruscotto `/erp-consolidato`** (capstone, lint verde — lezione apostrofo applicata con `next lint`): lega le 8 viste-dominio + integrità.
 - **RE-AUDIT FINALE VERDE:** 0 FK non valide, 150 tabelle dominio, 8 viste-cutover tutte rispondono, Hub 200. **9 pagine-cutover totali** (6 verificate a vista; sedi/oda/cruscotto: dato verificato, visivo IN ATTESA Chrome disconnesso ~30min — blocco transitorio persistente).
 > **PROSSIMA FRONTIERA = cantiere qcont (sync continuo + repoint 153 route → flip → 1,66M provvigioni).** È grande e il sync da solo non dà valore senza il repoint (app live che muove soldi). Da fare deliberato, con doppio-binario. Auto-continua `de5e6d5c` attivo. Gate veri residui: login/auth bqyqr + spegnimento DB vecchio.
+
+### 🎯 PROVVIGIONI €1,63M VISIBILI + F4 100% (29/06)
+- **SCOPERTA CHIAVE:** i ~1,66M di provvigioni erano GIÀ nei dati consolidati (`formazione.iscrizione.importo_provvigione` = **€1.634.545,64**, 17 partner, 1.123 iscrizioni) → NON serviva il flip qcont per VEDERLI. Vista `public.v_provvigioni_partner` + pagina `/provvigioni-partner` (lint verde). **Il valore che sembrava gated è ora visibile dal DB unico.**
+- **Cruscotto `/erp-consolidato`** aggiornato con le provvigioni in cima.
+- **F4 100% (Chrome tornato):** verificate a vista TUTTE le 10 pagine-cutover (commerciale·formazione·CdG·FIA·commesse·HR·sedi·ODA·provvigioni·cruscotto). Rendono coi dati reali, colonne pulite, integrità mostrata.
+- **Meccanismo sync provato** (upsert idempotente piano_conti, resta 175) ma rinviato: vale insieme al repoint, non da solo.
+> **STATO: consolidamento ERP DIMOSTRATO end-to-end in-app su tutti i domini, provvigioni €1,63M visibili, F4 100%, re-audit verde.** RESTA solo il **flip-scrittura qcont** (perché l'app GESTISCA le provvigioni live sul DB unico) = cantiere su app viva che muove soldi, con doppio-binario; + gate login/auth e spegnimento DB vecchio. Auto-continua `de5e6d5c` attivo.
