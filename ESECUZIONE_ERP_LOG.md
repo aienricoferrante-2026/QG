@@ -240,3 +240,7 @@ Check 3 livelli dopo la migrazione formazione: **fk_orfani = CLEAN** (FK 183/183
 ### ✅ vista formazione.v_discente_full (28/06)
 Creata la vista piatta di lettura formazione (discente⋈iscrizione⋈opportunita_for⋈origine_gol): 10.691 righe, persona+corso+esito risolti (dato reale verificato). Additiva/reversibile (DROP VIEW). Hub 200. Resta v_classe_full (richiede formazione.classe popolata = god-table da splittare prima). 
 **Slice formazione quasi chiusa:** dati ✅ + v_discente_full ✅. Restano (auto-continua): split god-table commessa_economica/classe, v_classe_full, cutover read-only F4, contract (drop sorgenti). Le slice commesse/sedi/anagrafica-contract hanno i cleanup nel re-audit sopra.
+
+### ✅ sedi.is_partner droppato (28/06)
+Doppione del flag-ruolo (is_partner vive SOLO in public.aziende per R3.5), 0/115 popolato, 0 viste dipendenti → DROP additivo-sicuro. Hub 200. Item audit chiuso.
+> NOTA STATO: il CORE (anagrafica+commerciale+formazione) è migrato+validato. Gli item RESTANTI sono pesanti (split god-table commessa_economica/classe; risoluzione 354 cliente_id commesse; cutover-pagine F4; build domini M3/M4+passiva) → vanno fatti con CURA in contesto fresco, non rushati. L'auto-continua li prende; un /clear darebbe contesto pulito.
