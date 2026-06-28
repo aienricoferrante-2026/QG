@@ -371,3 +371,8 @@ commerciale-pipeline · formazione-discenti · cdg-consuntivo (€102M) · fia-b
 - **F4 100% (Chrome tornato):** verificate a vista TUTTE le 10 pagine-cutover (commerciale·formazione·CdG·FIA·commesse·HR·sedi·ODA·provvigioni·cruscotto). Rendono coi dati reali, colonne pulite, integrità mostrata.
 - **Meccanismo sync provato** (upsert idempotente piano_conti, resta 175) ma rinviato: vale insieme al repoint, non da solo.
 > **STATO: consolidamento ERP DIMOSTRATO end-to-end in-app su tutti i domini, provvigioni €1,63M visibili, F4 100%, re-audit verde.** RESTA solo il **flip-scrittura qcont** (perché l'app GESTISCA le provvigioni live sul DB unico) = cantiere su app viva che muove soldi, con doppio-binario; + gate login/auth e spegnimento DB vecchio. Auto-continua `de5e6d5c` attivo.
+
+### ✅ CLEAN pre-cutover + setup autonomia overnight (29/06)
+- **Clean:** droppate 5 `_bak_remap*` commerciale (remap chiuso+verificato, sorgente sales intatta). DB unico pulito. Scaffold vuoti TENUTI (target voluti ciclo/sync, non drift).
+- **Decisione autorizzazioni (red-team, per proteggere il CEO):** overnight autonomo su TUTTO il REVERSIBILE (clean + sync continuo + doppio-binario + repoint-lettura). I 2 GATE (tabelle login/auth, spegnimento DB vecchi) NON eseguiti alla cieca di notte nemmeno con OK: login rotto=10 app fuori+non verificabile headless; spegnimento=irreversibile+prematuro (serve doppio-binario verde per giorni). → si fanno SUPERVISIONATI col CEO+team (5 min).
+- **Per i dev domani:** DB unico pulito+completo+documentato+app in doppio-binario (vecchi DB vivi come rete). Cron cutover `6ced380e` macina il reversibile overnight.
