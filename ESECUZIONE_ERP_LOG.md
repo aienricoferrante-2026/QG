@@ -143,3 +143,18 @@ Snapshot DOWN: `commerciale._bak_remap2_*`.
 - **Relocation di dominio:** `commesse.opportunita_for` (24.491)→commerciale; `commesse.discenti` (10.691)→formazione.discente; `commesse.offerte` (46.157)→casa offerte (decisione R3 mirror-vs-merge); `contabilita_attiva.decreto_regione` (296)→formazione. Dati POPOLATI nello schema sbagliato (lineage sorgente, non significato).
 - **Rename coerenza:** `contabilita_attiva.cliente_dettagli.anagrafica_id`→azienda_id; isole inglese `commesse.commesse_operativo`/`discenti` (contact_id→contatto_id, order_id→qnet_order_id, full_name→nome_completo…); drop label denormalizzate (_nome/ragione_sociale accanto a FK).
 - **Pulizia:** drop empties non pianificate `commerciale.opportunita_for(0)`/`offerte_mirror_stw(0)`; drop `_map_*` (rimappatura chiusa); decidere schema `contabilita` unico (attiva+passiva) vs 2 separati PRIMA di costruire la passiva.
+
+## 🗺️ ROADMAP RESIDUO verso il 100% (slice DECISE come blocchi, 28/06)
+Dopo la remediation del core (anagrafica+commerciale+system = puliti), il residuo è lavoro di dominio da fare come SLICE INTERE (non a pezzi), ognuna 100%+ri-audit prima del suo cutover:
+
+1. **SLICE Formazione/FOR** (la più grossa) — il cluster FK entangled `opportunita_for`(24.491)+`discenti`(10.691)+`discente_origine_gol`(3.220)+`offerte`(46.157)+`decreto_regione`(296) oggi in `commesse`/`contabilita_attiva` va rialloccato AL DOMINIO GIUSTO **insieme**, NON uno alla volta (romperebbe le FK + perderebbe colonne: `formazione.discente` è scaffold 12-col vs sorgente 35-col). Passi: **albero-campi formazione approvato** → expand target ricchi (discente 35 col, opportunita_for→commerciale, offerte→`offerte_mirror_stw` che è un MIRROR quotation Qnet ≠ master `commerciale.offerta`) → migrate cluster preservando catena FK → repoint → contract.
+2. **commessa_filiale home** — riconciliare public↔commesse (legato a #3).
+3. **filiale master** — `sedi.filiale_id`(56) non ha tabella sorgente in alcun DB → indagare a cosa punta prima di creare il master.
+4. **oda** — al build del dominio **contabilità PASSIVA** (sorgente `qcont.oda` 34).
+5. **Schema contabilità** — DECIDERE prima di costruire la passiva: 1 schema `contabilita` (sotto-aree attiva/passiva) vs 2 separati (allora rinominare `contabilita_attiva`→simmetrico). Evitare costruisci-poi-rinomina.
+6. **Rename commesse** (isole inglese contact_id/order_id/full_name…) + **drop label denormalizzate** — dentro la slice commesse (discenti si muove comunque).
+7. **Drift minori anagrafica** (aziende_commerciale.fonte, contatti.tags jsonb→text[], aziende_qualifiche naming) — polish anagrafica.
+8. **Viste formazione** (v_classe_full, v_discente_full) — nella slice formazione.
+9. **Schemi dominio non avviati** (cdg/controllo_gestione, fia, bp, hr, iso, sic, contabilità passiva) — M3/M4, con albero-campi + split tabelle-dio (incentivi 47col, commessa_economica 58col).
+
+Principio: ogni slice si DECIDE intera + ri-audita VERDE prima del suo cutover ([[feedback_risultato_100_percento]], [[feedback_pdca_checkpoint_continuo]]). Il re-audit 28/06 (run wf_5cfbcc14) raffina questa mappa.
