@@ -241,6 +241,18 @@ Check 3 livelli dopo la migrazione formazione: **fk_orfani = CLEAN** (FK 183/183
 Creata la vista piatta di lettura formazione (discente⋈iscrizione⋈opportunita_for⋈origine_gol): 10.691 righe, persona+corso+esito risolti (dato reale verificato). Additiva/reversibile (DROP VIEW). Hub 200. Resta v_classe_full (richiede formazione.classe popolata = god-table da splittare prima). 
 **Slice formazione quasi chiusa:** dati ✅ + v_discente_full ✅. Restano (auto-continua): split god-table commessa_economica/classe, v_classe_full, cutover read-only F4, contract (drop sorgenti). Le slice commesse/sedi/anagrafica-contract hanno i cleanup nel re-audit sopra.
 
+### ✅ SPLIT god-table formazione commessa/classe/commessa_economica (28/06, R3)
+Slice formazione step 1. Tabelle target erano SCAFFOLD VUOTI → ridisegno a costo-dati zero, reversibile. Decisione R3 validata da **modello-gestione-qualifica** (verdetto netto, cita modello reale):
+- **`formazione.commessa` → DROP** (era un 2° master di `commesse.commesse`; regola "una sola tabella commessa per tipo" 25/05). Le commesse FOR vivono GIÀ nel master (1.483/1.483 di `commessa_dettagli_for` risolvono). Satellite FOR popolato = `commessa_dettagli_for`.
+- **`formazione.commessa_economica` → DROP** (god-table 58col vuota, ridondante: economia base→master, rendicontazione regionale→`commessa_dettagli_for`+`decreto_regione`, previsionale→CdG, provvigioni→ODA).
+- **`formazione.classe` → SPLIT**: `classe` (nucleo 27 col, identità+scheduling+docente/aula) + `formazione.classe_economia` (1:1, 16 col, blocco qnet_*/euro_*/totale_*).
+- **Cleanup:** eliminata riga smoke-test ED-TEST-001 + 2 righe calendario_lezione collegate.
+- **FK al master RINVIATE alla slice commesse:** `commesse.commesse.id` è oggi **TEXT** (id ordine Qnet), ma classe/iscrizione/commessa_costi_riga.commessa_id sono uuid → NON forzata FK uuid→text. Droppate le FK verso il 2° master; l'aggancio al master uuid si fa nella SLICE COMMESSE (step 4) col backfill via qnet_order_id. Colonne VUOTE → 0 orfani nel frattempo.
+- **DIVERGENZA L3 motivata:** NON creato `commesse.commessa_ext_for` (suggerito dallo specialista) perché `commessa_dettagli_for` già copre quel ruolo a grana commessa con dato reale → evitato un doppione vuoto.
+- **Verificato:** commessa/commessa_economica spariti, classe_economia presente, classe 27 col (0 econ residue), 0 FK orfane verso commessa, Hub 200.
+- Migration: `migration-erp-formazione-godtable-split.sql` (+DOWN ricrea le 3 tabelle vuote). 
+> **NOTA prossimi passi:** `v_classe_full` (step 2) RINVIATA: `formazione.classe` è vuota (fonte FormaLab non ancora attiva) + join al master rotto finché commesse.commesse non ha PK uuid → si fa nella slice commesse/quando classe è popolata. Prossimo actionable: **cutover read-only formazione** (pagina Hub su `v_discente_full`, già popolata 10.691) → poi slice commesse (sblocca FK master + v_commessa_full + v_classe_full).
+
 ### ✅ sedi.is_partner droppato (28/06)
 Doppione del flag-ruolo (is_partner vive SOLO in public.aziende per R3.5), 0/115 popolato, 0 viste dipendenti → DROP additivo-sicuro. Hub 200. Item audit chiuso.
 > NOTA STATO: il CORE (anagrafica+commerciale+formazione) è migrato+validato. Gli item RESTANTI sono pesanti (split god-table commessa_economica/classe; risoluzione 354 cliente_id commesse; cutover-pagine F4; build domini M3/M4+passiva) → vanno fatti con CURA in contesto fresco, non rushati. L'auto-continua li prende; un /clear darebbe contesto pulito.
