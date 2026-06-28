@@ -328,6 +328,15 @@ Costruiti in batch (regola anti-parcheggio attiva, controllo auto a ogni step):
 > **STATO ERP: consolidamento DATI invisibile = COMPLETO su TUTTI i domini** (anagrafica, commerciale, formazione, commesse, sedi, contabilità attiva+passiva, CdG, HR, ISO, SIC, FIA, BP). Tutto in bqyqr, referenzialmente pulito, reversibile.
 > **RESTA = fase CUTOVER + rifiniture (non più costruzione):** (1) 🔴 GATE qcont (provvigioni/pagamenti live → sblocca 1,66M, sì/no); (2) repoint app per dominio = deploy gate; (3) bonifica sede CdG 765→filiali HR = task MANUALE Luigi; (4) wiring cross-dominio fine (dipendenti↔utenti, cdg.fa_codice→struttura_gerarchia, hr.funzioni↔struttura_gerarchia). Le viste/cutover-pagine come /formazione-discenti si fanno per dominio.
 
+### ✅ RE-AUDIT periodico + wiring cross-dominio (28/06, giro auto-continua)
+**Re-audit 7 dim (sweep equivalente) = VERDE:** 0 FK non valide; sorgenti commesse già droppate (contract ok); soft-link conto_codice puliti (0 orfani); nessun 2° master reale (cdg.societa è config linkata ad aziende, non master); conto_periodo sede-grain coerente. Consolidamento ERP **validato**.
+**Wiring costruibile fatta (no gate):**
+- `formazione.iscrizione.commessa_id` backfill al master uuid via qnet_order_id — **10.691 iscrizioni agganciate, 830/830, 0 orfani** (`migration-erp-formazione-iscrizione-commessa-backfill.sql`, main `9c50d486`).
+- `hr.dipendenti.utente_id`→utenti (155) + `hr.funzioni_aziendali.struttura_codice`→struttura_gerarchia BU master (27) (`migration-erp-hr-wiring.sql`).
+- Vista `hr.v_dipendente_full` (dipendente+sede+utente, 161 righe) (`migration-erp-hr-view-dipendente.sql`, main `cc5d734c`).
+- Controllo auto verde a ogni step, Hub 200.
+> **STATO: consolidamento + wiring cross-dominio + re-audit = COMPLETI e VERDI.** Restano SOLO passi gated/manuali: 🔴 GATE qcont (soldi, sblocca 1,66M, sì/no), bonifica sede CdG (manuale Luigi), cutover/repoint app per dominio (deploy gate). Viste flat per sic/fia/bp/iso = polish opzionale.
+
 ### ✅ sedi.is_partner droppato (28/06)
 Doppione del flag-ruolo (is_partner vive SOLO in public.aziende per R3.5), 0/115 popolato, 0 viste dipendenti → DROP additivo-sicuro. Hub 200. Item audit chiuso.
 > NOTA STATO: il CORE (anagrafica+commerciale+formazione) è migrato+validato. Gli item RESTANTI sono pesanti (split god-table commessa_economica/classe; risoluzione 354 cliente_id commesse; cutover-pagine F4; build domini M3/M4+passiva) → vanno fatti con CURA in contesto fresco, non rushati. L'auto-continua li prende; un /clear darebbe contesto pulito.
