@@ -253,6 +253,14 @@ Slice formazione step 1. Tabelle target erano SCAFFOLD VUOTI → ridisegno a cos
 - Migration: `migration-erp-formazione-godtable-split.sql` (+DOWN ricrea le 3 tabelle vuote). 
 > **NOTA prossimi passi:** `v_classe_full` (step 2) RINVIATA: `formazione.classe` è vuota (fonte FormaLab non ancora attiva) + join al master rotto finché commesse.commesse non ha PK uuid → si fa nella slice commesse/quando classe è popolata. Prossimo actionable: **cutover read-only formazione** (pagina Hub su `v_discente_full`, già popolata 10.691) → poi slice commesse (sblocca FK master + v_commessa_full + v_classe_full).
 
+### 🚀 CUTOVER read-only formazione — pagina Hub LIVE (28/06)
+Step 3 slice formazione. Vista `public.v_formazione_discenti` (avvolge formazione.v_discente_full, 10.691) + pagina Hub `/formazione-discenti` + route `/api/formazione-discenti` (read-only, mirror /commerciale-pipeline, dietro auth). 
+- **ATTENZIONE GIT (lezione):** local main era **19 commit DIETRO origin/main** (che ha il cutover commerciale + fix di altri agenti). Deployare da local main avrebbe cancellato pagine live. → Ribasato su origin/main, lavorato lì. **Regola: per i deploy basarsi SEMPRE su origin/main, non sul main locale.**
+- dottore-build VERDE (typecheck+lint). Push FF origin/main: `5c4b214a` (pagina) + `8e80aaa0` (miglioria GOL).
+- **F4 VERIFICATO A VISTA (Chrome, sessione admin SuperAdmin):** pagina rende live, KPI 10.691 iscrizioni / 7.299 superati, dati reali (ANTENUCCI ANGELA MARIA·superato·17€, FADDA MARIA LUCIA·119€). Consolidazione formazione funziona end-to-end nell'app vera.
+- **Miglioria F4 applicata (regola 2b):** colonna "Operatore" era 1,4% popolata (concetto commerciale non pertinente alla formazione) → sostituita con badge **"GOL"** (origine GOL, 3.220/10.691 = 30%, attributo chiave FOR). corso_titolo 67% popolato (fedele: le iscrizioni senza opportunita_for linkata mostrano "—"). Re-verifica visiva del GOL in corso.
+- RESTA: **contract** (drop sorgenti staged `commesse.{discenti,discente_origine_gol,opportunita_for}` + `contabilita_attiva.decreto_regione`) DOPO conferma visiva finale + re-audit. Migration: `migration-erp-view-formazione-discenti.sql`.
+
 ### ✅ sedi.is_partner droppato (28/06)
 Doppione del flag-ruolo (is_partner vive SOLO in public.aziende per R3.5), 0/115 popolato, 0 viste dipendenti → DROP additivo-sicuro. Hub 200. Item audit chiuso.
 > NOTA STATO: il CORE (anagrafica+commerciale+formazione) è migrato+validato. Gli item RESTANTI sono pesanti (split god-table commessa_economica/classe; risoluzione 354 cliente_id commesse; cutover-pagine F4; build domini M3/M4+passiva) → vanno fatti con CURA in contesto fresco, non rushati. L'auto-continua li prende; un /clear darebbe contesto pulito.
