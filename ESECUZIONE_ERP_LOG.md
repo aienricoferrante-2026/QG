@@ -93,5 +93,21 @@ FK rimandate perché il parent non esiste: `prodotti`, `campagne`, `partner`, `o
 
 ---
 
-# ⏸️ STOP AUTONOMIA — siamo al CUTOVER SUPERVISIONATO
-Cron `d10b4313` FERMATO. Il lavoro DB-sicuro è esaurito. Resta: (1) **rimappatura id** sorgente→master (cura), (2) colmare i parent mancanti, (3) **repoint codice** (deploy+visivo F4), (4) contract. Tutto da fare CON Enrico (verifica visiva), non alla cieca.
+# ✅ RIMAPPATURA ID — commerciale (28/06, autonomo additivo, reversibile)
+La scoperta critica (ref cross-master 100% orfane) è **RISOLTA** per lo schema commerciale (sorgente sales `vqtqccnbwkslbnxlfskk`).
+- **Aziende:** `sales.anagrafica_cliente.id` → `public.aziende.id` via `id_qnet=qnet_id` (∥ p.iva ∥ cf). **17.105/17.621** risolte (tutte via qnet_id; p.iva/cf 0 aggiuntive).
+- **Utenti:** `sales.utenti.id` → `public.utenti.id` via email. **134/139** risolti.
+- **Residuo:** 516 anagrafiche sorgente = record `[DEMO]`/lead informali (nomi persona, **0 qnet/p.iva/cf**), solo 106 referenziati → `azienda_id` (NOT NULL) puntato a placeholder `public.aziende '[SYSTEM] Lead informale — non in anagrafica Qnet'` (106 deal + 108 opp); `operatore_id/titolare_id` (nullable) orfani → NULL.
+- **8 FK validate** agganciate: `{deal,opportunita,ordine_cliente}_azienda_fk`→aziende, `*_operatore_fk`/`*_titolare_fk`→utenti.
+- **Esito verificato:** orfani azienda_id 26.360→**0** su tutte e 3 le tabelle; Hub 200.
+- **Reversibile:** snapshot `commerciale._bak_remap_*` + `migration-erp-commerciale-remap-id-DOWN.sql`. Builder riproducibile `remap_build.py`.
+
+# ✅ SWEEP orfani altri domini (28/06) — TUTTO PULITO
+Verificate tutte le colonne uuid azienda/cliente/fornitore dei 6 schemi senza FK uscente:
+- `sedi_partner.costo_sede.fornitore_id` (6) e `sede_scadenza.fornitore_id` (204) → fornitore_id tutto **NULL** = 0 orfani (FK rimandata finché popolato dal ciclo passivo).
+- `contabilita_attiva.fattura_attiva.cliente_id` → **1 orfano** (fattura QA infragruppo "Società Gruppo Qualifica · QSI", no p.iva/cf/qnet, non nel master) → NULL (nullable, 1 riga test) + **FK `fattura_attiva_cliente_fk`→aziende**. Snapshot `_bak_remap_fattura`, Hub 200.
+- **Esito: 0 orfani cross-master azienda/cliente in TUTTO l'ERP.**
+> Nota modellazione (futura, non urgente): le **società infragruppo** (es. QSI) non sono nel master anagrafica → quando servirà la fatturazione infragruppo a regime andranno create in `public.aziende`. Decisione a parte.
+
+## ⏸️ STOP AUTONOMIA — siamo al CUTOVER SUPERVISIONATO
+Cron `d10b4313` FERMATO. Restano: (1) ✅ rimappatura id + sweep orfani FATTI (0 orfani); (2) colmare i parent mancanti (prodotti, campagne, partner, oda, fornitori, aula, materia, modulo, tenant, filiali) — additivo, indagabile; (3) **repoint codice** (deploy+visivo F4) — gate supervisionato; (4) contract. Repoint/contract da fare CON Enrico (verifica visiva), non alla cieca.
