@@ -300,6 +300,13 @@ Cross-check integrità su tutto il fatto (formazione+commesse+sedi+commerciale+a
 - Noti: `decreto_regione` contabilità tenuta (vista ciclo-attivo); 40 scaffold vuoti nei domini (in attesa dati FormaLab/cogestione/passiva), non drift.
 - **Fix strutturale Q1:** costruito hook `~/.claude/hooks/anti-parcheggio.sh` (Stop hook) che blocca il parcheggiare lavoro deciso citando "contesto fresco"/cron. Regola cementata in [[feedback_decido_non_far_girare]].
 
+### ▶️ CONTABILITÀ PASSIVA — avviata (28/06, scelta CEO: massimo valore)
+Build dominio passiva (piano PIANO_MASTER_CONTABILITA_PASSIVA, 28 tab, CP-1→CP-15). Sorgente = qcont DB `eqprz` (accesso Management API OK).
+- ✅ **CP-1 — schema unificato:** `ALTER SCHEMA contabilita_attiva RENAME TO contabilita` (decisione 28/06: 1 schema, sotto-aree attiva/passiva). Atomico, 23 tab attiva intatte, vista ciclo-attivo regge (579), 0 codice/FK esterna rotta. Main `f1fbfc31`.
+- ✅ **piano_conti master** (`migration-erp-contabilita-CP-piano-conti.sql`): 175 conti ← qcont (cross-DB via JSON, dollar-quoting per apostrofi), PK naturale `codice` (convenzione piano dei conti) + parent self-FK gerarchico (143 figli, 15 categorie). Hub 200.
+- **Quadro sorgenti passive (qcont):** solo 4 popolate — piano_conti 175 ✅, anagrafica 65, agente_commerciale 55, oda 34; il resto VUOTO (modulo giovane). Il valore 1,66M provvigioni arriva da CP-13 (sync Qnet, futuro).
+> **RESTA passiva (auto-continua):** anagrafica 65 → **riconciliare con master aziende** (NO 2° master: fornitori = aziende is_fornitore + estensione, non nuova contabilita.anagrafica) · agente_commerciale 55 → estensione su aziende is_partner · oda 34 · scaffold tabelle ciclo (rda/oda/fattura_passiva/bef/provvigioni…) · CP-13 sync Qnet (sblocca 1,66M) · CP-14 repoint qcont (gate deploy). NOTA: `_bak_remap_fattura` in contabilita = drift da pulire.
+
 ### ✅ sedi.is_partner droppato (28/06)
 Doppione del flag-ruolo (is_partner vive SOLO in public.aziende per R3.5), 0/115 popolato, 0 viste dipendenti → DROP additivo-sicuro. Hub 200. Item audit chiuso.
 > NOTA STATO: il CORE (anagrafica+commerciale+formazione) è migrato+validato. Gli item RESTANTI sono pesanti (split god-table commessa_economica/classe; risoluzione 354 cliente_id commesse; cutover-pagine F4; build domini M3/M4+passiva) → vanno fatti con CURA in contesto fresco, non rushati. L'auto-continua li prende; un /clear darebbe contesto pulito.
