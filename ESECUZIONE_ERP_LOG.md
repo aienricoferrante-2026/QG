@@ -287,6 +287,12 @@ Scoperto che `sedi_partner.sedi.azienda_id` era **0/115** (FK c'era, backfill ma
 - **68 NULL, tutte documentate (NON mis-assegnate, 100% non 99%):** 61 codice NULL (sedi bozza), 5 ELAV (incerto se gruppo), 1 "QGEU / QGFL" (codice doppio legacy), 1 "Area imprese" (stringa non identificata) → **ricognizione Luigi/Jessica** (data-gap noto, non blocco). Migration `migration-erp-sedi-azienda-backfill.sql`, main `80b898b5`. Hub 200.
 > **RESTA slice sedi:** `v_sede_partner_full` fix partner (richiede sedi_contratto popolata = VUOTA → bloccato su dato mancante); `filiale_id` master (sedi.filiale_id→nessuna tabella sorgente, da indagare). Entrambi bloccati su dato assente, non azionabili ora.
 
+### ⚠️ ANAGRAFICA CONTRACT (drop referente*) — BLOCCATO su repoint codice (28/06)
+Verificato PRIMA di droppare (irreversibile): il dato referente è salvo in contatti (**email 3.618/3.618 coperte**, migrazione S5 fedele). MA il **drop romperebbe l'app**: il Hub usa ancora `aziende.referente*` in 2 punti VIVI →
+- `apps/hub/app/(app)/anagrafica/page.tsx` (LEGGE `sel.referente`)
+- `apps/hub/lib/sync-anagrafica-qnet.ts` (SCRIVE referente/email/telefono dal sync Qnet `c.responsible` — sync notturno attivo!)
+→ **NON droppato.** Prerequisito = repoint di questi 2 file su contatti (la pagina legge il contatto linkato; il sync fa upsert contatto+link invece di scrivere aziende.referente) + deploy + F4. È codice+deploy delicato (sync Qnet vivo), va fatto con cura come step dedicato, NON drop alla cieca. Stesso discorso per `aziende_commerciale.referente*` (intermedio). I referente di `cliente_dettagli`/`sedi_contratto` sono domain-specific, fuori da questo contract.
+
 ### ✅ sedi.is_partner droppato (28/06)
 Doppione del flag-ruolo (is_partner vive SOLO in public.aziende per R3.5), 0/115 popolato, 0 viste dipendenti → DROP additivo-sicuro. Hub 200. Item audit chiuso.
 > NOTA STATO: il CORE (anagrafica+commerciale+formazione) è migrato+validato. Gli item RESTANTI sono pesanti (split god-table commessa_economica/classe; risoluzione 354 cliente_id commesse; cutover-pagine F4; build domini M3/M4+passiva) → vanno fatti con CURA in contesto fresco, non rushati. L'auto-continua li prende; un /clear darebbe contesto pulito.
