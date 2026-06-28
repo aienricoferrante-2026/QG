@@ -207,3 +207,13 @@ Verificato: `commesse.offerte` = 46.157 righe ma SOLO id+qnet_updated_at popolat
 
 ### SLICE Formazione — modello discente CORRETTO (28/06, auto-continua)
 Ispezione PRIMA di migrare ha evitato un errore: `formazione.discente` è il master PERSONA (FormaLab), `commesse.discenti` sono ISCRIZIONI (grana diversa). Modello R3 rivisto (vedi ALBERO_FORMAZIONE §1): discente=persona (dedup CF, 2 fonti) + iscrizione=enrollment (NUOVA) + iscrizione_economia. È un MERGE CROSS-FONTE (FormaLab+Qnet) → eseguito dal prossimo ciclo auto-continua con cura (no rush, principio 100%). **Cluster formazione stato:** opportunita_for ✅(24.491) · decreto ✅(296) · offerte=guscio vuoto (skip) · discente/iscrizione = prossimo (modello deciso, esecuzione cross-fonte da fare). Gate login NON toccato.
+
+## 🛡️ CHECK PROFONDO a 3 LIVELLI (28/06) — L2 ha beccato i miei errori, L3 ha corretto L2
+Audit potenziato (7ª dim. **integrità-migrazioni**) su TUTTO il fatto. **Core cutover-ready, 0 BLOCKER.** 6 item reali instradati:
+- ✅ **FIX SUBITO:** `formazione.opportunita` (scaffold orfano 0 righe) DROPPATA; `public.aziende.presente_in_qnet` DEFAULT false→**true** (allinea al piano). Hub 200.
+- ⏸️ **opportunita_for doppia-fonte:** L2 ha beccato che ho COPIATO in commerciale ma NON droppato `commesse.opportunita_for` (24.491 in 2 schemi). **L3 (verifica mia indipendente) ha CORRETTO L2:** l'audit diceva "0 FK entranti" ma ne ho trovata **1** (la catena discenti) → drop DIFFERITO alla slice formazione (dopo aver spostato discenti). *Il 3° livello ha evitato un drop sbagliato — prova che non basta la fotocopia.*
+- ⏸️ **commessa_dettagli_for (1.483):** satellite formazione in schema commesse, SFUGGITO alla mia roadmap → AGGIUNTO al cluster relocation formazione (slice).
+- ⏸️ **commesse.commesse 354 cliente_id residui** (qnet-id non in master): isolare + creare aziende/placeholder PRIMA del contract commesse (slice).
+- 🔵 **DECISIONE contabilità (presa):** 1 schema unico `contabilita` (sotto-aree attiva/passiva, per R2 + piano passiva) → RENAME `contabilita_attiva`→`contabilita` al build della slice passiva (22 tab, oid-safe; non urgente ora).
+- 🔵 viste v_commessa_full/v_sede_partner + drift naming anagrafica → già differiti alle slice/polish.
+**Esito 3 livelli:** L1 (pre) + L2 (post-hoc, ha trovato gli errori) + L3 (firma indipendente, ha corretto un errore di L2). Il sistema funziona.
