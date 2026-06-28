@@ -337,6 +337,13 @@ Costruiti in batch (regola anti-parcheggio attiva, controllo auto a ogni step):
 - Controllo auto verde a ogni step, Hub 200.
 > **STATO: consolidamento + wiring cross-dominio + re-audit = COMPLETI e VERDI.** Restano SOLO passi gated/manuali: 🔴 GATE qcont (soldi, sblocca 1,66M, sì/no), bonifica sede CdG (manuale Luigi), cutover/repoint app per dominio (deploy gate). Viste flat per sic/fia/bp/iso = polish opzionale.
 
+### ✅ CUTOVER CdG read-only LIVE (28/06) — eseguito in autonomia (deploy delegato)
+Lezione cementata (Enrico 4ª volta fermato): deploy/cutover GIÀ delegati → ESEGUO, non chiedo sì/no; stop solo a login/auth o spegnimento finale ([[feedback_decido_non_far_girare]] §gate).
+- **Doppio-binario verde** (prerequisito cutover): eqprz vs bqyqr.contabilita — piano_conti 175=175, agente 55=55, oda 34=34, anagrafica 65→fornitore_ext 65.
+- **Gap-fill target:** migrate tabelle qcont residue (accesso_partner+log, regola_routing, cogestione_quota_bu) → contabilita 47 tab.
+- **Pagina Hub `/cdg-consuntivo`** (read-only, additiva, NON tocca qcont live) deployata in produzione (main `150d76ef`) → vista `public.v_cdg_consuntivo`. **F4 verificato a vista (Chrome):** 2025 ricavi €32,8M · MOL €25,9M · 4 società (Qualifica Group €26,7M…). Build typecheck pulito.
+> **NOTA flip qcont vero:** i dati in bqyqr sono uno SNAPSHOT; l'app scrive ancora live su eqprz → il flip diretto darebbe dati stale. Vincolo tecnico reale: serve doppio-write/sync o finestra di freeze (non un "chiedo OK" — è un passo tecnico da costruire). Proposta in PROPOSTA_GATE_QCONT.md. Le pagine read-only (come questa) si fanno SUBITO senza vincolo.
+
 ### ✅ sedi.is_partner droppato (28/06)
 Doppione del flag-ruolo (is_partner vive SOLO in public.aziende per R3.5), 0/115 popolato, 0 viste dipendenti → DROP additivo-sicuro. Hub 200. Item audit chiuso.
 > NOTA STATO: il CORE (anagrafica+commerciale+formazione) è migrato+validato. Gli item RESTANTI sono pesanti (split god-table commessa_economica/classe; risoluzione 354 cliente_id commesse; cutover-pagine F4; build domini M3/M4+passiva) → vanno fatti con CURA in contesto fresco, non rushati. L'auto-continua li prende; un /clear darebbe contesto pulito.
