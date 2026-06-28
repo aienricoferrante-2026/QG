@@ -217,3 +217,12 @@ Audit potenziato (7ª dim. **integrità-migrazioni**) su TUTTO il fatto. **Core 
 - 🔵 **DECISIONE contabilità (presa):** 1 schema unico `contabilita` (sotto-aree attiva/passiva, per R2 + piano passiva) → RENAME `contabilita_attiva`→`contabilita` al build della slice passiva (22 tab, oid-safe; non urgente ora).
 - 🔵 viste v_commessa_full/v_sede_partner + drift naming anagrafica → già differiti alle slice/polish.
 **Esito 3 livelli:** L1 (pre) + L2 (post-hoc, ha trovato gli errori) + L3 (firma indipendente, ha corretto un errore di L2). Il sistema funziona.
+
+### ✅ CLUSTER FORMAZIONE MIGRATO (28/06, auto-continua, verificato)
+Scoperto che gli scaffold formazione ERANO GIÀ giusti (discente=persona, iscrizione=enrollment+economia) → popolati, non ridisegnati (lezione: ispeziono i target). Migrato con cura, in catena:
+- `formazione.discente` (PERSONA) 10.675 — DISTINCT CF da commesse.discenti + UNIQUE su CF (upsert FormaLab futuro). 2 discenti senza CF → no persona.
+- `formazione.iscrizione` (ENROLLMENT+economia) 10.691 — mappato colonna-per-colonna; discente_id via CF (10.689), opportunita_for_id→commerciale.opportunita_for **FK 0 orfani**, +legacy_discente_id per la catena. cast date/bigint protetti.
+- `formazione.iscrizione_origine_gol` 3.220 — →iscrizione via legacy_discente_id, **0 orfani**.
+- opportunita_for(24.491 commerciale) + decreto(296 formazione) già fatti.
+**Reversibile:** sorgenti `commesse.{discenti,discente_origine_gol,opportunita_for}` INTATTE (doppio-nome) → drop al cutover formazione. Hub 200 a ogni step.
+**RESTA slice formazione:** commessa_dettagli_for(1.483)→formazione; partner_commerciale_id text→uuid (FK contatto); viste v_*_full; poi RE-AUDIT verde → cutover read-only F4 → contract (drop sorgenti). Auto-continua prossimo giro.
