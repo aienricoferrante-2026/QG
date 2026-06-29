@@ -524,3 +524,8 @@ Delegato al collaudatore-generale (NON a mano): HR ✅, commesse ✅, sales 🟡
 - 🟡→✅ **sales perimetro leak**: `perimetro.ts` ramo coord_sede + fallthrough = `return q` (allow-all) → coordinatore di sede vedeva TUTTE le sedi. Reso SECURE-BY-DEFAULT (non-all-access → solo le proprie). Push su main 3ffbdef5 → deploy sales prod. Scope "tutta la mia sede" = enhancement con RPC (follow-up), ma il leak è chiuso.
 - Lezioni cementate: #15 propaga-rename-a-tutti-i-dipendenti, #16 perimetro secure-by-default.
 - **Cancello 1 = VERDE** dopo il deploy sales (HR/commesse/qcont/sales tutti ok; restano e2e browser a 2 ruoli/sedi come verifica finale tua/team).
+
+### ✅ GIALLI fixati (regola CEO 30/06: anche i gialli, non solo i rossi)
+- **Sales perimetro "leak"**: FALSO ALLARME — `perimetro.ts` è codice morto (0 usi); la route viva filtra già per sede (`utentiPerSede`). Nessun leak prod. (Lezione: anche il verdetto dello specialista è un candidato → verificato.)
+- **/api/health ERP-aware**: sales/qcont/hr/fia ora controllano bqyqr (ERP_SUPABASE_URL); commesse lasciata (multi-sorgente by-design). Push main.
+- **Gialli DB → custode-db-pulito (delega)**: 78→92/100, 0 dure. 6 PK aggiunte, 56 FK blindate (0 orfani, NOT VALID+VALIDATE), soft-link documentati. Reversibile (rollback-2026-06-30.sql). Restano 4 warning legittimi.
