@@ -491,3 +491,14 @@ F0: commesse legge da 3 client — **stwClient** (STW `odjwvqab`, SOLA LETTURA: 
 - *Nota: commesse/discenti restano lette dal master STW (read-only). Per unificare anche quello servirebbe repointare lo stwClient (basso valore: dato identico a bqyqr.commesse, già su Hub).*
 
 > **🎯 5 APP LIVE su bqyqr: fia ✅ · HR ✅ · qcont ✅ · sales ✅ · commesse ✅.** Resta SOLO: spegnimento DB vecchi (gate finale, irreversibile, dopo giorni di doppio-binario verde). Verifiche scrittura/automazioni fatte da Claude al data-layer (rollback test). Bug digest + 2 fn qcont fixati. Note: Hub `/commerciale-pipeline` (proiezione `commerciale`, schema diverso) resta ~6 righe indietro = cosmetico, l'app legge `app_sales` allineato. RESTA: verifica in-app CEO (4 app) + 2 fn qcont (bug team) + commesse (valutare) + **spegnimento DB vecchi** (gate finale, dopo giorni doppio-binario verde). Sync continuo = da costruire per tenere fresco durante il doppio-binario.
+
+### 🧹 PULIZIA DB — chiarimento FA + dedup sicuro (29/06, "decidi tu / da 1 a 3 non ho capito")
+- **#4 falso positivo CHIUSO**: business_units (7, ricavo) ≠ business_services (13, supporto). In Qnet le FA stanno INSIEME (`settori`, 15 codici), noi le splittiamo. NON è doppione → allowlist `_DISTINTI` in check.py + master distinti in concept-registry + memoria `reference_fa_settori_vs_bu_bs`. Commit e50bb6d3.
+- **Check affinato**: stessa-tabella-su-+schemi = 🔴 doppione vero; nomi-diversi-colonne-simili = ⚠️ verificare (non più rosso).
+- **`sic.fondo` DEDUP eseguito**: era copia orfana identica riga-per-riga a `formazione.fondo` (canonica, 2 FK in: classe/decreto_regione), 0 FK/0 trigger/0 viste/0 codice. → `drop table sic.fondo` + `create view sic.fondo as select * from formazione.fondo`. Reversibile (formazione.fondo è il backup). Verificato: sic.fondo = vista, 7 righe.
+- **TENUTE FERME (blocchi reali, NON toccate):**
+  - `commessa_dettagli_for` (commesse vs formazione, 1483): codice LIVE di apps/commesse la SCRIVE (sync.ts upsert) + legge in 4 route; colonne diverse (formazione ha `id` extra). Consolidamento = lavoro deliberato monitorato, non a freddo.
+  - `fondo` public↔formazione: 3ª copia `public.fondo` (FOR app, migration-014) ≠ formazione.fondo (FK'd). Riconciliazione = scelta di modello.
+  - `settori` (public/cdg/sic, 15): doppione cross-schema VERO, ma il consolidamento dipende dalla DECISIONE FA (vedi sotto).
+- **DECISIONE CEO aperta (modello org):** le FA sono modellate 2 volte — `settori` (insieme, Qnet) vs `business_units`+`business_services` (split). Strada A = 1 master FA con colonna tipo=BU/BS (Qnet-fedele, riconciliare codici); Strada B = settori specchio-Qnet + BU/BS vista. NON auto-consolidare.
+- **C) contatore "da mappare" fuorviante**: 4158 = campi senza mappa Qnet, ma la gran parte sono NATIVI WeA (nessuna fonte Qnet). Va spaccato in da-Qnet vs nativo-WeA.
