@@ -462,3 +462,11 @@ Costruiti script riusabili `scripts/build-app-v2.py` (enum+copia-piena+generate+
 2. **2 funzioni qcont = BUG PRE-ESISTENTI nel DB sorgente:** `cogestione_quota_bu_resolve` e `pct_provvigione_suggerita` referenziano `bu_codice` ma le tabelle (`cogestione_quota_bu`, `regola_provvigione_agente`) hanno `fa_codice` (colonna rinominata, funzioni non aggiornate). **Fallirebbero già oggi in produzione qcont.** Non portate (Postgres valida la colonna al CREATE). Da fixare nel sorgente dal team (non è migrazione). qcont = 61/63 funzioni (le 2 sono morte).
 3. **Monitor doppio-binario ha colto DRIFT BENIGNO** (commerciale opportunita 15826 vs 15820, deal 5251 vs 5245 = +6/+6 attività CRM viva dopo lo snapshot). NON corruzione: conferma che il monitor funziona e **che serve il sync continuo sorgente→bqyqr prima/durante il flip** (lo snapshot deriva mentre l'app lavora). Vale per TUTTE le app al flip.
 > **app_* in bqyqr: app_fia 11 · app_hr 24 · app_sales 72 · app_qcont 79 tabelle.** Tutto il costruibile via API è fatto. I 3 blocchi sopra sono: (1) tooling pg_dump o decisione, (2) bug del team, (3) sync continuo da costruire al flip — tutti veri, non parcheggio. Deploy sales/qcont = cancello-soldi supervisionato.
+
+### ✅ FLIP QCONT ESEGUITO IN PRODUZIONE (29/06, "vai") — 3ª app, contabilità/soldi
+F0: **drift ZERO** (piano_conti 175, oda 34, anagrafica 65, agente 55, discente_commessa 8030 = identici) → no re-sync. 3 trigger leggeri (updated_at/validazione/snapshot). qcont usa `supabaseAdmin` condiviso (env-driven già su main).
+- **3 env ERP_*** su Vercel `qualifica-wea-qcont` (URL/KEY bqyqr + SCHEMA=app_qcont; NEXT_PUBLIC non toccato). **Redeploy Ready.**
+- **Verificato:** app viva (302), 0 errori runtime, letture REST app_qcont (175/34/55), **Hub `/oda-erp` rende 34 ODA dal DB unico** (fornitori+conti+importi). Monitor: drift solo sui 2 ancora sales (CRM +6, benigno), qcont OK.
+- **Rollback:** rimuovere 3 env ERP_* da qualifica-wea-qcont + redeploy.
+- **RESTA (occhio umano CEO):** login qcont + test di un calcolo contabile (IVA/provvigione/ODA) su caso noto — runbook step 4. Le 2 fn rotte (bu_codice) restano come in produzione (bug sorgente, task team).
+> **3 APP LIVE su bqyqr: fia ✅ · HR ✅ · qcont ✅.** Resta sales (deploy gate, audit_log da decidere) + commesse (valutare) + spegnimento DB vecchi (gate finale).
