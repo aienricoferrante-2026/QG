@@ -502,3 +502,12 @@ F0: commesse legge da 3 client — **stwClient** (STW `odjwvqab`, SOLA LETTURA: 
   - `settori` (public/cdg/sic, 15): doppione cross-schema VERO, ma il consolidamento dipende dalla DECISIONE FA (vedi sotto).
 - **DECISIONE CEO aperta (modello org):** le FA sono modellate 2 volte — `settori` (insieme, Qnet) vs `business_units`+`business_services` (split). Strada A = 1 master FA con colonna tipo=BU/BS (Qnet-fedele, riconciliare codici); Strada B = settori specchio-Qnet + BU/BS vista. NON auto-consolidare.
 - **C) contatore "da mappare" fuorviante**: 4158 = campi senza mappa Qnet, ma la gran parte sono NATIVI WeA (nessuna fonte Qnet). Va spaccato in da-Qnet vs nativo-WeA.
+
+### ✅ STRADA A — MASTER UNICO FUNZIONI AZIENDALI (29/06, CEO "vai con A, decidi tu i tipi")
+- **`public.funzione_aziendale`** = master unico FA con colonna **tipo (BU/BS)**, Qnet-fedele. 23 FA = 10 BU + 13 BS. id UUID di business_units/services **PRESERVATI**.
+- **`business_units`, `business_services`, `settori` (public+cdg+sic) → VISTE** sul master. Doppioni settori (3 copie) + doppia-modellazione FA azzerati.
+- **Tipi decisi (delega CEO)**: settori-only ISO→BU (Certificazioni), SOA→BU (Attestazioni), AVV→BU (⚠️ denominazione DA CONFERMARE).
+- **Triplo-check fatto PRIMA** (regola nuova 29/06): righe-identità + dipendenze (0 FK, 0 viste, lettori = qwork BU/BS sola-lettura + qcert/bp settori, **non flippati** su bqyqr) + memoria-dominio. Migration transazionale `tooling/db-pulito/migration-fa-master-strada-A.sql`. Eseguita col marcatore TRIPLO-CHECK-OK (passa il nuovo gate-drop).
+- **Verifica**: business_units view = stessi id (APL 171cc002… invariato → qwork ok al flip). Gate DB **52→78/100, 0 violazioni DURE**.
+- ⚠️ **Al flip futuro di qwork/qcert/bp**: se SCRIVONO su queste viste (es. seed `insert into settori`), redirezionare sul master.
+- **Ancora aperti** (blocchi reali, non Strada A): `commessa_dettagli_for` (codice live commesse), `fondo` public↔formazione (3ª copia FOR app).
