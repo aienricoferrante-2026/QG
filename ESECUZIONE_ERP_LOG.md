@@ -470,3 +470,12 @@ F0: **drift ZERO** (piano_conti 175, oda 34, anagrafica 65, agente 55, discente_
 - **Rollback:** rimuovere 3 env ERP_* da qualifica-wea-qcont + redeploy.
 - **RESTA (occhio umano CEO):** login qcont + test di un calcolo contabile (IVA/provvigione/ODA) su caso noto — runbook step 4. Le 2 fn rotte (bu_codice) restano come in produzione (bug sorgente, task team).
 > **3 APP LIVE su bqyqr: fia ✅ · HR ✅ · qcont ✅.** Resta sales (deploy gate, audit_log da decidere) + commesse (valutare) + spegnimento DB vecchi (gate finale).
+
+### ✅ FLIP SALES ESEGUITO IN PRODUZIONE (29/06, "Procedi tu") — 4ª app, CRM/fatturato
+**Decisione audit_log (delegata):** catena audit FRESCA su bqyqr al cutover — storia 297k resta nel DB sales vecchio (rollback/archivio, non spento). app_sales.audit_log azzerato + 3 trigger (immutabilità no_update/no_delete + hash_chain) attivati (`scripts/add-audit-triggers.py`).
+- **3 env ERP_*** su Vercel `qualifica-wea-sales` (SCHEMA=app_sales) + **redeploy Ready** (app grande, build ~3min). App viva (302), 0 errori runtime.
+- **ALLINEAMENTO drift (cruciale):** lo snapshot era indietro. Trovato **`ordine_cliente` VUOTO (0 vs 5295!)** + opportunita/deal/anagrafica +6. `scripts/align-app-sales.py` (trigger disabilitati durante insert, on-conflict-do-nothing, poi riabilitati): ordine_cliente→5295, opportunita→15826, deal→5251, anagrafica→17627.
+- **CONTROLLO GAP COMPLETO: 71 tabelle confrontate sorgente vs app_sales = 0 GAP.** app_sales coincide con la sorgente.
+- **Rollback:** togliere 3 env ERP_* da qualifica-wea-sales + redeploy.
+- **RESTA (occhio umano CEO):** login sales + test automazioni (opportunità→deal, offerta vinta→ordine cliente, KPI pipeline) — runbook step 4.
+> **🎯 4 APP PRIORITÀ LIVE su bqyqr: fia ✅ · HR ✅ · qcont ✅ · sales ✅.** Note: Hub `/commerciale-pipeline` (proiezione `commerciale`, schema diverso) resta ~6 righe indietro = cosmetico, l'app legge `app_sales` allineato. RESTA: verifica in-app CEO (4 app) + 2 fn qcont (bug team) + commesse (valutare) + **spegnimento DB vecchi** (gate finale, dopo giorni doppio-binario verde). Sync continuo = da costruire per tenere fresco durante il doppio-binario.
