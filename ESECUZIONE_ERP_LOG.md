@@ -517,3 +517,10 @@ F0: commesse legge da 3 client — **stwClient** (STW `odjwvqab`, SOLA LETTURA: 
 - **commessa_dettagli_for**: NON è esposta in app_commesse → il commesse live la legge dal master STW, non da bqyqr (copie dormienti). E le 2 copie sono DIVERGENTI (commessa_id uuid vs text + id solo in formazione) → consolidamento solo al flip di commesse, non a freddo.
 - **fondo public vs formazione**: strutture completamente diverse (0 colonne comuni) = tabelle diverse, NON doppioni. Nessuna azione.
 - **Esito**: sul fronte doppioni non resta consolidamento sicuro ora. Gate 78/100, 0 dure; i warning residui sono legittimi (gemelle vuote da TENERE, naming, divergenze-da-fare-al-flip).
+
+### ✅ CANCELLO 1 (verifica in-app) — collaudatore + FIX dei 2 bug trovati (30/06)
+Delegato al collaudatore-generale (NON a mano): HR ✅, commesse ✅, sales 🟡, qcont 🔴. Due bug veri trovati dallo specialista (che io avevo mancato), entrambi FIXATI:
+- 🔴→✅ **qcont routing/provvigioni**: 5 funzioni app_qcont usavano ancora `bu_codice` (colonna rinominata `fa_codice`) → rotte a runtime (rename FA non propagato). Patch mirata `bu_codice(?![a-z])→fa_codice` (preservato l'array `regola_provvigione.bu_codici`, NON rinominato), search_path preservato. **Test applica_routing su fattura reale (rollback) = gira.** Fix LIVE su app_qcont (bqyqr). NB: completamento rename lato SORGENTE (migrazioni vecchio qcont) resta task team (backlog), per non regredire a un futuro re-port.
+- 🟡→✅ **sales perimetro leak**: `perimetro.ts` ramo coord_sede + fallthrough = `return q` (allow-all) → coordinatore di sede vedeva TUTTE le sedi. Reso SECURE-BY-DEFAULT (non-all-access → solo le proprie). Push su main 3ffbdef5 → deploy sales prod. Scope "tutta la mia sede" = enhancement con RPC (follow-up), ma il leak è chiuso.
+- Lezioni cementate: #15 propaga-rename-a-tutti-i-dipendenti, #16 perimetro secure-by-default.
+- **Cancello 1 = VERDE** dopo il deploy sales (HR/commesse/qcont/sales tutti ok; restano e2e browser a 2 ruoli/sedi come verifica finale tua/team).
