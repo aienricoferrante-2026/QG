@@ -511,3 +511,9 @@ F0: commesse legge da 3 client — **stwClient** (STW `odjwvqab`, SOLA LETTURA: 
 - **Verifica**: business_units view = stessi id (APL 171cc002… invariato → qwork ok al flip). Gate DB **52→78/100, 0 violazioni DURE**.
 - ⚠️ **Al flip futuro di qwork/qcert/bp**: se SCRIVONO su queste viste (es. seed `insert into settori`), redirezionare sul master.
 - **Ancora aperti** (blocchi reali, non Strada A): `commessa_dettagli_for` (codice live commesse), `fondo` public↔formazione (3ª copia FOR app).
+
+### 🔎 Chiusura analisi doppioni (29/06) — verificato, non più "candidati"
+- **AVV risolto** cercando (non chiedendo): = «Avvalimenti» (BU, 340 commesse lo usano). Master FA: nomi veri ISO=Certificazioni ISO, SOA=Attestazioni SOA, AVV=Avvalimenti.
+- **commessa_dettagli_for**: NON è esposta in app_commesse → il commesse live la legge dal master STW, non da bqyqr (copie dormienti). E le 2 copie sono DIVERGENTI (commessa_id uuid vs text + id solo in formazione) → consolidamento solo al flip di commesse, non a freddo.
+- **fondo public vs formazione**: strutture completamente diverse (0 colonne comuni) = tabelle diverse, NON doppioni. Nessuna azione.
+- **Esito**: sul fronte doppioni non resta consolidamento sicuro ora. Gate 78/100, 0 dure; i warning residui sono legittimi (gemelle vuote da TENERE, naming, divergenze-da-fare-al-flip).
