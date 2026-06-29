@@ -478,4 +478,9 @@ F0: **drift ZERO** (piano_conti 175, oda 34, anagrafica 65, agente 55, discente_
 - **CONTROLLO GAP COMPLETO: 71 tabelle confrontate sorgente vs app_sales = 0 GAP.** app_sales coincide con la sorgente.
 - **Rollback:** togliere 3 env ERP_* da qualifica-wea-sales + redeploy.
 - **RESTA (occhio umano CEO):** login sales + test automazioni (opportunità→deal, offerta vinta→ordine cliente, KPI pipeline) — runbook step 4.
+### 🐞 BUG CRITICO TROVATO+FIXATO col test automazioni (29/06, "completa tutto")
+- **`digest()` (pgcrypto) non nel search_path** delle funzioni portate → la funzione audit hash-chain falliva → **OGNI scrittura che genera audit si sarebbe rotta** (sales/HR/qcont). Trovato con un test rollback dell'automazione opp→deal (insert reale, annullato). **FIX: `alter function … set search_path = app_X, public, extensions` su TUTTE le funzioni dei 4 schemi app_*.** Ri-test: **scrittura+audit OK** (insert opportunita + hash-chain, rollback, zero scoria). Lezione: dopo un porting di funzioni, le dipendenze da estensioni (pgcrypto/uuid-ossp) vanno nel search_path.
+- **2 funzioni qcont FIXATE in app_qcont** (`.bu_codice`→`.fa_codice`, param `p_bu_codice` invariato): qcont ora **63/63** funzioni (meglio della sorgente, che resta col bug — task team per il loro DB).
+- Automazione opp→deal: il trigger gira senza errori; crea il deal in modo CONDIZIONALE allo stato (delta=0 su riga non idonea = corretto).
+
 > **🎯 4 APP PRIORITÀ LIVE su bqyqr: fia ✅ · HR ✅ · qcont ✅ · sales ✅.** Note: Hub `/commerciale-pipeline` (proiezione `commerciale`, schema diverso) resta ~6 righe indietro = cosmetico, l'app legge `app_sales` allineato. RESTA: verifica in-app CEO (4 app) + 2 fn qcont (bug team) + commesse (valutare) + **spegnimento DB vecchi** (gate finale, dopo giorni doppio-binario verde). Sync continuo = da costruire per tenere fresco durante il doppio-binario.
