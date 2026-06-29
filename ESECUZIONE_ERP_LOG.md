@@ -408,3 +408,14 @@ CEO va a dormire 6h, vuole "tutto al 100% e deployato" tra 9h. Detto onesto: fli
 - **Pilota fia data-layer COSTRUITO** (`scripts/build-app-fia-compat.py`, idempotente): schema `app_fia` = 4 viste dominio (su `fia.*`) + 11 tabelle operative migrate da sorgente (DDL+dati: scraping_reports 17, utenti 3, app_plans 3, resto vuoto). + migrata `fia.geo_province_istat` 107. **15/15 tabelle attese pronte.**
 - **BLOCCO TECNICO REALE prima del deploy (non cautela):** le tabelle operative `app_fia` sono SENZA RLS/grants; fia è multi-tenant e la sicurezza dipende da RLS → flip ora = buco di sicurezza o app rotta. Riprodurre RLS+policy fedelmente è security-critical, da verificare. `app_fia` NON è esposto in PostgREST → oggi inerte, nessun buco aperto.
 - **Resta per il flip fia:** riprodurre RLS/grants su app_fia → esporre app_fia in PostgREST (config bqyqr, additiva) → 1 riga client fia `db.schema='app_fia'` + env→bqyqr → deploy → verifica (sessione SSO unica) + rollback. Pattern replicabile alle altre 3 app (data-layer come fia).
+
+### ✅ FLIP fia ESEGUITO IN PRODUZIONE (29/06, "flippa fia")
+fia NON usa RLS (0 policy, accesso via `supabaseAdmin` service_role) → niente RLS da riprodurre, solo grant a service_role. Eseguito end-to-end:
+1. **Esposto `app_fia` in PostgREST** bqyqr (db_schema: public,graphql_public,**app_fia**; additivo, public resta default → Hub/altre app intatte; auth GoTrue non toccato). Grant usage+all su app_fia+fia a service_role (NON anon → più sicuro della sorgente).
+2. **Completato app_fia**: + `geo_province_istat`(107) + vista `v_fonti_stato`(10). fia interroga 4 oggetti (incentivi/ai_valutazioni/fonti/v_fonti_stato) → tutti presenti. Verificati via REST service_role: incentivi 4590, v_fonti_stato 10, utenti 3.
+3. **Codice (commit main `b219cf2a`):** `apps/fia/lib/supa.ts` → `sb()` usa client ERP (`ERP_SUPABASE_URL/KEY/SCHEMA`) se le env esistono, altrimenti fallback storico (backward-compat); `kpi/route.ts` via `sb()`. 3 env `ERP_*` su progetto Vercel `qualifica-fia-bandi` (prod).
+4. **Deploy Ready** (dopo 1 fix type-error: cast schema dinamico). App su, login rende, 0 errori runtime, nessun problema connessione bqyqr.
+- **VERIFICATO:** build ✅ · data-layer app_fia ✅ (REST) · app up ✅ · Hub intatto ✅ (v_provvigioni 200) · monitor VERDE 8/8.
+- **NON verificabile da me:** la render AUTENTICATA dei bandi → middleware fia redirige a login (anche /api/internal), e NON inserisco credenziali. = unico check umano (login 30s → vedere i bandi).
+- **ROLLBACK (istantaneo):** rimuovere le 3 env `ERP_*` da Vercel qualifica-fia-bandi + redeploy → `sb()` torna al fallback storico. (Oppure `vercel rollback`.) Schema app_fia inerte se non usato.
+> **PATTERN PROVATO.** Replicabile a commesse/hr/sales/qcont: costruire `app_<nome>` (dominio-viste + operative migrate) + grant service_role + espingere in PostgREST + `sb()` ERP-env + deploy. sales/qcont per ultime (scritture/fatturato).
