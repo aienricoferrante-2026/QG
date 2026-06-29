@@ -419,3 +419,9 @@ fia NON usa RLS (0 policy, accesso via `supabaseAdmin` service_role) → niente 
 - **NON verificabile da me:** la render AUTENTICATA dei bandi → middleware fia redirige a login (anche /api/internal), e NON inserisco credenziali. = unico check umano (login 30s → vedere i bandi).
 - **ROLLBACK (istantaneo):** rimuovere le 3 env `ERP_*` da Vercel qualifica-fia-bandi + redeploy → `sb()` torna al fallback storico. (Oppure `vercel rollback`.) Schema app_fia inerte se non usato.
 > **PATTERN PROVATO.** Replicabile a commesse/hr/sales/qcont: costruire `app_<nome>` (dominio-viste + operative migrate) + grant service_role + espingere in PostgREST + `sb()` ERP-env + deploy. sales/qcont per ultime (scritture/fatturato).
+
+### ✅ fia VERIFICATO read+write (29/06)
+- **Read:** app_fia.incentivi 4590, bandi aperti 414 (query esatta di fia), v_fonti_stato 10, utenti 3.
+- **Write:** fia scrive update/delete/insert su `incentivi` e `ai_valutazioni` (NESSUN upsert). Viste `select *` = auto-aggiornabili → testato UPDATE a-vuoto via REST = **204** su entrambe. Write-path OK.
+- **Bloccato per la verifica VISIVA:** URL `.vercel.app` ha **Deployment Protection a livello team** (302→vercel.com/sso-api) + l'app ha login proprio (password) → la render autenticata richiede il CEO (login 20s). Claude non digita password (regola dura) né disabilita la protezione.
+- **Stato fia: tecnicamente COMPLETO e verificato (build+read+write+runtime+Hub+monitor). Manca solo l'occhio umano sui pixel.** Rollback istantaneo (togliere 3 env ERP_* da Vercel).
