@@ -529,3 +529,12 @@ Delegato al collaudatore-generale (NON a mano): HR ✅, commesse ✅, sales 🟡
 - **Sales perimetro "leak"**: FALSO ALLARME — `perimetro.ts` è codice morto (0 usi); la route viva filtra già per sede (`utentiPerSede`). Nessun leak prod. (Lezione: anche il verdetto dello specialista è un candidato → verificato.)
 - **/api/health ERP-aware**: sales/qcont/hr/fia ora controllano bqyqr (ERP_SUPABASE_URL); commesse lasciata (multi-sorgente by-design). Push main.
 - **Gialli DB → custode-db-pulito (delega)**: 78→92/100, 0 dure. 6 PK aggiunte, 56 FK blindate (0 orfani, NOT VALID+VALIDATE), soft-link documentati. Reversibile (rollback-2026-06-30.sql). Restano 4 warning legittimi.
+
+### ✅ FLIP CDG → bqyqr (30/06 16:44 UTC)
+- **CDG flipped**: `ERP_SUPABASE_URL=bqyqr`, `ERP_SUPABASE_SERVICE_ROLE_KEY=bqyqr`, `ERP_SUPABASE_SCHEMA=cdg` su Vercel CDG (`prj_SoJQJtjfivoL7YjQWz73XEeYyDDB`).
+- **Cross-read helper**: `apps/cdg/lib/cross-client.ts` (factory schema-aware per QCONT/SALES/HR); 13 route migrate (PR commit `82271251` su main). Env var QCONT/SALES/HR → bqyqr + schema app_qcont/app_sales/app_hr.
+- **Health check**: `/api/health` → `{status:"ok", db:{status:"ok"}}` su bqyqr's `cdg` schema. ✅
+- **CDG cron sync-consuntivo** (03:15): gira automaticamente su bqyqr da stanotte. Anchor doppio-binario `cdg.conto_periodo` in DRIFT atteso (48 righe, €62k) — converge dopo la 1ª run notturna.
+- **Doppio-binario fix**: anchor Sales corretto da `commerciale.opportunita` → `app_sales.opportunita` (falso allarme era derivazione ERP, non lo store operativo). Sales ora 15826=15826 ✅.
+- **Stato doppio-binario post-flip**: QCONT 4/4 ok, SALES 2/2 ok, CDG 0/2 ok (drift atteso-stanotte). Gate 2 = CDG verde dopo run cron + 3 giorni stabili.
+
