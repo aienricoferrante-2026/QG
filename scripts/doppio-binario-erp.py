@@ -46,8 +46,9 @@ ANCHORS = [
  ("contabilita","fornitore",     QCONT,"select count(*) from public.anagrafica","select count(*) from contabilita.fornitore_ext"),
  ("cdg","conto_periodo",         CDG,  "select count(*) from public.conto_periodo","select count(*) from cdg.conto_periodo"),
  ("cdg","sum_importo",           CDG,  "select round(sum(importo)::numeric,2) from public.conto_periodo","select round(sum(importo)::numeric,2) from cdg.conto_periodo"),
- ("commerciale","opportunita",   SALES,"select count(*) from public.opportunita","select count(*) from commerciale.opportunita"),
- ("commerciale","deal",          SALES,"select count(*) from public.deal","select count(*) from commerciale.deal"),
+ # app_sales = schema operativo SALES su bqyqr (commerciale.opportunita è la derivazione ERP, non il confronto giusto)
+ ("app_sales","opportunita",   SALES,"select count(*) from public.opportunita","select count(*) from app_sales.opportunita"),
+ ("app_sales","deal",          SALES,"select count(*) from public.deal","select count(*) from app_sales.deal"),
 ]
 
 dettaglio, ok_n, drift_n = [], 0, 0
