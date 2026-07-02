@@ -36,7 +36,7 @@ def q(ref, sql):
     return None
 
 # refs sorgente
-QCONT="eqprzkdehxustaoeeaoy"; CDG="oentbubusaihnopbqget"; SALES="vqtqccnbwkslbnxlfskk"
+QCONT="eqprzkdehxustaoeeaoy"; CDG="oentbubusaihnopbqget"; SALES="vqtqccnbwkslbnxlfskk"; HR="hsoovytrzxcllbawpvwt"
 
 # ancore: (dominio, etichetta, ref_sorgente, sql_sorgente, sql_bqyqr)
 ANCHORS = [
@@ -49,6 +49,17 @@ ANCHORS = [
  # app_sales = schema operativo SALES su bqyqr (commerciale.opportunita è la derivazione ERP, non il confronto giusto)
  ("app_sales","opportunita",   SALES,"select count(*) from public.opportunita","select count(*) from app_sales.opportunita"),
  ("app_sales","deal",          SALES,"select count(*) from public.deal","select count(*) from app_sales.deal"),
+ # HR (02/07): nucleo hr.* + tabelle proprie app_hr — dopo delta-sync devono restare a 0 drift
+ ("hr","dipendenti",           HR,"select count(*) from public.dipendenti","select count(*) from hr.dipendenti"),
+ ("hr","mansioni",             HR,"select count(*) from public.mansioni","select count(*) from hr.mansioni"),
+ ("hr","mansioni_dipendente",  HR,"select count(*) from public.mansioni_dipendente","select count(*) from hr.mansioni_dipendente"),
+ ("hr","funzioni_aziendali",   HR,"select count(*) from public.funzioni_aziendali","select count(*) from hr.funzioni_aziendali"),
+ ("hr","sedi",                 HR,"select count(*) from public.sedi","select count(*) from hr.sedi"),
+ ("hr","societa_hr",           HR,"select count(*) from public.societa","select count(*) from hr.societa"),
+ ("hr","commesse_hr",          HR,"select count(*) from public.commesse","select count(*) from hr.commesse"),
+ ("hr","dip_fa",               HR,"select count(*) from public.dipendente_funzione_aziendale","select count(*) from app_hr.dipendente_funzione_aziendale"),
+ ("hr","org_assegnazione",     HR,"select count(*) from public.organigramma_assegnazione","select count(*) from hr.organigramma_assegnazione"),
+ ("hr","audit_log",            HR,"select count(*) from public.audit_log","select count(*) from app_hr.audit_log"),
 ]
 
 dettaglio, ok_n, drift_n = [], 0, 0
