@@ -55,7 +55,7 @@ Volumi G1: 58 righe totali (wiki 12, attivita_esclusa 42, onb_modelli 1, utenti_
 - **Fix tipi**: canali/campi_mancanti/tipologia_ente_pubblico erano text(JSON) → riconvertiti a text[] (viste droppate/ricreate) — `fia-types-fix.sql`.
 - Delta-sync (`fia-delta-sync-erp.py`, tip-aware jsonb/array, app_plans key=nome): **15/15 ALLINEATE** (incentivi 4590, ai_valutazioni 317, geo 107, scraping 17, fonti 10, utenti 3…).
 - Insert-test via viste (incentivi, ai_valutazioni, fonti, app_organizations) ✅ in rollback.
-- **Flip FIA** = stesso runbook F9 su progetto `qualifica-fia-bandi` (env ERP_SUPABASE_SCHEMA=app_fia); collaudo: lista bandi, dettaglio+valutazione AI, filtri canali (array!), ricerca titolo (trgm), cron valuta-nuovi.
+- **✅ FLIPPATA E VERIFICATA IN PRODUZIONE 02/07 pomeriggio** (non app-soldi → nessun gate co-pilot): env ERP_* aggiunte + redeploy; prod 307; cron valuta-nuovi **`ok:true, valutati:8/8`** = lettura incentivi + scrittura ai_valutazioni su app_fia dal vivo, con AI. Fix bonus: ANTHROPIC_API_KEY invalida dal ~30/05 (chiave ISO copiata su FIA prod+locale; anche bp/.env ce l'ha invalida). Rollback se serve: rimozione env ERP_* (2′).
 
 ## 5. Rischi principali
 1. Trigger portati male → rompono scritture di ALTRE app flippate sul nucleo → mitigo: schema-qualify + test per trigger + F8.
