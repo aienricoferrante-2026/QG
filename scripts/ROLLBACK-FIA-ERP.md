@@ -1,4 +1,13 @@
-# ROLLBACK FIA (fia-bandi) ERP → oawroqmqepwcndcbvnba (02/07/2026)
+# ⚠️ SUPERATO — FIA RI-FLIPPATA SU ERP il 02/07 pomeriggio (vedi sotto)
+# Dopo il completamento parità (PIANO-CUTOVER-HR-100.md §4): env ERP_* ri-aggiunte
+# a qualifica-fia-bandi + redeploy. VERIFICA LIVE: prod 307, cron valuta-nuovi
+# ok:true totale:8 letti da app_fia (round-trip DB reale in produzione).
+# BONUS: fixata ANTHROPIC_API_KEY invalida (pre-esistente, 401 dal ~30/05):
+# copiata la chiave funzionante di ISO su FIA prod+locale. Anche apps/bp/.env
+# ha una chiave invalida (non toccata: prod BP non verificata rotta).
+# Rollback se serve: rimuovi le 3 env ERP_* + redeploy (2').
+
+# ROLLBACK FIA (fia-bandi) ERP → oawroqmqepwcndcbvnba (02/07/2026 mattina)
 
 Trovato PROATTIVAMENTE mentre risolvevo l'incidente HR (stessa causa radice).
 
