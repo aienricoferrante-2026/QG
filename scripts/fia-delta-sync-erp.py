@@ -1,44 +1,24 @@
 #!/usr/bin/env python3
-"""Delta-sync HR: standalone(public) → bqyqr (hr.* / app_hr.* / public.*).
+"""Delta-sync FIA: standalone(public) → bqyqr (hr.* / app_hr.* / public.*).
 Upsert per id (colonne intersecate) + delete righe ERP assenti sullo standalone.
 Idempotente: da rilanciare nella finestra di flip per il delta finale.
 Esclude audit_log (copiato dal job dedicato f4b)."""
 import os, json, urllib.request, urllib.error, time, sys
 
-STD_URL = os.environ["NEXT_PUBLIC_SUPABASE_URL"].rstrip("/")
-STD_KEY = os.environ["SUPABASE_SERVICE_ROLE_KEY"]
+STD_URL = "https://oawroqmqepwcndcbvnba.supabase.co"
+STD_KEY = os.environ["FIA_SERVICE_ROLE_KEY"]
 TOKEN = os.environ["ACCESS_TOKEN_ACCOUNT"]
 ERP = "bqyqrqmbekdhejrzasvv"
 
 # (tabella standalone, schema target su bqyqr)
-# chiave di conflitto se non "id"
-CONFLICT_KEY = {"configurazioni": ["chiave"], "onboarding_alerts_sent": ["dip_step_key","soglia_giorni"]}
-# tabelle da sincronizzare con TRUNCATE+INSERT (id driftati vs unique naturale); trigger sospesi
-REPLACE_MODE = {"dipendente_funzione_aziendale": ["trg_guard_ultima_fa","tr_sync_dip_fa_principale"]}
+CONFLICT_KEY = {"app_plans": ["nome"]}
+REPLACE_MODE = {}
 TABLES = [
-  # nucleo hr (viste app_hr → hr.*)
-  ("societa","hr"),("commesse","hr"),("funzioni_aziendali","hr"),("sedi","hr"),
-  ("mansioni","hr"),("dipendenti","hr"),("mansioni_dipendente","hr"),
-  ("organigramma_unita","hr"),("organigramma_ruolo","hr"),("organigramma_assegnazione","hr"),
-  ("costi_personale_periodo","hr"),("allocazioni_costo","hr"),("kpi_master","hr"),
-  # tabelle proprie app_hr
-  ("reparti","app_hr"),("mansione","app_hr"),("attivita","app_hr"),("attivita_mansione","app_hr"),
-  ("dipendente_funzione_aziendale","app_hr"),("dipendente_mansione","app_hr"),
-  ("dipendente_attivita_esclusa","app_hr"),("documenti_master","app_hr"),("documenti_assegnati","app_hr"),
-  ("corsi_master","app_hr"),("richieste","app_hr"),("presenze","app_hr"),("notifiche","app_hr"),
-  ("configurazioni","app_hr"),("commessa_progetto","app_hr"),("organigramma_audit","app_hr"),
-  ("qnet_import_log","app_hr"),("hr_qnet_sync_log","app_hr"),
-  ("import_allocazioni_batch","app_hr"),("import_costi_batch","app_hr"),
-  ("onboarding_dipendente","app_hr"),("onboarding_dipendente_step","app_hr"),("onboarding_step","app_hr"),
-  ("onboarding_alerts_sent","app_hr"),
-  # 13 nuove
-  ("competenze","app_hr"),("competenze_dipendente","app_hr"),("competenze_mansione","app_hr"),
-  ("contenuti_wiki","app_hr"),("corsi_assegnati","app_hr"),("kpi_compilati","app_hr"),
-  ("mansioni_dipendente_attivita_esclusa","app_hr"),("onboarding_modelli","app_hr"),
-  ("onboarding_step_completamenti","app_hr"),("utenti_cancellati","app_hr"),
-  ("voce_extra_mese","app_hr"),("voci_extra_mese","app_hr"),("segnatempo","app_hr"),
-  # condivise in public
-  ("entita_nota","public"),
+  ("incentivi","fia"),("ai_valutazioni","fia"),("fonti","fia"),("geo_province_istat","fia"),
+  ("ai_variazioni","app_fia"),("app_audit_logs","app_fia"),("app_bando_tag_history","app_fia"),
+  ("app_bando_tags","app_fia"),("app_organization_invites","app_fia"),("app_organization_members","app_fia"),
+  ("app_organizations","app_fia"),("app_plans","app_fia"),("app_user_column_preferences","app_fia"),
+  ("scraping_reports","app_fia"),("utenti","app_fia"),
 ]
 
 def rest_get(table, offset, batch=500, order="id.asc"):

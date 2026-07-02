@@ -48,8 +48,14 @@ Volumi G1: 58 righe totali (wiki 12, attivita_esclusa 42, onb_modelli 1, utenti_
 4. Collaudo live (con Enrico): crea+elimina mansione di prova; scheda dipendente; assegna FA (RPC); organigramma; wiki; upload documento (bucket!); voci extra; audit page; attesa 5′ → cron qnet-sync scrive su hr_qnet_sync_log senza errori.
 5. Se qualsiasi cosa storta → rollback 2′: rimuovi le 3 env + redeploy (procedura collaudata 2 volte).
 
-## 4. FIA (cantiere 2, stesso metodo)
-app_fia: 10 tabelle base con id senza default + inventario codice/oggetti da fare ex-novo (app esterna importata). Solo dopo HR.
+## 4. FIA — ✅ COMPLETATA 02/07 (stesso metodo, pronta al flip)
+- Inventario codice: 4 relazioni usate (incentivi, ai_valutazioni, v_fonti_stato, fonti), 0 RPC, 0 storage, 2 cron. **Scraper esterno FERMO dal 30/05** (0 report 7gg) → nessun drift-writer attivo.
+- Architettura: app_fia = 4 viste su nucleo `fia.*` + 11 tabelle proprie + v_fonti_stato.
+- Parità applicata (`fia-parity.sql`, generata da introspezione automatica): 60 default (enum→text), 15 PK, 12 FK (11 FK verso auth.users SKIPPATE: utenti bqyqr diversi — nota), 50 indici, pg_trgm installata + indice ricerca, identity sui 4 serial, RLS 15/15, funzione+2 trigger `aggiornata_il`.
+- **Fix tipi**: canali/campi_mancanti/tipologia_ente_pubblico erano text(JSON) → riconvertiti a text[] (viste droppate/ricreate) — `fia-types-fix.sql`.
+- Delta-sync (`fia-delta-sync-erp.py`, tip-aware jsonb/array, app_plans key=nome): **15/15 ALLINEATE** (incentivi 4590, ai_valutazioni 317, geo 107, scraping 17, fonti 10, utenti 3…).
+- Insert-test via viste (incentivi, ai_valutazioni, fonti, app_organizations) ✅ in rollback.
+- **Flip FIA** = stesso runbook F9 su progetto `qualifica-fia-bandi` (env ERP_SUPABASE_SCHEMA=app_fia); collaudo: lista bandi, dettaglio+valutazione AI, filtri canali (array!), ricerca titolo (trgm), cron valuta-nuovi.
 
 ## 5. Rischi principali
 1. Trigger portati male → rompono scritture di ALTRE app flippate sul nucleo → mitigo: schema-qualify + test per trigger + F8.
