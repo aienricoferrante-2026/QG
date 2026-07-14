@@ -116,42 +116,38 @@ function splitRecord(rec, fixedCols, dateCols) {
   return { cols, meta };
 }
 
-/* ── Supabase ───────────────────────────────────────────────────────────── */
-async function upsertBatch(table, records, conflictCols) {
-  const cfg = window.STW_ADMIN;
-  const url = `${cfg.supabaseUrl}/rest/v1/${table}?on_conflict=${encodeURIComponent(conflictCols)}`;
-  const resp = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'apikey': cfg.serviceKey,
-      'Authorization': `Bearer ${cfg.serviceKey}`,
-      'Content-Type': 'application/json',
-      'Prefer': 'resolution=merge-duplicates,return=minimal',
-    },
-    body: JSON.stringify(records),
-  });
-  if (!resp.ok) {
-    const txt = await resp.text();
-    throw new Error(`HTTP ${resp.status} · ${txt.substring(0, 200)}`);
+/* ── Scrittura via PROXY server-side (hub) ──────────────────────────────── */
+// Niente più service_role client-side: le scritture passano dall'endpoint hub
+// (/api/stw-import) che tiene la service_role di bqyqr SOLO server-side.
+// Il token NON è nel repo: lo chiediamo al Master una volta (sessionStorage).
+function getImportToken() {
+  let t = sessionStorage.getItem('stw_import_token');
+  if (!t) {
+    t = (prompt('Token di importazione (fornito dalla direzione):') || '').trim();
+    if (t) sessionStorage.setItem('stw_import_token', t);
   }
+  return t;
 }
 
-async function writeImportLog({ bu, tabella, filename, righe, righe_ok, righe_err }) {
+// Invia un blocco di record al proxy. `table` ∈ {commesse, offerte}.
+// Il proxy fa upsert su bqyqr.stw (rename bu→fa_codice lato-server) e logga
+// in stw.import_log. Ritorna { ok, table, upserted, errors }.
+async function sendToProxy(table, records, { filename, bu }) {
   const cfg = window.STW_ADMIN;
-  const resp = await fetch(`${cfg.supabaseUrl}/rest/v1/import_log`, {
+  const token = getImportToken();
+  if (!token) throw new Error('token di importazione mancante');
+  const resp = await fetch(cfg.proxyUrl, {
     method: 'POST',
-    headers: {
-      'apikey': cfg.serviceKey,
-      'Authorization': `Bearer ${cfg.serviceKey}`,
-      'Content-Type': 'application/json',
-      'Prefer': 'return=minimal',
-    },
-    body: JSON.stringify({ bu, tabella, filename, righe, righe_ok, righe_err }),
+    headers: { 'Content-Type': 'application/json', 'x-admin-import-token': token },
+    body: JSON.stringify({ table, records, filename, bu }),
   });
-  if (!resp.ok) {
-    const txt = await resp.text();
-    throw new Error(`HTTP ${resp.status} · ${txt.substring(0, 120)}`);
+  let body = {};
+  try { body = await resp.json(); } catch { /* no-op */ }
+  if (resp.status === 401) { sessionStorage.removeItem('stw_import_token'); throw new Error('token non valido (401) — reinserisci e riprova'); }
+  if (!resp.ok && resp.status !== 207) {
+    throw new Error(`HTTP ${resp.status} · ${body.error || ''} ${(body.errors || []).join('; ')}`.substring(0, 200));
   }
+  return body;
 }
 
 /* ── STEP 1: Parse file (senza caricare) ───────────────────────────────── */
@@ -368,20 +364,30 @@ async function confirmUpload() {
     }
 
     const routeLabel = route.label || route.table + (route.bu ? ` (${route.bu})` : '');
-    const conflict = route.table === 'commesse' ? 'bu,id' : 'id';
     let ok = 0, err = 0;
     const errors = [];
 
-    for (let i = 0; i < records.length; i += 500) {
-      const batch = records.slice(i, i + 500);
+    // v1: solo commesse/offerte passano dal proxy. opportunita_for è escluso
+    // (ha già owner Qnet-sync) — vedi RUNBOOK_PROXY_ADMIN_STW.md · G-DECISION-OPP.
+    if (route.table !== 'commesse' && route.table !== 'offerte') {
+      li.innerHTML = `<span style="color:#f59e0b">⚠ ${file.name} · ${routeLabel} non supportato dal nuovo flusso (in valutazione) — saltato</span>`;
+      totSkip++;
+      continue;
+    }
+
+    const CHUNK = 20000; // limite del proxy per chiamata
+    for (let i = 0; i < records.length; i += CHUNK) {
+      const batch = records.slice(i, i + CHUNK);
       li.innerHTML = `<span style="color:#06b6d4">⏳ ${file.name} → ${routeLabel} · ${ok + batch.length}/${records.length} caricati…</span>`;
       try {
-        await upsertBatch(route.table, batch, conflict);
-        ok += batch.length;
+        const res = await sendToProxy(route.table, batch, { filename: file.name, bu: route.bu || null });
+        const up = res.upserted ?? batch.length;
+        ok += up;
+        if (Array.isArray(res.errors) && res.errors.length) { errors.push(...res.errors); err += batch.length - up; }
       } catch (e) {
         err += batch.length;
         errors.push(e.message);
-        diagLog(`  ERR batch ${i}: ${e.message}`);
+        diagLog(`  ERR chunk ${i}: ${e.message}`);
       }
     }
 
@@ -396,29 +402,14 @@ async function confirmUpload() {
     totOk += ok; totErr += err;
     diagLog(`◀ ${file.name}: ${ok} ok, ${err} err`);
 
-    try {
-      await writeImportLog({
-        bu: route.bu || route.table,
-        tabella: route.table,
-        filename: file.name,
-        righe: rows.length,
-        righe_ok: ok,
-        righe_err: err,
-      });
-    } catch (e) {
-      diagLog(`  ⚠ import_log non scritto: ${e.message}`);
-    }
+    // L'audit (stw.import_log) è scritto lato-server dal proxy per ogni chiamata.
   }
 
   summaryEl.innerHTML =
     `<b>✅ Caricamento completato.</b> ${totOk.toLocaleString('it-IT')} record su Supabase · ${totErr} errori · ${totSkip} saltati.` +
-    `<div style="margin-top:8px;padding:10px;background:rgba(245,158,11,.08);border-left:3px solid #f59e0b;border-radius:4px;color:var(--text2);font-size:11px">` +
-    `⚠ <b>Le dashboard leggono i JSON statici committati nel repo.</b> Per aggiornare le dashboard:` +
-    `<ol style="margin:6px 0 0 18px;line-height:1.7">` +
-    `<li>Esegui <code>python3 tools/regenerate_json_from_supabase.py</code></li>` +
-    `<li><code>git add data/ && git commit -m "Update dati" && git push</code></li>` +
-    `<li>Aspetta 1-2 min che GitHub Pages aggiorni</li>` +
-    `</ol></div>`;
+    `<div style="margin-top:8px;padding:10px;background:rgba(16,185,129,.08);border-left:3px solid #10b981;border-radius:4px;color:var(--text2);font-size:11px">` +
+    `✓ <b>Dati scritti su bqyqr (schema stw) via proxy sicuro.</b> Le dashboard di settore leggono LIVE dal DB: aggiornamento immediato, nessuno script/commit necessario.` +
+    `</div>`;
 
   // Riabilita drop zone
   document.getElementById('dropZone').style.opacity = '';
@@ -488,21 +479,19 @@ async function handleFiles(fileList) {
 /* ── Statistiche ────────────────────────────────────────────────────────── */
 async function loadStats() {
   const cfg = window.STW_ADMIN;
-  const url = `${cfg.supabaseUrl}/rest/v1/`;
-  async function count(table) {
-    try {
-      const r = await fetch(`${url}${table}?select=id`, {
-        method: 'HEAD',
-        headers: { 'apikey': cfg.anonKey, 'Authorization': `Bearer ${cfg.anonKey}`, 'Prefer': 'count=exact' },
-      });
-      const cr = r.headers.get('content-range');
-      return cr ? parseInt(cr.split('/').pop()) : 0;
-    } catch { return 0; }
+  const setTxt = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  const token = sessionStorage.getItem('stw_import_token');
+  if (!token) { setTxt('statCommesse', '—'); setTxt('statOfferte', '—'); setTxt('statOpp', '—'); return; }
+  try {
+    const r = await fetch(`${cfg.proxyUrl}?stats=1`, { headers: { 'x-admin-import-token': token } });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const s = await r.json();
+    setTxt('statCommesse', (s.commesse ?? 0).toLocaleString('it-IT'));
+    setTxt('statOfferte', (s.offerte ?? 0).toLocaleString('it-IT'));
+    setTxt('statOpp', '—'); // opportunita_for fuori scope v1 (owner Qnet-sync)
+  } catch {
+    setTxt('statCommesse', '—'); setTxt('statOfferte', '—'); setTxt('statOpp', '—');
   }
-  const [comm, off, opp] = await Promise.all([count('commesse'), count('offerte'), count('opportunita_for')]);
-  document.getElementById('statCommesse').textContent = comm.toLocaleString('it-IT');
-  document.getElementById('statOfferte').textContent = off.toLocaleString('it-IT');
-  document.getElementById('statOpp').textContent = opp.toLocaleString('it-IT');
 }
 
 /* ── Popola selettore BU ────────────────────────────────────────────────── */

@@ -1,14 +1,13 @@
-/* Config dashboard ADMIN · Supabase qualifica-stw
-   ATTENZIONE: la SERVICE_ROLE key è visibile nel sorgente lato client.
-   Questa è una protezione "casual" (auth Master), non sicurezza vera.
-   Per sicurezza reale serve un proxy server-side (Vercel function).
+/* Config dashboard ADMIN · scrittura via PROXY server-side (hub)
+   RE-CABLAGGIO 15/07 (#6): niente più service_role/anon esposte qui.
+   Le scritture passano da /api/stw-import (hub, Vercel) che tiene la
+   service_role SOLO server-side e scrive su bqyqr.stw (commesse/offerte).
+   Il token d'import NON è nel repo: lo inserisce il Master una volta
+   (sessionStorage). Vedi MAPPA_DB_bqyqr/RUNBOOK_PROXY_ADMIN_STW.md.
 */
 window.STW_ADMIN = {
-  supabaseUrl: 'https://odjwvqabxkkpyblghruv.supabase.co',
-  // ANON key per le letture (RLS policy: SELECT libero)
-  anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9kand2cWFieGtrcHlibGdocnV2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwNTg3MzYsImV4cCI6MjA5NDYzNDczNn0.KGLBChnozVzuCSDtPYHVkVk7tPzBwMo6JudKDYxv8Ys',
-  // SERVICE ROLE key per le scritture (esposta — protetta da auth Master)
-  serviceKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9kand2cWFieGtrcHlibGdocnV2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTA1ODczNiwiZXhwIjoyMDk0NjM0NzM2fQ.haV4laiJDShga22OAshuRXcSxne1j9PO4gV8HpyHWlw',
+  // Endpoint proxy server-side (hub) — unica via di scrittura
+  proxyUrl: 'https://qualifica-wea-hub.vercel.app/api/stw-import',
   // Riusa l'hash Master di passwords.html
   masterUser: 'direzione@qualificagroup.it',
   masterHash: '6350fc4943f63230ae6eb49a270d197f41563e52612f1500a7c79f47c40830ef',
