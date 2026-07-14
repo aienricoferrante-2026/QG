@@ -9,3 +9,7 @@ dashboard_offerte.html
 .env
 .env.*
 !.env.example
+
+# virtualenv (mai committare: symlink assoluti rompono GitHub Pages)
+.venv/
+**/.venv/
