@@ -131,15 +131,18 @@ const _CORE_DATA_URL = (window.SECTOR_CONFIG && window.SECTOR_CONFIG.dataFile) |
 // Attivabile con SECTOR_CONFIG.liveSupabase = true. Legge le commesse fresche
 // dal DB invece del JSON statico. Se fallisce o torna vuoto → fallback al JSON,
 // così la dashboard non si rompe mai. Usa la chiave anon (sola lettura, RLS).
-const _SUPA_URL = 'https://odjwvqabxkkpyblghruv.supabase.co';
-const _SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9kand2cWFieGtrcHlibGdocnV2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwNTg3MzYsImV4cCI6MjA5NDYzNDczNn0.KGLBChnozVzuCSDtPYHVkVk7tPzBwMo6JudKDYxv8Ys';
+// RE-CABLAGGIO 14/07: i dati STW sono migrati nel DB unico bqyqr (schema `stw`);
+// odjw (`odjwvqabxkkpyblghruv`) è in dismissione. Anon + RLS-permissiva come prima.
+const _SUPA_URL = 'https://bqyqrqmbekdhejrzasvv.supabase.co';
+const _SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJxeXFycW1iZWtkaGVqcnphc3Z2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwNTczNzQsImV4cCI6MjA5NDYzMzM3NH0.L2-lpdBku-zbNJlBwfCCxPzkV-i9B7_bFTWdTGiA6RE';
+const _SUPA_SCHEMA = 'stw';
 
 function _snakeToCamel(s) { return s.replace(/_([a-z])/g, (_, c) => c.toUpperCase()); }
 
 function _rowToCommessa(row) {
   const out = {};
   for (const k in row) {
-    if (k === 'meta' || k === 'bu' || k === 'imported_at') continue;
+    if (k === 'meta' || k === 'fa_codice' || k === 'imported_at') continue;
     out[_snakeToCamel(k)] = row[k];
   }
   // I campi BU-specifici stanno in meta (JSONB) → spread sopra
@@ -153,10 +156,11 @@ async function _loadCommesseLive(bu) {
   const PAGE = 1000;
   let from = 0, tutte = [];
   for (let giro = 0; giro < 100; giro++) {   // safety cap: 100.000 righe
-    const url = `${_SUPA_URL}/rest/v1/commesse?bu=eq.${encodeURIComponent(bu)}&select=*`;
+    const url = `${_SUPA_URL}/rest/v1/commesse?fa_codice=eq.${encodeURIComponent(bu)}&select=*`;
     const r = await fetch(url, {
       headers: {
         apikey: _SUPA_ANON, Authorization: `Bearer ${_SUPA_ANON}`,
+        'Accept-Profile': _SUPA_SCHEMA,
         Range: `${from}-${from + PAGE - 1}`, 'Range-Unit': 'items',
       },
     });
